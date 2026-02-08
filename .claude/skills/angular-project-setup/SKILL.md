@@ -38,10 +38,5 @@ Before proceeding:
       status = 200
    ```
 
-## Post-Installation
-After complete:
-1. Ensure prettier is installed using the `install-prettier` skill.
-2. For further Angular development tasks (generating components, services, implementing features), use the `angular-frontend-developer` agent.
-
 ## Additional resources
 - Refer to the Angular documentation if you need help: https://angular.io/docs
