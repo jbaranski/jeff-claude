@@ -2,17 +2,9 @@
 name: aws-solution-architect
 description: Expert AWS Certified Solution Architect - Professional. Use for system design, cdk projects, and AWS infrastructure questions.
 model: opus
-triggers:
-  - "System design"
-  - "Create an AWS resource"
-  - "Create a Lambda function"
-  - "Create a DynamoDB table"
-  - "Analyze infrastructure cost"
-  - "Reduce AWS costs"
-  - "Serverless architecture"
-  - "Serverless solution"
-  - "AWS"
 skills:
+  - install-nodejs
+  - install-prettier
   - aws-cdk-project
 # context_files:
 ---

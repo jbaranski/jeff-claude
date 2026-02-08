@@ -5,6 +5,11 @@ description: Configure or update AWS CDK TypeScript projects with an opinionated
 
 This is an opinionated view for how AWS CDK projects should be configured and maintained.
 
+## Prerequisites
+Before proceeding:
+1. Ensure nvm (Node Version Manager) and Node.js are installed using the `install-nodejs` skill.
+2. Ensure prettier is installed using the `install-prettier` skill.
+
 ## Goals
 - Enforce a single CDK app under `cdk/` at repository root
 - Keep dependencies minimal and deliberate
