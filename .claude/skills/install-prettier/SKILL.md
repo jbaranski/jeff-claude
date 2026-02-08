@@ -30,11 +30,11 @@ Before proceeding, ensure nvm (Node Version Manager) and Node.js are installed u
    ```
 
 5. If a `package.json` file exists in the project root, ensure `prettier:fix` and `prettier:check` are listed as `scripts` command, and if these commands don't exist add them.
-  - ```json
+   ```json
     "scripts":{
       "prettier:fix": "npx prettier --fix ."
       "prettier:check": "npx prettier --check ."
     }
-    ```
+   ```
 
 6. There is no reason to have prettier configuration or dependency (outside of the two `prettier:fix` and `prettier:check` script commands) in `package.json` or any other file. If extra prettier configuration exists in `package.json` or any other file, remove it to avoid confusion and ensure all configuration is in `.prettierrc.json` and `.prettierignore`. This also applies to "nested" `package.json` files in subdirectories (for example projects that have a `client` or `cdk` directory).
