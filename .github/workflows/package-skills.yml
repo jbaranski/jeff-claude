@@ -19,20 +19,32 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create skills and agents package
+      - name: Create individual skill and agent packages
         run: |
-          cd .claude
-          zip -r ../claude-skills-agents.zip skills/ agents/ -x "*.DS_Store"
-          cd ..
+          mkdir -p zip
 
-      - name: Commit package if changed
+          # Package each skill
+          for skill_dir in .claude/skills/*/; do
+            skill_name=$(basename "$skill_dir")
+            cd "$skill_dir"
+            zip -r "$GITHUB_WORKSPACE/zip/${skill_name}.zip" . -x "*.DS_Store"
+            cd "$GITHUB_WORKSPACE"
+          done
+
+          # Package each agent
+          for agent_file in .claude/agents/*.md; do
+            agent_name=$(basename "$agent_file" .md)
+            zip -j "zip/${agent_name}.zip" "$agent_file"
+          done
+
+      - name: Commit skill and agent packages if changed
         run: |-
           git diff
           git config --global user.email "actions@users.noreply.github.com"
           git config --global user.name "JEFF-bot"
-          git add claude-skills-agents.zip
-          if git commit -m "Update skills and agents package [skip-package]"; then
+          git add zip/
+          if git commit -m "Update skill and agent packages [skip-package]"; then
             git push
           else
-            echo "No changes to package"
+            echo "No changes to skill or agent packages"
           fi
