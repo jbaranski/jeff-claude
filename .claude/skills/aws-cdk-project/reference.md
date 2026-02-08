@@ -1,4 +1,5 @@
 # Reference
+
 - AWS CDK TypeScript guide: Working with the AWS CDK in TypeScript - https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-typescript.html
 - AWS CDK Construct Library API: AWS Construct Library API Reference - https://docs.aws.amazon.com/cdk/api/v2/docs/aws-construct-library.html
 - Vitest latest docs: Vitest Documentation - https://vitest.dev/guide/ and https://vitest.dev/api/ and https://vitest.dev/config/

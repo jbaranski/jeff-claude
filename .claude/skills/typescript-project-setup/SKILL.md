@@ -6,7 +6,9 @@ description: Configure or update Node.js TypeScript projects with opinionated be
 This is an opinionated view for how Node.js TypeScript projects should be configured and maintained.
 
 ## Prerequisites
+
 Before proceeding:
+
 1. Ensure nvm (Node Version Manager) and Node.js are installed using the `install-nodejs` skill.
 2. Ensure prettier is installed using the `install-prettier` skill.
 3. Use WebSearch to verify current versions:
@@ -17,6 +19,7 @@ Before proceeding:
    - DO NOT skip this step. DO NOT guess at version numbers.
 
 ## Goals
+
 - Use latest Node.js LTS runtime
 - Enforce strict TypeScript type checking
 - Use ESLint for linting with TypeScript support
@@ -26,7 +29,9 @@ Before proceeding:
 - Make test/lint/build repeatable and auditable
 
 ## Required Layout
+
 ### Project Structure
+
 ```
 project-root/
 ├── src/
@@ -48,6 +53,7 @@ project-root/
 ## Configuration Files
 
 ### package.json
+
 ```json
 {
   "name": "project-name",
@@ -90,7 +96,9 @@ project-root/
 ```
 
 ### tsconfig.json
+
 Main TypeScript configuration with strict settings:
+
 ```json
 {
   "compilerOptions": {
@@ -120,7 +128,9 @@ Main TypeScript configuration with strict settings:
 ```
 
 ### tsconfig.build.json
+
 Separate configuration for production builds:
+
 ```json
 {
   "extends": "./tsconfig.json",
@@ -134,6 +144,7 @@ Separate configuration for production builds:
 ```
 
 ### .eslintrc.json
+
 ```json
 {
   "parser": "@typescript-eslint/parser",
@@ -163,6 +174,7 @@ Separate configuration for production builds:
 ```
 
 ### vitest.config.ts
+
 ```typescript
 import { defineConfig } from 'vitest/config';
 
@@ -173,13 +185,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'json'],
-      exclude: [
-        'node_modules/',
-        'dist/',
-        'tests/',
-        '**/*.test.ts',
-        '**/*.config.ts'
-      ],
+      exclude: ['node_modules/', 'dist/', 'tests/', '**/*.test.ts', '**/*.config.ts'],
       thresholds: {
         lines: 80,
         functions: 80,
@@ -192,6 +198,7 @@ export default defineConfig({
 ```
 
 ### .gitignore
+
 ```
 # Dependencies
 node_modules/
@@ -231,6 +238,7 @@ npm-debug.log*
 ## Project Setup Commands
 
 ### Initialize Project
+
 ```bash
 # Create project directory
 mkdir project-name && cd project-name
@@ -255,6 +263,7 @@ touch src/index.ts tests/example.test.ts
 ```
 
 ### Common Commands
+
 ```bash
 # Development with hot reload
 npm run dev
@@ -282,6 +291,7 @@ npm run lint && npm run format:check && npm run typecheck && npm run test:run
 ```
 
 ## Testing Requirements
+
 - Use Vitest for all tests
 - Tests must live in `tests/` directory
 - Minimum 80% code coverage required
@@ -289,6 +299,7 @@ npm run lint && npm run format:check && npm run typecheck && npm run test:run
 - Tests must be runnable via `npm test`
 
 ### Example Test
+
 ```typescript
 // tests/example.test.ts
 import { describe, it, expect } from 'vitest';
@@ -310,6 +321,7 @@ describe('add', () => {
 ```
 
 ### Example Source
+
 ```typescript
 // src/lib/example.ts
 export function add(a: number, b: number): number {
@@ -318,6 +330,7 @@ export function add(a: number, b: number): number {
 ```
 
 ## Code Quality Standards
+
 - All code must pass `npm run lint` with no errors
 - All code must be formatted with Prettier
 - All code must pass `npm run typecheck` with no errors
@@ -327,7 +340,9 @@ export function add(a: number, b: number): number {
 - Handle promises properly (no floating promises)
 
 ## GitHub Actions
+
 Create `.github/workflows/ci.yml`:
+
 ```yaml
 name: CI
 
@@ -369,6 +384,7 @@ jobs:
 ```
 
 ## Best Practices
+
 - Keep dependencies minimal
 - Use `type: "module"` in package.json for ESM
 - Pin dependency versions for reproducibility
@@ -379,14 +395,18 @@ jobs:
 - Export types from your library's main entry point
 
 ## For Library Projects
+
 If building a library (not an application):
+
 - Set `"main"` and `"types"` in package.json
 - Build declaration files with `"declaration": true`
 - Consider dual ESM/CJS exports if needed
 - Test your library as a consumer would use it
 
 ## For Backend/API Projects
+
 If building a backend API:
+
 - Use environment variables for configuration
 - Add request validation
 - Use structured logging (pino, winston)
@@ -403,10 +423,7 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-l
 const logger = new Logger({ serviceName: 'userService' });
 const tracer = new Tracer({ serviceName: 'userService' });
 
-export const handler = async (
-  event: APIGatewayProxyEvent,
-  context: Context
-): Promise<APIGatewayProxyResult> => {
+export const handler = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   logger.addContext(context);
 
   logger.info('Processing request', { requestId: context.requestId });
@@ -431,6 +448,7 @@ export const handler = async (
 ```
 
 ### Key Powertools Features
+
 - **Logger**: Structured JSON logging with context injection
 - **Tracer**: X-Ray tracing for debugging and performance (normally disabled, enable when explicitly needed)
 - **Event Handler**: Type-safe routing for API Gateway, ALB, Lambda Function URLs, AppSync - handles multiple routes
@@ -438,6 +456,7 @@ export const handler = async (
 - **Idempotency**: Built-in idempotency handling
 
 ### Lambda Best Practices for TypeScript
+
 - Keep functions small and focused (single responsibility)
 - Use environment variables for configuration
 - Optimize for cold starts (minimize dependencies, avoid lazy loading, keep imports at top)
@@ -459,16 +478,14 @@ import { Logger } from '@aws-lambda-powertools/logger';
 
 const logger = new Logger();
 
-export const handler = async (
-  event: APIGatewayProxyEventV2
-): Promise<APIGatewayProxyResultV2> => {
+export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   const path = event.rawPath || event.requestContext.http.path;
   const method = event.requestContext.http.method;
 
   logger.info('Request received', { path, method });
 
   // Parse body once
-  let body: any;
+  let body: unknown;
   try {
     body = event.body ? JSON.parse(event.body) : {};
   } catch {
@@ -493,7 +510,7 @@ async function handleGetUsers(): Promise<APIGatewayProxyResultV2> {
   return { statusCode: 200, body: JSON.stringify({ users: [] }) };
 }
 
-async function handleCreateUser(body: any): Promise<APIGatewayProxyResultV2> {
+async function handleCreateUser(body: unknown): Promise<APIGatewayProxyResultV2> {
   // Implementation
   return { statusCode: 201, body: JSON.stringify({ user: body }) };
 }
@@ -535,6 +552,7 @@ export const handler = (event: APIGatewayProxyEvent, context: Context): Promise<
 **Note:** Having 10+ routes in a single Lambda suggests poor function design. Lambda functions should be small and focused. Consider splitting into separate functions or using API Gateway to route to different Lambdas.
 
 ### Installing Powertools
+
 ```bash
 # Core utilities (always install these)
 npm install @aws-lambda-powertools/logger @aws-lambda-powertools/tracer
@@ -545,6 +563,7 @@ npm install -D @types/aws-lambda
 ```
 
 ## Additional Resources
+
 - TypeScript Documentation: https://www.typescriptlang.org/docs/
 - TypeScript ESLint: https://typescript-eslint.io/
 - Vitest Documentation: https://vitest.dev/

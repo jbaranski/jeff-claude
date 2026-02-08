@@ -66,6 +66,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Use the `inject()` function instead of constructor injection
 
 ## CSS Styling
+
 Use the Tailwind CSS framework, and do not use any other CSS framework.
 
 - Utility-First: Only use Tailwind utility classes; do not write custom CSS in a `<style>` block
@@ -93,6 +94,7 @@ You are pragmatic about using third-party libraries and dependencies.
 - Keep dependencies updated
 
 ## Documentation references
+
 - Angular best practices: https://angular.dev/assets/context/best-practices.md
 - Angular style guide: https://angular.dev/style-guide
 - Angular llms.txt: https://angular.dev/llms.txt

@@ -16,5 +16,6 @@ description: Install the latest LTS (Long Term Support) version of Node.js using
    - Run `node --version` to verify it matches the LTS version from step 2.
 
 ## Additional resources
+
 - For complete API details, see [reference.md](reference.md)
 - For usage examples, see [examples.md](examples.md)

@@ -30,6 +30,7 @@ For project setup, structure, testing configuration, and tooling, refer to the `
 - Write self-documenting code with clear variable and function names
 
 ### Example Test Structure
+
 ```python
 import pytest
 from mymodule import calculate_total
@@ -70,6 +71,7 @@ def test_calculate_total_negative_price():
 - Document exceptions in docstrings with "Raises:" section
 
 ### Example
+
 ```python
 def process_file(filepath: str) -> dict:
     """Process a configuration file.
@@ -97,6 +99,7 @@ def process_file(filepath: str) -> dict:
 ## Pythonic Patterns
 
 ### Use comprehensions appropriately
+
 ```python
 # Good - simple transformation
 squares = [x**2 for x in range(10)]
@@ -109,6 +112,7 @@ result = [process(x) for x in items if check(x) and validate(x) for y in x.child
 ```
 
 ### Use context managers for resources
+
 ```python
 # Good
 with open("file.txt") as f:
@@ -120,6 +124,7 @@ with database.transaction():
 ```
 
 ### Use dataclasses for simple data structures
+
 ```python
 from dataclasses import dataclass
 
@@ -132,6 +137,7 @@ class User:
 ```
 
 ### Use enums for constants
+
 ```python
 from enum import Enum
 
@@ -144,6 +150,7 @@ class Status(Enum):
 ## Type Hints
 
 Use type hints extensively:
+
 ```python
 from typing import Optional, Union
 from collections.abc import Sequence
@@ -189,6 +196,7 @@ def lambda_handler(event: APIGatewayProxyEvent, context: LambdaContext) -> dict:
 ```
 
 ### Key Powertools Features
+
 - **Logger**: Structured JSON logging with correlation IDs
 - **Tracer**: X-Ray tracing for debugging and performance (normally this is turned off, you will be explicitly told to enable this)
 - **Metrics**: CloudWatch custom metrics
@@ -197,6 +205,7 @@ def lambda_handler(event: APIGatewayProxyEvent, context: LambdaContext) -> dict:
 - **Parameters**: Easy access to SSM/Secrets Manager
 
 ### Lambda Best Practices
+
 - Keep functions small and focused (single responsibility)
 - Use environment variables for configuration
 - Handle cold starts efficiently (minimize imports, use global scope wisely)
@@ -206,6 +215,7 @@ def lambda_handler(event: APIGatewayProxyEvent, context: LambdaContext) -> dict:
 - Use layers for shared dependencies
 
 When working with other frameworks (if explicitly requested):
+
 - **pydantic**: Data validation using type hints
 - **pandas**: Data manipulation and analysis
 - **httpx**: Modern async HTTP client

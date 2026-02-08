@@ -6,7 +6,9 @@ description: Configure or update Go projects with opinionated best practices usi
 This is an opinionated view for how Go projects should be configured and maintained.
 
 ## Prerequisites
+
 Before proceeding:
+
 1. Check if Go is installed by running `go version`.
    - If not installed on macOS: `brew install go`
    - If not installed on Linux: Download from https://go.dev/dl/
@@ -15,7 +17,12 @@ Before proceeding:
    - macOS: `brew install golangci-lint`
    - Linux: `curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin`
    - Verify: `golangci-lint --version`
-3. Use WebSearch to verify current versions:
+3. Install bc (basic calculator) for coverage threshold checks:
+   - macOS: `brew install bc`
+   - Linux (Ubuntu/Debian): `sudo apt-get install bc`
+   - Linux (RHEL/CentOS): `sudo yum install bc`
+   - Verify: `bc --version`
+4. Use WebSearch to verify current versions:
    - "Go golang latest stable version [current-year]"
    - "golangci-lint latest version [current-year]"
    - Update all version numbers in examples below with verified versions
@@ -23,6 +30,7 @@ Before proceeding:
    - DO NOT skip this step. DO NOT guess at version numbers.
 
 ## Goals
+
 - Use Go modules for dependency management
 - Follow idiomatic Go and Effective Go principles
 - Use golangci-lint for comprehensive linting
@@ -31,9 +39,11 @@ Before proceeding:
 - Make test/lint/build repeatable and auditable
 
 ## Required Layout
+
 ### Project Structure
 
 For applications (with main package):
+
 ```
 project-root/
 ├── cmd/
@@ -57,6 +67,7 @@ project-root/
 ```
 
 For libraries (no main package):
+
 ```
 project-root/
 ├── example.go
@@ -72,6 +83,7 @@ project-root/
 ```
 
 ### Directory Conventions
+
 - `cmd/` - Main applications for this project
 - `internal/` - Private application and library code (cannot be imported by other projects)
 - `pkg/` - Library code that's ok to use by external applications (optional, use sparingly)
@@ -79,12 +91,15 @@ project-root/
 ## Configuration Files
 
 ### go.mod
+
 Initialize with Go modules:
+
 ```bash
 go mod init github.com/username/projectname
 ```
 
 This creates a `go.mod` file:
+
 ```go
 module github.com/username/projectname
 
@@ -96,6 +111,7 @@ require (
 ```
 
 ### .golangci.yml
+
 Comprehensive linting configuration:
 
 ```yaml
@@ -107,30 +123,30 @@ run:
 
 linters:
   enable:
-    - errcheck      # Check for unchecked errors
-    - gosimple      # Simplify code
-    - govet         # Vet examines Go source code
-    - ineffassign   # Detect ineffectual assignments
-    - staticcheck   # Staticcheck is go vet on steroids
-    - unused        # Check for unused constants, variables, functions and types
-    - gofmt         # Check whether code was gofmt-ed
-    - goimports     # Check import statements are formatted
-    - misspell      # Finds commonly misspelled English words
-    - revive        # Fast, configurable, extensible, flexible, and beautiful linter for Go
+    - errcheck # Check for unchecked errors
+    - gosimple # Simplify code
+    - govet # Vet examines Go source code
+    - ineffassign # Detect ineffectual assignments
+    - staticcheck # Staticcheck is go vet on steroids
+    - unused # Check for unused constants, variables, functions and types
+    - gofmt # Check whether code was gofmt-ed
+    - goimports # Check import statements are formatted
+    - misspell # Finds commonly misspelled English words
+    - revive # Fast, configurable, extensible, flexible, and beautiful linter for Go
     - goprintffuncname # Check printf-like function names
-    - unconvert     # Remove unnecessary type conversions
-    - gocritic      # Highly extensible Go linter
-    - gosec         # Inspect source code for security problems
-    - dupl          # Code clone detection
-    - exhaustive    # Check exhaustiveness of enum switch statements
-    - gocyclo       # Computes cyclomatic complexity
-    - godot         # Check if comments end in a period
-    - prealloc      # Find slice declarations that could potentially be preallocated
-    - bodyclose     # Check HTTP response body is closed
-    - nilerr        # Finds code that returns nil even if it checks that error is not nil
-    - nolintlint    # Reports ill-formed or insufficient nolint directives
-    - stylecheck    # Replacement for golint
-    - unparam       # Find unused function parameters
+    - unconvert # Remove unnecessary type conversions
+    - gocritic # Highly extensible Go linter
+    - gosec # Inspect source code for security problems
+    - dupl # Code clone detection
+    - exhaustive # Check exhaustiveness of enum switch statements
+    - gocyclo # Computes cyclomatic complexity
+    - godot # Check if comments end in a period
+    - prealloc # Find slice declarations that could potentially be preallocated
+    - bodyclose # Check HTTP response body is closed
+    - nilerr # Finds code that returns nil even if it checks that error is not nil
+    - nolintlint # Reports ill-formed or insufficient nolint directives
+    - stylecheck # Replacement for golint
+    - unparam # Find unused function parameters
 
 linters-settings:
   gocyclo:
@@ -155,6 +171,7 @@ issues:
 ```
 
 ### Makefile
+
 Common commands for consistency:
 
 ```makefile
@@ -220,6 +237,7 @@ deps:
 ## Project Setup Commands
 
 ### Initialize Project
+
 1. Create project directory: `mkdir project-name && cd project-name`
 2. Initialize Go module: `go mod init github.com/username/project-name`
 3. Create project structure:
@@ -232,6 +250,7 @@ deps:
 6. Initialize git: `git init`
 
 ### Common Commands
+
 Use the Makefile for consistency:
 
 ```bash
@@ -264,6 +283,7 @@ make tidy
 ```
 
 ## Testing Requirements
+
 - Use built-in `go test` for all tests
 - Tests must live alongside code (e.g., `handler.go` → `handler_test.go`)
 - Minimum 80% code coverage required
@@ -271,6 +291,7 @@ make tidy
 - Run tests with race detector: `go test -race`
 
 ### Example Test (Table-Driven)
+
 ```go
 // internal/calculator/calculator.go
 package calculator
@@ -351,6 +372,7 @@ func TestDivide(t *testing.T) {
 ```
 
 ## Code Quality Standards
+
 - All code must pass `golangci-lint run` with no errors
 - All code must be formatted with `gofmt` and `goimports`
 - Follow Effective Go: https://go.dev/doc/effective_go
@@ -360,6 +382,7 @@ func TestDivide(t *testing.T) {
 - Document exported functions, types, and packages
 
 ## GitHub Actions
+
 Create `.github/workflows/ci.yml` for continuous integration:
 
 ```yaml
@@ -424,6 +447,7 @@ jobs:
 ```
 
 ## Best Practices
+
 - Keep dependencies minimal - only add what you truly need
 - Use `go mod tidy` regularly to clean up unused dependencies
 - Never commit `vendor/` directory unless specifically required
@@ -432,6 +456,7 @@ jobs:
 - Use error wrapping with `%w` for error context: `fmt.Errorf("failed to process: %w", err)`
 - Write idiomatic Go - simple and readable over clever
 - Add `.gitignore` with common Go exclusions:
+
   ```
   # Binaries
   *.exe
@@ -463,6 +488,7 @@ jobs:
   ```
 
 ## Idiomatic Go Patterns
+
 - Use short variable names in small scopes
 - Error handling: Check errors explicitly, don't ignore them
 - Use defer for cleanup (closing files, unlocking mutexes)
@@ -473,6 +499,7 @@ jobs:
 - Avoid global state and init() functions when possible
 
 ## Additional Resources
+
 - Official Go documentation: https://go.dev/doc/
 - Effective Go: https://go.dev/doc/effective_go
 - Go Code Review Comments: https://go.dev/wiki/CodeReviewComments

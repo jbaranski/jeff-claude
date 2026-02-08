@@ -6,7 +6,9 @@ description: Configure or update Python projects using uv, ruff, and pytest with
 This is an opinionated view for how Python projects should be configured and maintained.
 
 ## Prerequisites
+
 Before proceeding:
+
 1. Check if `uv` is installed by running `uv --version`.
    - If not installed, install it: `curl -LsSf https://astral.sh/uv/install.sh | sh` (if on macOS Homebrew is an option as well `brew install uv`)
    - Verify installation: `uv --version`
@@ -19,6 +21,7 @@ Before proceeding:
    - DO NOT skip this step. DO NOT guess at version numbers.
 
 ## Goals
+
 - Use uv for Python version management and dependency management
 - Enforce PEP 8 and modern Python best practices
 - Use ruff for fast linting and formatting
@@ -27,7 +30,9 @@ Before proceeding:
 - Make test/lint/format repeatable and auditable
 
 ## Required Layout
+
 ### Project Structure
+
 ```
 project-root/
 ├── src/
@@ -46,6 +51,7 @@ project-root/
 ```
 
 ### Python Version
+
 - Always use the latest stable Python version
 - Create `.python-version` file in project root:
   ```
@@ -56,6 +62,7 @@ project-root/
 ## Configuration Files
 
 ### pyproject.toml
+
 This is the single source of truth for project configuration (PEP 621).
 
 ```toml
@@ -125,6 +132,7 @@ skip_covered = false
 ## Project Setup Commands
 
 ### Initialize Project
+
 1. Create project directory: `mkdir project-name && cd project-name`
 2. Initialize uv project: `uv init`
 3. Create required directories:
@@ -138,6 +146,7 @@ skip_covered = false
 6. Create `pyproject.toml` with configuration above
 
 ### Common Commands
+
 Create a simple script or document these for users:
 
 ```bash
@@ -161,6 +170,7 @@ uv run ruff check . && uv run ruff format --check . && uv run pytest
 ```
 
 ## Testing Requirements
+
 - Use pytest for all tests
 - Tests must live in `tests/` directory
 - Minimum 80% code coverage required
@@ -168,6 +178,7 @@ uv run ruff check . && uv run ruff format --check . && uv run pytest
 - Tests must be runnable via `uv run pytest`
 
 ### Example Test
+
 ```python
 # tests/test_main.py
 import pytest
@@ -187,6 +198,7 @@ def test_example_function_edge_case():
 ```
 
 ## Code Quality Standards
+
 - All code must pass `ruff check` with no errors
 - All code must be formatted with `ruff format`
 - Follow PEP 8 style guide
@@ -194,6 +206,7 @@ def test_example_function_edge_case():
 - Document functions and classes with docstrings (PEP 257)
 
 ## GitHub Actions
+
 Create `.github/workflows/ci.yml` for continuous integration:
 
 ```yaml
@@ -231,6 +244,7 @@ jobs:
 ```
 
 ## Best Practices
+
 - Keep dependencies minimal - only add what you truly need
 - Pin dependency versions in `pyproject.toml` for reproducibility
 - Use virtual environments (uv handles this automatically)
@@ -250,6 +264,7 @@ jobs:
   ```
 
 ## Additional Resources
+
 - uv documentation: https://docs.astral.sh/uv/
 - ruff documentation: https://docs.astral.sh/ruff/
 - pytest documentation: https://docs.pytest.org/

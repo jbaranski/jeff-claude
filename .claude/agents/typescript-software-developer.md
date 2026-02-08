@@ -43,6 +43,7 @@ For project setup, structure, testing configuration, and tooling, refer to the `
 - Use `describe` and `it` blocks for organization
 
 ### Example Test
+
 ```typescript
 import { describe, it, expect, vi } from 'vitest';
 import { UserService } from './user-service';
@@ -63,9 +64,7 @@ describe('UserService', () => {
     it('should throw error for invalid email', async () => {
       const service = new UserService();
 
-      await expect(
-        service.createUser({ email: 'invalid', name: 'Test' })
-      ).rejects.toThrow('Invalid email');
+      await expect(service.createUser({ email: 'invalid', name: 'Test' })).rejects.toThrow('Invalid email');
     });
   });
 });
@@ -74,10 +73,9 @@ describe('UserService', () => {
 ## Type System Best Practices
 
 ### Use Discriminated Unions for State
+
 ```typescript
-type Result<T, E = Error> =
-  | { success: true; data: T }
-  | { success: false; error: E };
+type Result<T, E = Error> = { success: true; data: T } | { success: false; error: E };
 
 function processResult<T>(result: Result<T>): T {
   if (result.success) {
@@ -89,6 +87,7 @@ function processResult<T>(result: Result<T>): T {
 ```
 
 ### Leverage Utility Types
+
 ```typescript
 // Pick specific properties
 type UserPublic = Pick<User, 'id' | 'name' | 'email'>;
@@ -107,6 +106,7 @@ type SuccessResult = Extract<Result, { success: true }>;
 ```
 
 ### Use Generics Effectively
+
 ```typescript
 class Repository<T extends { id: string }> {
   private items: Map<string, T> = new Map();
@@ -131,6 +131,7 @@ const postRepo = new Repository<Post>();
 ## Error Handling
 
 ### Create Custom Error Classes
+
 ```typescript
 export class ValidationError extends Error {
   constructor(
@@ -155,6 +156,7 @@ export class NotFoundError extends Error {
 ```
 
 ### Handle Async Errors Properly
+
 ```typescript
 // Good - errors are handled
 async function fetchUser(id: string): Promise<User> {
@@ -173,7 +175,7 @@ async function fetchUser(id: string): Promise<User> {
 }
 
 // Avoid floating promises - always await or handle
-void fetchUser('123').catch(error => {
+void fetchUser('123').catch((error) => {
   console.error('Error:', error);
 });
 ```
@@ -181,6 +183,7 @@ void fetchUser('123').catch(error => {
 ## Modern TypeScript Patterns
 
 ### Use `satisfies` Operator
+
 ```typescript
 type Config = {
   host: string;
@@ -198,6 +201,7 @@ const config = {
 ```
 
 ### Use Template Literal Types
+
 ```typescript
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 type Route = '/users' | '/posts' | '/comments';
@@ -207,9 +211,10 @@ type Endpoint = `${HttpMethod} ${Route}`;
 ```
 
 ### Use `as const` for Literal Types
+
 ```typescript
 const ROLES = ['admin', 'user', 'guest'] as const;
-type Role = typeof ROLES[number]; // 'admin' | 'user' | 'guest'
+type Role = (typeof ROLES)[number]; // 'admin' | 'user' | 'guest'
 
 const CONFIG = {
   maxRetries: 3,
@@ -221,19 +226,17 @@ const CONFIG = {
 ## Async/Await Patterns
 
 ### Parallel Execution
+
 ```typescript
 // Good - run in parallel
 async function fetchUserData(userId: string) {
-  const [user, posts, comments] = await Promise.all([
-    fetchUser(userId),
-    fetchPosts(userId),
-    fetchComments(userId)
-  ]);
+  const [user, posts, comments] = await Promise.all([fetchUser(userId), fetchPosts(userId), fetchComments(userId)]);
   return { user, posts, comments };
 }
 ```
 
 ### Sequential with Error Handling
+
 ```typescript
 async function processOrder(orderId: string): Promise<void> {
   const order = await fetchOrder(orderId);
@@ -246,6 +249,7 @@ async function processOrder(orderId: string): Promise<void> {
 ## Node.js Specific Patterns
 
 ### Environment Variables with Type Safety
+
 ```typescript
 import { z } from 'zod';
 
@@ -261,6 +265,7 @@ export const env = envSchema.parse(process.env);
 ```
 
 ### Structured Logging
+
 ```typescript
 import pino from 'pino';
 
@@ -279,6 +284,7 @@ logger.error({ err: error }, 'Failed to process request');
 ## Backend Framework Patterns
 
 ### Express with TypeScript
+
 ```typescript
 import express, { Request, Response, NextFunction } from 'express';
 
@@ -286,11 +292,7 @@ interface TypedRequest<T> extends Request {
   body: T;
 }
 
-app.post('/users', async (
-  req: TypedRequest<CreateUserDto>,
-  res: Response,
-  next: NextFunction
-) => {
+app.post('/users', async (req: TypedRequest<CreateUserDto>, res: Response, next: NextFunction) => {
   try {
     const user = await userService.create(req.body);
     res.status(201).json(user);
@@ -301,6 +303,7 @@ app.post('/users', async (
 ```
 
 ### Fastify with TypeScript
+
 ```typescript
 import { FastifyRequest, FastifyReply } from 'fastify';
 
@@ -344,7 +347,8 @@ fastify.post<CreateUserRequest>('/users', async (request, reply) => {
 - Document environment variables
 
 ### Example JSDoc
-```typescript
+
+````typescript
 /**
  * Creates a new user in the system.
  *
@@ -364,7 +368,7 @@ fastify.post<CreateUserRequest>('/users', async (request, reply) => {
 export async function createUser(data: CreateUserDto): Promise<User> {
   // Implementation
 }
-```
+````
 
 ## Resources
 

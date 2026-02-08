@@ -38,6 +38,7 @@ You are an expert Go software developer. You write simple, idiomatic, well-teste
 - Use `testing.T` methods consistently
 
 ### Example Test Structure
+
 ```go
 package calculator
 
@@ -70,6 +71,7 @@ func TestAdd(t *testing.T) {
 ## Project Structure
 
 Follow Go standard layout:
+
 ```
 project/
 ├── cmd/
@@ -97,6 +99,7 @@ project/
 ## Error Handling
 
 Always check errors explicitly:
+
 ```go
 // Good
 result, err := doSomething()
@@ -109,6 +112,7 @@ result, _ := doSomething()
 ```
 
 Add context to errors:
+
 ```go
 if err := processFile(path); err != nil {
     return fmt.Errorf("processing %s: %w", path, err)
@@ -116,6 +120,7 @@ if err := processFile(path); err != nil {
 ```
 
 Create custom errors when appropriate:
+
 ```go
 type ValidationError struct {
     Field string
@@ -130,6 +135,7 @@ func (e *ValidationError) Error() string {
 ## Interfaces
 
 Keep interfaces small and focused:
+
 ```go
 // Good - small, focused interface
 type Reader interface {
@@ -155,6 +161,7 @@ type DataStore interface {
 ```
 
 Define interfaces where they're used, not where they're implemented:
+
 ```go
 // In your service package, not in the repository package
 type UserRepository interface {
@@ -166,6 +173,7 @@ type UserRepository interface {
 ## Concurrency
 
 Use goroutines for concurrent operations:
+
 ```go
 // Launch goroutines
 go processData(data)
@@ -180,6 +188,7 @@ result := <-ch
 ```
 
 Use `sync.WaitGroup` to wait for multiple goroutines:
+
 ```go
 var wg sync.WaitGroup
 for _, item := range items {
@@ -193,6 +202,7 @@ wg.Wait()
 ```
 
 Use context for cancellation and timeouts:
+
 ```go
 ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 defer cancel()
@@ -203,6 +213,7 @@ result, err := fetchDataWithContext(ctx)
 ## Resource Management
 
 Use defer for cleanup:
+
 ```go
 file, err := os.Open("file.txt")
 if err != nil {
@@ -214,6 +225,7 @@ defer file.Close()
 ```
 
 Defer in correct order (LIFO):
+
 ```go
 mu.Lock()
 defer mu.Unlock()
@@ -224,6 +236,7 @@ defer mu.Unlock()
 ## Structs and Methods
 
 Use composition over inheritance:
+
 ```go
 type Logger struct {
     writer io.Writer
@@ -237,6 +250,7 @@ type Server struct {
 ```
 
 Use pointer receivers for methods that modify state:
+
 ```go
 // Pointer receiver - modifies state
 func (s *Server) Start() error {
@@ -251,6 +265,7 @@ func (s Server) Addr() string {
 ```
 
 Make zero values useful:
+
 ```go
 type Buffer struct {
     data []byte  // nil slice is valid
@@ -274,6 +289,7 @@ func (b *Buffer) Write(p []byte) (n int, err error) {
 ## Common Patterns
 
 ### Options pattern for configuration
+
 ```go
 type Option func(*Server)
 
@@ -296,6 +312,7 @@ server := NewServer(":8080", WithTimeout(60*time.Second))
 ```
 
 ### Worker pool pattern
+
 ```go
 func worker(id int, jobs <-chan Job, results chan<- Result) {
     for job := range jobs {
@@ -312,6 +329,7 @@ for w := 1; w <= numWorkers; w++ {
 ## Standard Library First
 
 Prefer the standard library over third-party dependencies:
+
 - Use `net/http` for HTTP servers
 - Use `encoding/json` for JSON
 - Use `database/sql` for databases
@@ -319,6 +337,7 @@ Prefer the standard library over third-party dependencies:
 - Use `sync` for synchronization
 
 Only add dependencies for:
+
 - Complex, well-solved problems (AWS SDK, gRPC)
 - Industry-standard protocols (Prometheus, OpenTelemetry)
 - Functionality that would take significant time to implement correctly
@@ -411,22 +430,26 @@ func main() {
 ### Key Lambda Patterns for Go
 
 **Structured Logging with slog (Go 1.21+)**
+
 - Use `slog.Logger` for JSON structured logging
 - Lambda automatically captures `AWS_LAMBDA_LOG_FORMAT` and `AWS_LAMBDA_LOG_LEVEL`
 - Include request IDs from `lambdacontext` in all logs
 - Use `logger.InfoContext(ctx, ...)` to include context
 
 **Event Handling**
+
 - Use typed event structs from `github.com/aws/aws-lambda-go/events`
 - Available events: APIGatewayProxyRequest, SQSEvent, DynamoDBEvent, S3Event, EventBridgeEvent, etc.
 - Type-safe event parsing prevents runtime errors
 
 **Context Management**
+
 - Always use `context.Context` parameter
 - Extract Lambda context: `lambdacontext.FromContext(ctx)`
 - Includes: RequestID, InvokedFunctionArn, Deadline, ClientContext
 
 **AWS X-Ray Tracing** (when explicitly enabled)
+
 - Use `github.com/aws/aws-xray-sdk-go` for distributed tracing
 - Instrument HTTP clients, SQL queries, custom segments
 - Typically disabled by default unless explicitly required
