@@ -34,6 +34,7 @@ description: Install and configure Dependabot for automated dependency updates i
    ```
 
    - As of 02/08/2026, the full list of languages/technologies supported are: Bazel, Bundler, Bun, Cargo, Composer, Devcontainers, Docker, Docker Compose, Dotnet SDK, Elm, GitHub Actions, Gitsubmodule, Gomod (Go Modules), Gradle, Helm, Hex (Hex), Julia, Maven, NPM and Yarn, NuGet, OpenTofu, Pip, Pub, Swift, Terraform, UV. But you should always double check the "Additional resources" link below via WebSearch for the most up to date list of supported languages and technologies. Do not skip the WebSearch when confirming this.
+
 4. Explain to the user why you chose the specific `directory` path for each entry in the dependabot.yml file and give links to specific documentation if available to further help them understand it's truly correct.
 
 ## Additional resources
