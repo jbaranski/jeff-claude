@@ -1,0 +1,33 @@
+name: Package Skills and Agents
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  package:
+    # Skip if commit message contains [skip-package] to prevent infinite loop
+    if: "!contains(github.event.head_commit.message, '[skip-package]')"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create skills and agents package
+        run: |
+          cd .claude
+          zip -r ../claude-skills-agents.zip skills/ agents/ -x "*.DS_Store"
+          cd ..
+
+      - name: Commit package if changed
+        run: |-
+          git diff
+          git config --global user.email "actions@users.noreply.github.com"
+          git config --global user.name "JEFF-bot"
+          git add claude-skills-agents.zip
+          if git commit -m "Update skills and agents package [skip-package]"; then
+            git push
+          else
+            echo "No changes to package"
+          fi
