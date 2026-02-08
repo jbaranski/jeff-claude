@@ -9,6 +9,13 @@ This is an opinionated view for how AWS CDK projects should be configured and ma
 Before proceeding:
 1. Ensure nvm (Node Version Manager) and Node.js are installed using the `install-nodejs` skill.
 2. Ensure prettier is installed using the `install-prettier` skill.
+3. Use WebSearch to verify current versions:
+   - "AWS CDK latest version [current-year]"
+   - "TypeScript latest version [current-year]"
+   - "vitest latest version [current-year]"
+   - "constructs library latest version [current-year]"
+   - Update all version numbers in examples below with verified versions
+   - DO NOT skip this step. DO NOT guess at version numbers.
 
 ## Goals
 - Enforce a single CDK app under `cdk/` at repository root

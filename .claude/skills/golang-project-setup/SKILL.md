@@ -11,11 +11,16 @@ Before proceeding:
    - If not installed on macOS: `brew install go`
    - If not installed on Linux: Download from https://go.dev/dl/
    - Verify installation: `go version`
-2. Ensure you're using the latest stable Go version (Go 1.25 or newer as of 2026).
-3. Install golangci-lint:
+2. Install golangci-lint:
    - macOS: `brew install golangci-lint`
    - Linux: `curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin`
    - Verify: `golangci-lint --version`
+3. Use WebSearch to verify current versions:
+   - "Go golang latest stable version [current-year]"
+   - "golangci-lint latest version [current-year]"
+   - Update all version numbers in examples below with verified versions
+   - Ensure Go is updated to the latest stable version if needed
+   - DO NOT skip this step. DO NOT guess at version numbers.
 
 ## Goals
 - Use Go modules for dependency management

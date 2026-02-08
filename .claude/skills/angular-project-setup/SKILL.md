@@ -6,6 +6,11 @@ description: Install or update the Angular CLI to the latest version globally. U
 ## Prerequisites
 Before proceeding:
 1. Ensure nvm (Node Version Manager) and Node.js are installed using the `install-nodejs` skill.
+2. Use WebSearch to verify current versions:
+   - "Angular latest version [current-year]"
+   - "Tailwind CSS latest version [current-year]"
+   - Update any version references in examples below with verified versions
+   - DO NOT skip this step. DO NOT guess at version numbers.
 
 ## Steps
 1. Run `npm install -g @angular/cli && ng update @angular/core @angular/cli` to install or update to the latest Angular CLI globally.

@@ -10,6 +10,13 @@ Before proceeding:
 1. Check if `uv` is installed by running `uv --version`.
    - If not installed, install it: `curl -LsSf https://astral.sh/uv/install.sh | sh` (if on macOS Homebrew is an option as well `brew install uv`)
    - Verify installation: `uv --version`
+2. Use WebSearch to verify current versions:
+   - "Python latest stable version [current-year]"
+   - "pytest latest version [current-year]"
+   - "ruff python linter latest version [current-year]"
+   - "pytest-cov latest version [current-year]"
+   - Update all version numbers in examples below with verified versions
+   - DO NOT skip this step. DO NOT guess at version numbers.
 
 ## Goals
 - Use uv for Python version management and dependency management
@@ -62,9 +69,9 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=9.0.0",
+    "pytest>=9.1.0",
     "pytest-cov>=7.0.0",
-    "ruff>=1.0.0",
+    "ruff>=0.15.0",
 ]
 
 [build-system]
