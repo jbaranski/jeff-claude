@@ -16,6 +16,7 @@ description: Install and configure Dependabot for automated dependency updates i
    ```
 3. Populate `.github/dependabot.yml` with the correct configuration for the project's dependencies. Here is a common use cases you will encounter (but this is listed just as an example, it is not exhaustive so refer to the "Additonal resources" if other dependencies are in scope):
    - Search the root of the project, and all subdirectories recursively, for `package.json` files. For each `package.json` file found, add an entry for `npm` dependencies in the `.github/dependabot.yml` file with the correct directory path to the `package.json` file. For example, if a `package.json` file is found in the root of the project, in a `client` directory, and in a `cdk` directory, the dependabot.yml file should have 3 entries for npm dependencies with the correct directory paths:
+
    ```yaml
    updates:
      - package-ecosystem: 'npm'

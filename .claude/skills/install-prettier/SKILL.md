@@ -32,7 +32,21 @@ Before proceeding, ensure nvm (Node Version Manager) and Node.js are installed u
       "prettier:check": "npx prettier --check ."
     }
    ```
-6. There is no reason to have prettier configuration or dependency (outside of the two `prettier:fix` and `prettier:check` script commands) in `package.json` or any other file. If extra prettier configuration exists in `package.json` or any other file, remove it to avoid confusion and ensure all configuration is in `.prettierrc.json` and `.prettierignore`. This also applies to "nested" `package.json` files in subdirectories (for example projects that have a `client` or `cdk` directory).
+6. If a `package.json` file does NOT exist in the project root, create or append to a `Makefile` with prettier commands:
+   - If `Makefile` already exists, append the prettier targets to it (only if they don't already exist)
+   - If `Makefile` doesn't exist, create it with the prettier targets
+
+   ```makefile
+   .PHONY: prettier-fix prettier-check
+
+   prettier-fix:
+   	npx prettier --write .
+
+   prettier-check:
+   	npx prettier --check .
+   ```
+
+7. There is no reason to have prettier configuration or dependency (outside of the two `prettier:fix` and `prettier:check` script commands in package.json, or the prettier targets in Makefile) in `package.json` or any other file. If extra prettier configuration exists in `package.json` or any other file, remove it to avoid confusion and ensure all configuration is in `.prettierrc.json` and `.prettierignore`. This also applies to "nested" `package.json` files in subdirectories (for example projects that have a `client` or `cdk` directory).
 
 ## Additional resources
 

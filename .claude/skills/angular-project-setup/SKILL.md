@@ -26,6 +26,7 @@ Before proceeding:
    - To install run `ng add tailwindcss` and confirm any prompts. This is equivalent to doing the following (just here for your reference in case something goes wrong or needs to be fixed):
      - `npm install -D tailwindcss @tailwindcss/postcss postcss`
      - Configure `.postcssrc.json` with the following content:
+
      ```
      {
         "plugins": {
@@ -35,6 +36,7 @@ Before proceeding:
      ```
 
      - `src/styles.css` should contain `@import "tailwindcss"`;
+
 5. Create a `netlify.toml` file in the root of the Angular project directory with the following content:
    ```
     [[redirects]]
