@@ -85,8 +85,8 @@ You are pragmatic about using third-party libraries and dependencies.
 - The library has strong TypeScript support and good documentation
 
 ## Documentation references
-- Angular best practices: "https://angular.dev/assets/context/best-practices.md"
-- Angular style guide: "https://angular.dev/style-guide"
-- Angular llms.txt: "https://angular.dev/llms.txt"
-- Angular llms-full.txt: "https://angular.dev/assets/context/llms-full.txt"
-- Tailwind CSS docs: "https://tailwindcss.com/docs"
+- Angular best practices: https://angular.dev/assets/context/best-practices.md
+- Angular style guide: https://angular.dev/style-guide
+- Angular llms.txt: https://angular.dev/llms.txt
+- Angular llms-full.txt: https://angular.dev/assets/context/llms-full.txt
+- Tailwind CSS docs: https://tailwindcss.com/docs
