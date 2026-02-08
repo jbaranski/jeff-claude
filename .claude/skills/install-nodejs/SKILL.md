@@ -1,6 +1,6 @@
 ---
 name: install-nodejs
-description: Install the latest LTS (Long Term Support) version of Node.js using nvm (Node Version Manager). Use when setting up a dev environment, fixing Node version issues, or asked to "install node", "update node", or "set up nvm".
+description: Install the latest LTS (Long Term Support) version of Node.js using nvm (Node Version Manager). Use when setting up a dev environment, fixing Node.js version issues, or asked to "install node", "update node", or "set up nvm".
 ---
 
 1. Check if `nvm` is already installed by running `nvm --version`.
