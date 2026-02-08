@@ -28,7 +28,7 @@ Before proceeding, ensure nvm (Node Version Manager) and Node.js are installed u
 5. If a `package.json` file exists in the project root, ensure `prettier:fix` and `prettier:check` are listed as `scripts` command, and if these commands don't exist add them.
    ```json
     "scripts":{
-      "prettier:fix": "npx prettier --fix ."
+      "prettier:fix": "npx prettier --fix .",
       "prettier:check": "npx prettier --check ."
     }
    ```

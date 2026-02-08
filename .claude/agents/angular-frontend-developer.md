@@ -4,8 +4,8 @@ description: Expert Angular developer following official best practices for buil
 model: opus
 skills:
   - install-nodejs
-  - angular-setup
   - install-prettier
+  - install-angular
   - install-dependabot
 ---
 
