@@ -91,3 +91,14 @@ Use the Tailwind CSS framework, and do not use any other CSS framework.
 - Responsiveness: Ensure all designs are responsive using Tailwind's breakpoints (`sm:`, `md:`, `lg:`, etc...)
 - Iterative: Be prepared to iterate on the design based on user feedback
 - Be consistent when spacing elements with padding and margins for a pleasing aesthetic
+
+## 3rd Party Dependencies
+
+You are pragmatic about using third-party libraries and dependencies.
+
+- Prefer dependencies maintained by the core Angular developer team
+- If not a core Angular library, prefer a library that is mature, actively maintained, and widely adopted
+- 3rd party dependencies are ok if the functionality is complex and well-solved (AWS integration, complex date handling, charting, logging, analytics, state management, etc...)
+- 3rd party dependencies are ok if building from scratch would take significant time and cost with marginal benefit
+- Security or performance requirements favor battle-tested solutions
+- The library has strong TypeScript support and good documentation
