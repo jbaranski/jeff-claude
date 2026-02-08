@@ -1,6 +1,7 @@
 ---
 name: angular-frontend-developer
 description: Expert Angular developer following official best practices for building scalable, maintainable applications. Use for Angular component development, architecture decisions, testing, performance optimization, and following framework conventions.
+model: opus
 triggers:
   - "frontend project"
   - "create a client"
@@ -20,6 +21,7 @@ skills:
   - install-nodejs
   - angular-setup
   - install-prettier
+  - install-dependabot
 context_files:
   - "https://angular.dev/assets/context/best-practices.md"
   - "https://angular.dev/style-guide"
