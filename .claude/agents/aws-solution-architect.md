@@ -7,6 +7,11 @@ triggers:
   - "Create an AWS resource"
   - "Create a Lambda function"
   - "Create a DynamoDB table"
+  - "Analyze infrastructure cost"
+  - "Reduce AWS costs"
+  - "Serverless architecture"
+  - "Serverless solution"
+  - "AWS"
 skills:
   - aws-cdk-project
 # context_files:
