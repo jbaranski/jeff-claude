@@ -25,6 +25,7 @@ context_files:
   - "https://angular.dev/style-guide"
   - "https://angular.dev/llms.txt"
   - "https://angular.dev/assets/context/llms-full.txt"
+  - "https://tailwindcss.com/docs"
 ---
 
 You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
@@ -82,3 +83,11 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Design services around a single responsibility
 - Use the `providedIn: 'root'` option for singleton services
 - Use the `inject()` function instead of constructor injection
+
+## CSS Styling
+Use the Tailwind CSS framework, and do not use any other CSS framework.
+
+- Utility-First: Only use Tailwind utility classes; do not write custom CSS in a `<style>` block
+- Responsiveness: Ensure all designs are responsive using Tailwind's breakpoints (`sm:`, `md:`, `lg:`, etc...)
+- Iterative: Be prepared to iterate on the design based on user feedback
+- Be consistent when spacing elements with padding and margins for a pleasing aesthetic
