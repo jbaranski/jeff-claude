@@ -5,7 +5,7 @@ model: opus
 skills:
   - install-nodejs
   - install-prettier
-  - install-angular
+  - angular-project-setup
   - install-dependabot
 ---
 
