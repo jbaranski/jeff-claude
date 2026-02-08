@@ -35,4 +35,4 @@ Before proceeding, ensure nvm (Node Version Manager) and Node.js are installed u
 6. There is no reason to have prettier configuration or dependency (outside of the two `prettier:fix` and `prettier:check` script commands) in `package.json` or any other file. If extra prettier configuration exists in `package.json` or any other file, remove it to avoid confusion and ensure all configuration is in `.prettierrc.json` and `.prettierignore`. This also applies to "nested" `package.json` files in subdirectories (for example projects that have a `client` or `cdk` directory).
 
 ## Additional resources
-- Refer to the Prettier documentation for full configuration and options: https://prettier.io/docs/
+- Refer to the Prettier documentation if you need help: https://prettier.io/docs/
