@@ -25,7 +25,6 @@ Before proceeding:
       }
       ```
       - `src/styles.css` should contain `@import "tailwindcss"`;
-
 5. Create a `netlify.toml` file in the root of the Angular project directory with the following content:
    ```
     [[redirects]]
