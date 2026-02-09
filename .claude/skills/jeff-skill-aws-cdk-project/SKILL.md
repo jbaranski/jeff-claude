@@ -1,5 +1,5 @@
 ---
-name: jeff-aws-cdk-project
+name: jeff-skill-aws-cdk-project
 description: Configure or update AWS CDK TypeScript projects with an opinionated layout, required dependencies, scripts, and .env usage. Use when a repo should contain a CDK project. CDK app code should live in a `cdk/` folder off the root of the project with strict dependency and file structure conventions.
 ---
 
@@ -9,8 +9,8 @@ This is an opinionated view for how AWS CDK projects should be configured and ma
 
 Before proceeding:
 
-1. Ensure nvm (Node Version Manager) and Node.js are installed using the `jeff-install-nodejs` skill.
-2. Ensure prettier is installed using the `jeff-install-prettier` skill.
+1. Ensure nvm (Node Version Manager) and Node.js are installed using the `jeff-skill-install-nodejs` skill.
+2. Ensure prettier is installed using the `jeff-skill-install-prettier` skill.
 3. Use WebSearch to verify current versions:
    - "AWS CDK latest version [current-year]"
    - "TypeScript latest version [current-year]"

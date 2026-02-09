@@ -1,5 +1,5 @@
 ---
-name: jeff-angular-project-setup
+name: jeff-skill-angular-project-setup
 description: Install or update the Angular CLI to the latest version globally. Use when setting up a dev environment, ensuring Angular CLI is current, generating new projects, or when asked to "install Angular", "update Angular", "setup Angular", or "create a new Angular app".
 ---
 
@@ -7,7 +7,7 @@ description: Install or update the Angular CLI to the latest version globally. U
 
 Before proceeding:
 
-1. Ensure nvm (Node Version Manager) and Node.js are installed using the `jeff-install-nodejs` skill.
+1. Ensure nvm (Node Version Manager) and Node.js are installed using the `jeff-skill-install-nodejs` skill.
 2. Use WebSearch to verify current versions:
    - "Angular latest version [current-year]"
    - "Tailwind CSS latest version [current-year]"

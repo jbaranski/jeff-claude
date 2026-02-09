@@ -1,9 +1,9 @@
 ---
-name: jeff-install-prettier
+name: jeff-skill-install-prettier
 description: Install prettier. Use when setting up a dev environment, fixing TypeScript and JavaScript formatting issues, or asked to "install prettier", "configure prettier", or "set up code formatting".
 ---
 
-Before proceeding, ensure nvm (Node Version Manager) and Node.js are installed using the `jeff-install-nodejs` skill.
+Before proceeding, ensure nvm (Node Version Manager) and Node.js are installed using the `jeff-skill-install-nodejs` skill.
 
 1. Create `.prettierrc.json` in the project root if it doesn't already exist.
 2. The content of `.prettierrc.json` should at a minimum contain every setting listed below (do not remove any existing setting just ensure these settings all exist and if not add them):

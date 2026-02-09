@@ -1,5 +1,5 @@
 ---
-name: jeff-install-dependabot
+name: jeff-skill-install-dependabot
 description: Install and configure Dependabot for automated dependency updates in the project. Use when setting up a new dev environment, repository, adding dependency management, or asked to "install dependabot" or "set up automated updates".
 ---
 

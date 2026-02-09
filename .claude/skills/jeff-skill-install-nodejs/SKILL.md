@@ -1,5 +1,5 @@
 ---
-name: jeff-install-nodejs
+name: jeff-skill-install-nodejs
 description: Install the latest LTS (Long Term Support) version of Node.js using nvm (Node Version Manager). Use when setting up a dev environment, fixing Node.js version issues, or asked to "install node", "update node", or "set up nvm".
 ---
 

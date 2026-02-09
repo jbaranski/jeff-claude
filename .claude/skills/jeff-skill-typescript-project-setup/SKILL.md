@@ -1,5 +1,5 @@
 ---
-name: jeff-typescript-project-setup
+name: jeff-skill-typescript-project-setup
 description: Configure or update Node.js TypeScript projects with opinionated best practices. Use when a repo should contain a TypeScript project (backend, CLI, library) with modern tooling, strict type checking, and testing requirements.
 ---
 
@@ -9,8 +9,8 @@ This is an opinionated view for how Node.js TypeScript projects should be config
 
 Before proceeding:
 
-1. Ensure nvm (Node Version Manager) and Node.js are installed using the `jeff-install-nodejs` skill.
-2. Ensure prettier is installed using the `jeff-install-prettier` skill.
+1. Ensure nvm (Node Version Manager) and Node.js are installed using the `jeff-skill-install-nodejs` skill.
+2. Ensure prettier is installed using the `jeff-skill-install-prettier` skill.
 3. Use WebSearch to verify current versions:
    - "TypeScript latest version [current-year]"
    - "Vitest latest version [current-year]"
@@ -23,7 +23,7 @@ Before proceeding:
 - Use latest Node.js LTS runtime
 - Enforce strict TypeScript type checking
 - Use ESLint for linting with TypeScript support
-- Use Prettier for code formatting (via `jeff-install-prettier` skill)
+- Use Prettier for code formatting (via `jeff-skill-install-prettier` skill)
 - Use Vitest for testing with 80%+ code coverage
 - Keep dependencies minimal and deliberate
 - Make test/lint/build repeatable and auditable
@@ -344,7 +344,7 @@ export function add(a: number, b: number): number {
 Create `.github/workflows/ci.yml`:
 
 ```yaml
-name: jeff-typescript-project-setup
+name: jeff-skill-typescript-project-setup
 
 on:
   push:

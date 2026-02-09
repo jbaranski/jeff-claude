@@ -1,5 +1,5 @@
 ---
-name: jeff-golang-project-setup
+name: jeff-skill-golang-project-setup
 description: Configure or update Go projects with opinionated best practices using Go modules, golangci-lint, and built-in testing. Use when a repo should contain a Go project with modern tooling, idiomatic Go code, and 80% test coverage requirements.
 ---
 
@@ -386,7 +386,7 @@ func TestDivide(t *testing.T) {
 Create `.github/workflows/ci.yml` for continuous integration:
 
 ```yaml
-name: jeff-golang-project-setup
+name: jeff-skill-golang-project-setup
 
 on:
   push:
