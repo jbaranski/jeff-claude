@@ -1,4 +1,4 @@
-name: Package Skills and Agents
+name: Package Skills, Agents, and Plugins
 
 on:
   push:
@@ -19,32 +19,50 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create individual skill and agent packages
+      - name: Create individual skill, agent, and plugin packages
         run: |
           mkdir -p zip
 
-          # Package each skill
+          # Package each skill (skip symlinks — they are packaged as part of plugins)
           for skill_dir in .claude/skills/*/; do
+            if [ -L "${skill_dir%/}" ]; then
+              echo "Skipping symlink: $skill_dir"
+              continue
+            fi
             skill_name=$(basename "$skill_dir")
             cd "$skill_dir"
             zip -r "$GITHUB_WORKSPACE/zip/${skill_name}.zip" . -x "*.DS_Store"
             cd "$GITHUB_WORKSPACE"
           done
 
-          # Package each agent
+          # Package each agent (skip symlinks — they are packaged as part of plugins)
           for agent_file in .claude/agents/*.md; do
+            if [ -L "$agent_file" ]; then
+              echo "Skipping symlink: $agent_file"
+              continue
+            fi
             agent_name=$(basename "$agent_file" .md)
             zip -j "zip/${agent_name}.zip" "$agent_file"
           done
 
-      - name: Commit skill and agent packages if changed
+          # Package each plugin (entire plugin directory as a single zip)
+          if [ -d ".claude/plugins" ]; then
+            for plugin_dir in .claude/plugins/*/; do
+              plugin_name=$(basename "$plugin_dir")
+              cd "$plugin_dir"
+              zip -r "$GITHUB_WORKSPACE/zip/${plugin_name}.zip" . -x "*.DS_Store"
+              cd "$GITHUB_WORKSPACE"
+            done
+          fi
+
+      - name: Commit skill, agent, and plugin packages if changed
         run: |-
           git diff
           git config --global user.email "actions@users.noreply.github.com"
           git config --global user.name "JEFF-bot"
           git add zip/
-          if git commit -m "Update skill and agent packages [skip-package]"; then
+          if git commit -m "Update skill, agent, and plugin packages [skip-package]"; then
             git push
           else
-            echo "No changes to skill or agent packages"
+            echo "No changes to skill, agent, or plugin packages"
           fi
