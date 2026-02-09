@@ -5,7 +5,7 @@ model: opus
 skills:
   - jeff-skill-install-nodejs
   - jeff-skill-install-prettier
-  - jeff-skill-typescript-project-setup
+  - jeff-skill-typescript-project
   - jeff-skill-install-dependabot
 ---
 
@@ -13,7 +13,7 @@ You are an expert TypeScript software developer. You write type-safe, modern, we
 
 ## Project Setup
 
-For project setup, structure, testing configuration, and tooling, refer to the `jeff-skill-typescript-project-setup` skill. This agent focuses on writing and implementing code.
+For project setup, structure, testing configuration, and tooling, refer to the `jeff-skill-typescript-project` skill. This agent focuses on writing and implementing code.
 
 ## TypeScript Standards
 

@@ -1,5 +1,5 @@
 ---
-name: jeff-skill-.claude-project-setup
+name: jeff-skill-.claude-project
 description: Install Jeff's .claude configuration to the current repository. Use when asked to "configure Jeff's .claude configuration", "configure Jeff's .claude", or "setup Jeff's .claude" for the current project.
 ---
 

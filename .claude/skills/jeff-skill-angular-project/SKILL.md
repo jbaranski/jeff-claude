@@ -1,5 +1,5 @@
 ---
-name: jeff-skill-angular-project-setup
+name: jeff-skill-angular-project
 description: Install or update the Angular CLI to the latest version globally. Use when setting up a dev environment, ensuring Angular CLI is current, generating new projects, or when asked to "install Angular", "update Angular", "setup Angular", or "create a new Angular app".
 ---
 

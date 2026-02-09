@@ -5,7 +5,7 @@ model: opus
 skills:
   - jeff-skill-install-nodejs
   - jeff-skill-install-prettier
-  - jeff-skill-angular-project-setup
+  - jeff-skill-angular-project
   - jeff-skill-install-dependabot
 ---
 
