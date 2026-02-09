@@ -149,8 +149,8 @@ Signs you're doing it right:
 
 ## Integration with Other Skills
 
-- **jeff-skill-angular-project-setup**: Angular test creation and standards reference
-- **jeff-skill-golang-project-setup**: Go test creation and standards reference
-- **jeff-skill-python-project-setup**: Python test creation and standards reference
-- **jeff-skill-typescript-project-setup**: TypeScript test creation and standards reference
+- **jeff-skill-angular-project**: Angular test creation and standards reference
+- **jeff-skill-golang-project**: Go test creation and standards reference
+- **jeff-skill-python-project**: Python test creation and standards reference
+- **jeff-skill-typescript-project**: TypeScript test creation and standards reference
 - **jeff-skill-aws-cdk-project**: AWS CDK test creation and standards reference

@@ -5,7 +5,7 @@ model: opus
 skills:
   - jeff-skill-install-nodejs
   - jeff-skill-install-prettier
-  - jeff-skill-typescript-project-setup
+  - jeff-skill-typescript-project
   - jeff-skill-install-dependabot
 ---
 

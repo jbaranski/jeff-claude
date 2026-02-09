@@ -1,5 +1,5 @@
 ---
-name: jeff-skill-python-project-setup
+name: jeff-skill-python-project
 description: Configure or update Python projects using uv, ruff, and pytest with opinionated best practices. Use when a repo should contain a Python project with modern tooling, PEP standards, and 80% test coverage requirements.
 ---
 
@@ -210,7 +210,7 @@ def test_example_function_edge_case():
 Create `.github/workflows/ci.yml` for continuous integration:
 
 ```yaml
-name: jeff-skill-python-project-setup
+name: jeff-skill-python-project
 
 on:
   push:

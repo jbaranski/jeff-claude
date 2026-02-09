@@ -1,5 +1,5 @@
 ---
-name: jeff-skill-typescript-project-setup
+name: jeff-skill-typescript-project
 description: Configure or update Node.js TypeScript projects with opinionated best practices. Use when a repo should contain a TypeScript project (backend, CLI, library) with modern tooling, strict type checking, and testing requirements.
 ---
 
@@ -344,7 +344,7 @@ export function add(a: number, b: number): number {
 Create `.github/workflows/ci.yml`:
 
 ```yaml
-name: jeff-skill-typescript-project-setup
+name: jeff-skill-typescript-project
 
 on:
   push:
