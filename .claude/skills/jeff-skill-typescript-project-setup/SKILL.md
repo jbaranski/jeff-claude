@@ -562,6 +562,10 @@ npm install -D @types/aws-lambda
 # npm install @aws-lambda-powertools/event-handler
 ```
 
+## Integration with Other Skills
+
+- **jeff-skill-error-debugging-rca**: Use when debugging errors or test failures in Angular projects or related tools
+
 ## Additional Resources
 
 - TypeScript Documentation: https://www.typescriptlang.org/docs/

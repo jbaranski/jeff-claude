@@ -45,6 +45,10 @@ Before proceeding:
       status = 200
    ```
 
+## Integration with Other Skills
+
+- **jeff-skill-error-debugging-rca**: Use when debugging errors or test failuresAngular projects or related tools
+
 ## Additional resources
 
 - Refer to the Angular documentation if you need help: https://angular.io/docs

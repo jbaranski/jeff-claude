@@ -498,6 +498,10 @@ jobs:
 - Use `sync.WaitGroup` for waiting on multiple goroutines
 - Avoid global state and init() functions when possible
 
+## Integration with Other Skills
+
+- **jeff-skill-error-debugging-rca**: Use when debugging errors or test failures in Angular projects or related tools
+
 ## Additional Resources
 
 - Official Go documentation: https://go.dev/doc/

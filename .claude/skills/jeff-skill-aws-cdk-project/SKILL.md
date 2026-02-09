@@ -231,6 +231,10 @@ It's ok to combine multiple Lambda functions in the same Lambda construct file i
 - Create a GitHub action workflow for the CDK that does a clean build + deploy (so run a build, the tests, assert coverage requirements met, synth, build, deploy, etc.) and ensure it runs on every push to main.
 - The GitHub action should run the unit tests and enforce code coverage requirements on every PR push.
 
+## Integration with Other Skills
+
+- **jeff-skill-error-debugging-rca**: Use when debugging errors or test failures in Angular projects or related tools
+
 ## Additional resources
 
 - For complete API details, see [reference.md](reference.md)

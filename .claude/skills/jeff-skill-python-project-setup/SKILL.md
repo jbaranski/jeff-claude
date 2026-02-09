@@ -263,6 +263,10 @@ jobs:
   *.egg-info/
   ```
 
+## Integration with Other Skills
+
+- **jeff-skill-error-debugging-rca**: Use when debugging errors or test failures in Angular projects or related tools
+
 ## Additional Resources
 
 - uv documentation: https://docs.astral.sh/uv/
