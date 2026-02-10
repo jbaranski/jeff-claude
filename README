@@ -4,4 +4,8 @@ Inspired by (and some content copied from) https://github.com/ChrisWiles/claude-
 
 To install or use the plugins:
 /plugin marketplace add jbaranski/jeff-claude
+/plugin install jeff-plugin-typescript@jeff-plugins
+/plugin install jeff-plugin-angular@jeff-plugins
+/plugin install jeff-plugin-python@jeff-plugins
+/plugin install jeff-plugin-aws-solution-architect@jeff-plugins
 /plugin install jeff-plugin-golang@jeff-plugins
