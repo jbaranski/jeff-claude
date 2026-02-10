@@ -87,30 +87,25 @@ cmd_install() {
   unzip -qo "$tmp_zip" -d ".claude/plugins/${plugin_name}/"
   rm -f "$tmp_zip"
 
-  # Create agent symlinks
+  # Copy agents into .claude/agents/
   echo "$plugin" | jq -r '.agents[].file' | while read -r agent_file; do
     local agent_basename
     agent_basename=$(basename "$agent_file")
-    local link=".claude/agents/${agent_basename}"
-    local target="../plugins/${plugin_name}/${agent_file}"
-    if [ -L "$link" ] || [ -e "$link" ]; then
-      rm -f "$link"
-    fi
-    ln -s "$target" "$link"
-    echo "  Linked agent: ${agent_basename}"
+    local src=".claude/plugins/${plugin_name}/${agent_file}"
+    local dest=".claude/agents/${agent_basename}"
+    cp -f "$src" "$dest"
+    echo "  Installed agent: ${agent_basename}"
   done
 
-  # Create skill symlinks
+  # Copy skills into .claude/skills/
   echo "$plugin" | jq -r '.skills[].dir' | while read -r skill_dir; do
     local skill_basename
     skill_basename=$(basename "$skill_dir")
-    local link=".claude/skills/${skill_basename}"
-    local target="../plugins/${plugin_name}/${skill_dir}"
-    if [ -L "$link" ] || [ -e "$link" ]; then
-      rm -rf "$link"
-    fi
-    ln -s "$target" "$link"
-    echo "  Linked skill: ${skill_basename}"
+    local src=".claude/plugins/${plugin_name}/${skill_dir}"
+    local dest=".claude/skills/${skill_basename}"
+    rm -rf "$dest"
+    cp -rf "$src" "$dest"
+    echo "  Installed skill: ${skill_basename}"
   done
 
   echo ""
@@ -128,30 +123,28 @@ cmd_uninstall() {
 
   echo "Uninstalling plugin: ${plugin_name}"
 
-  # Read PLUGIN.md frontmatter to find agents and skills
-  # Remove agent symlinks that point into this plugin
-  for link in .claude/agents/*.md; do
-    if [ -L "$link" ]; then
-      local target
-      target=$(readlink "$link")
-      if [[ "$target" == *"${plugin_name}"* ]]; then
-        rm -f "$link"
-        echo "  Removed agent link: $(basename "$link")"
+  # Use marketplace.json from the plugin itself if available, otherwise fetch
+  local plugin_meta=""
+  if [ -f "$plugin_dir/PLUGIN.md" ]; then
+    # Parse agents and skills from the installed plugin directory
+    for agent_file in "$plugin_dir"/agents/*.md; do
+      if [ -f "$agent_file" ]; then
+        local agent_basename
+        agent_basename=$(basename "$agent_file")
+        rm -f ".claude/agents/${agent_basename}"
+        echo "  Removed agent: ${agent_basename}"
       fi
-    fi
-  done
+    done
 
-  # Remove skill symlinks that point into this plugin
-  for link in .claude/skills/*; do
-    if [ -L "$link" ]; then
-      local target
-      target=$(readlink "$link")
-      if [[ "$target" == *"${plugin_name}"* ]]; then
-        rm -f "$link"
-        echo "  Removed skill link: $(basename "$link")"
+    for skill_dir_entry in "$plugin_dir"/skills/*/; do
+      if [ -d "$skill_dir_entry" ]; then
+        local skill_basename
+        skill_basename=$(basename "$skill_dir_entry")
+        rm -rf ".claude/skills/${skill_basename}"
+        echo "  Removed skill: ${skill_basename}"
       fi
-    fi
-  done
+    done
+  fi
 
   # Remove plugin directory
   rm -rf "$plugin_dir"

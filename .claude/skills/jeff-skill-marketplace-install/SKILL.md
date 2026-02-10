@@ -49,7 +49,7 @@ This will:
 
 1. Download the plugin zip from the marketplace
 2. Extract it to `.claude/plugins/<plugin-name>/`
-3. Create symlinks in `.claude/agents/` and `.claude/skills/` for discovery
+3. Copy agents into `.claude/agents/` and skills into `.claude/skills/` for discovery
 
 ### Uninstall a plugin
 
@@ -59,7 +59,7 @@ curl -sL https://raw.githubusercontent.com/jbaranski/jeff-claude/main/install.sh
 
 This will:
 
-1. Remove agent and skill symlinks that point to the plugin
+1. Remove copied agent and skill files that came from the plugin
 2. Delete the `.claude/plugins/<plugin-name>/` directory
 
 ## Workflow
@@ -67,7 +67,7 @@ This will:
 1. When the user asks to install a plugin, first run `list` to show available options
 2. Confirm the plugin name with the user if ambiguous
 3. Run the `install` command from the project root
-4. Verify the installation by checking that symlinks exist and resolve correctly
+4. Verify the installation by checking that agents and skills exist in `.claude/agents/` and `.claude/skills/`
 
 ## After Installation
 

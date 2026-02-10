@@ -1,1 +1,0 @@
-../plugins/jeff-plugin-golang/agents/jeff-agent-golang-software-developer.md

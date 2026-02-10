@@ -23,24 +23,16 @@ jobs:
         run: |
           mkdir -p zip
 
-          # Package each skill (skip symlinks — they are packaged as part of plugins)
+          # Package each skill
           for skill_dir in .claude/skills/*/; do
-            if [ -L "${skill_dir%/}" ]; then
-              echo "Skipping symlink: $skill_dir"
-              continue
-            fi
             skill_name=$(basename "$skill_dir")
             cd "$skill_dir"
             zip -r "$GITHUB_WORKSPACE/zip/${skill_name}.zip" . -x "*.DS_Store"
             cd "$GITHUB_WORKSPACE"
           done
 
-          # Package each agent (skip symlinks — they are packaged as part of plugins)
+          # Package each agent
           for agent_file in .claude/agents/*.md; do
-            if [ -L "$agent_file" ]; then
-              echo "Skipping symlink: $agent_file"
-              continue
-            fi
             agent_name=$(basename "$agent_file" .md)
             zip -j "zip/${agent_name}.zip" "$agent_file"
           done

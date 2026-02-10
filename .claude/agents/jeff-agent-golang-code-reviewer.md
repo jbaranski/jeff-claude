@@ -1,1 +1,0 @@
-../plugins/jeff-plugin-golang/agents/jeff-agent-golang-code-reviewer.md

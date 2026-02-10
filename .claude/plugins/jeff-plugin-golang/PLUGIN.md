@@ -39,15 +39,10 @@ curl -sL https://raw.githubusercontent.com/jbaranski/jeff-claude/main/install.sh
 ### Manual
 
 1. Extract `jeff-plugin-golang.zip` into your `.claude/plugins/` directory
-2. Create symlinks for agent and skill discovery:
+2. Copy agents and skills into the discovery directories:
    ```bash
-   # From your .claude directory
-   cd .claude/agents
-   ln -s ../plugins/jeff-plugin-golang/agents/jeff-agent-golang-code-reviewer.md
-   ln -s ../plugins/jeff-plugin-golang/agents/jeff-agent-golang-software-developer.md
-
-   cd ../skills
-   ln -s ../plugins/jeff-plugin-golang/skills/jeff-skill-golang-project
+   cp .claude/plugins/jeff-plugin-golang/agents/*.md .claude/agents/
+   cp -r .claude/plugins/jeff-plugin-golang/skills/* .claude/skills/
    ```
 
 ## Directory Structure
