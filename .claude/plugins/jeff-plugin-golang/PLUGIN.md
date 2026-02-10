@@ -30,9 +30,15 @@ A self-contained plugin for Go development that bundles code review, software de
 
 ## Installation
 
-This plugin is distributed as a single zip (`jeff-plugin-golang.zip`). To install:
+### From the marketplace (recommended)
 
-1. Extract the zip into your `.claude/plugins/` directory
+```bash
+curl -sL https://raw.githubusercontent.com/jbaranski/jeff-claude/main/install.sh | bash -s -- install jeff-plugin-golang
+```
+
+### Manual
+
+1. Extract `jeff-plugin-golang.zip` into your `.claude/plugins/` directory
 2. Create symlinks for agent and skill discovery:
    ```bash
    # From your .claude directory

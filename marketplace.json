@@ -1,0 +1,30 @@
+{
+  "name": "jeff-plugin-marketplace",
+  "description": "Jeff's Claude Code Plugin Marketplace",
+  "repository": "jbaranski/jeff-claude",
+  "plugins": {
+    "jeff-plugin-golang": {
+      "name": "Golang Development",
+      "description": "Agents and skills for idiomatic Go development, code review, and project configuration.",
+      "version": "1.0.0",
+      "path": ".claude/plugins/jeff-plugin-golang",
+      "zip": "zip/jeff-plugin-golang.zip",
+      "agents": [
+        {
+          "name": "jeff-agent-golang-code-reviewer",
+          "file": "agents/jeff-agent-golang-code-reviewer.md"
+        },
+        {
+          "name": "jeff-agent-golang-software-developer",
+          "file": "agents/jeff-agent-golang-software-developer.md"
+        }
+      ],
+      "skills": [
+        {
+          "name": "jeff-skill-golang-project",
+          "dir": "skills/jeff-skill-golang-project"
+        }
+      ]
+    }
+  }
+}
