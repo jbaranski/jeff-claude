@@ -1,0 +1,17 @@
+{
+  "name": "jeff-plugins",
+  "owner": {
+    "name": "Jeff Baranski"
+  },
+  "metadata": {
+    "description": "Opinionated Claude Code plugins for software development",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "jeff-plugin-golang",
+      "source": "./plugins/jeff-plugin-golang",
+      "description": "Agents and skills for idiomatic Go development, code review, and project configuration."
+    }
+  ]
+}

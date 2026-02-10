@@ -1,4 +1,4 @@
-name: Package Skills, Agents, and Plugins
+name: Package Skills and Agents
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create individual skill, agent, and plugin packages
+      - name: Create individual skill and agent packages
         run: |
           mkdir -p zip
 
@@ -37,24 +37,14 @@ jobs:
             zip -j "zip/${agent_name}.zip" "$agent_file"
           done
 
-          # Package each plugin (entire plugin directory as a single zip)
-          if [ -d ".claude/plugins" ]; then
-            for plugin_dir in .claude/plugins/*/; do
-              plugin_name=$(basename "$plugin_dir")
-              cd "$plugin_dir"
-              zip -r "$GITHUB_WORKSPACE/zip/${plugin_name}.zip" . -x "*.DS_Store"
-              cd "$GITHUB_WORKSPACE"
-            done
-          fi
-
-      - name: Commit skill, agent, and plugin packages if changed
+      - name: Commit skill and agent packages if changed
         run: |-
           git diff
           git config --global user.email "actions@users.noreply.github.com"
           git config --global user.name "JEFF-bot"
           git add zip/
-          if git commit -m "Update skill, agent, and plugin packages [skip-package]"; then
+          if git commit -m "Update skill and agent packages [skip-package]"; then
             git push
           else
-            echo "No changes to skill, agent, or plugin packages"
+            echo "No changes to skill or agent packages"
           fi
