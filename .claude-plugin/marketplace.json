@@ -9,6 +9,26 @@
   },
   "plugins": [
     {
+      "name": "jeff-plugin-typescript",
+      "source": "./plugins/jeff-plugin-typescript",
+      "description": "Agents and skills for TypeScript backend, CLI, and library development with modern tooling, strict type checking, and testing requirements."
+    },
+    {
+      "name": "jeff-plugin-angular",
+      "source": "./plugins/jeff-plugin-angular",
+      "description": "Agents and skills for Angular frontend development with modern patterns, accessibility, and Tailwind CSS."
+    },
+    {
+      "name": "jeff-plugin-python",
+      "source": "./plugins/jeff-plugin-python",
+      "description": "Agents and skills for Python development using uv, ruff, and pytest with PEP standards and modern best practices."
+    },
+    {
+      "name": "jeff-plugin-aws-cdk",
+      "source": "./plugins/jeff-plugin-aws-cdk",
+      "description": "Agents and skills for AWS CDK infrastructure, solution architecture, and infrastructure review with TypeScript tooling."
+    },
+    {
       "name": "jeff-plugin-golang",
       "source": "./plugins/jeff-plugin-golang",
       "description": "Agents and skills for idiomatic Go development, code review, and project configuration."
