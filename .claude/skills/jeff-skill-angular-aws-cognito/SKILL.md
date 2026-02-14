@@ -15,6 +15,7 @@ form — all authentication goes through the Cognito hosted UI.
 ## Dependencies
 
 **`package.json`**
+
 ```json
 {
   "dependencies": {
@@ -29,26 +30,27 @@ No `@aws-amplify/ui-angular`. The Cognito hosted UI is used exclusively.
 
 ## AWS Cognito Configuration Values
 
-| Key                    | Value                                              |
-|------------------------|----------------------------------------------------|
+| Key                    | Value                                             |
+| ---------------------- | ------------------------------------------------- |
 | Region                 | `<YOUR_AWS_REGION>` (e.g. `us-east-1`)            |
-| User Pool ID           | `<YOUR_USER_POOL_ID>`                              |
-| User Pool Client ID    | `<YOUR_USER_POOL_CLIENT_ID>`                       |
+| User Pool ID           | `<YOUR_USER_POOL_ID>`                             |
+| User Pool Client ID    | `<YOUR_USER_POOL_CLIENT_ID>`                      |
 | OAuth Domain           | `<YOUR_COGNITO_DOMAIN>` (e.g. `auth.example.com`) |
-| OAuth Scopes           | `email`, `openid`                                  |
-| Response Type          | `code` (authorization code flow)                   |
-| Sign-up Verification   | Code-based                                         |
-| Required User Attr     | Email                                              |
-| Dev Redirect Sign-In   | `http://localhost:4200/callback`                   |
-| Dev Redirect Sign-Out  | `http://localhost:4200`                            |
-| Prod Redirect Sign-In  | `https://<YOUR_PROD_DOMAIN>/callback`              |
-| Prod Redirect Sign-Out | `https://<YOUR_PROD_DOMAIN>`                       |
+| OAuth Scopes           | `email`, `openid`                                 |
+| Response Type          | `code` (authorization code flow)                  |
+| Sign-up Verification   | Code-based                                        |
+| Required User Attr     | Email                                             |
+| Dev Redirect Sign-In   | `http://localhost:4200/callback`                  |
+| Dev Redirect Sign-Out  | `http://localhost:4200`                           |
+| Prod Redirect Sign-In  | `https://<YOUR_PROD_DOMAIN>/callback`             |
+| Prod Redirect Sign-Out | `https://<YOUR_PROD_DOMAIN>`                      |
 
 ---
 
 ## Environment Files
 
 **`src/environments/environment.ts`** (development)
+
 ```typescript
 export const environment = {
   api: 'https://<YOUR_API_GATEWAY_ID>.execute-api.<REGION>.amazonaws.com/<STAGE>',
@@ -61,6 +63,7 @@ export const environment = {
 ```
 
 **`src/environments/environment.prod.ts`** (production)
+
 ```typescript
 export const environment = {
   api: 'https://<YOUR_API_GATEWAY_ID>.execute-api.<REGION>.amazonaws.com/<STAGE>',
@@ -79,6 +82,7 @@ export const environment = {
 Amplify is configured once in `AppComponent.ngOnInit()` — **not** in `main.ts` or `app.config.ts`.
 
 **`src/app/app.component.ts`**
+
 ```typescript
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
@@ -125,6 +129,7 @@ export class AppComponent {
 ## Auth Service
 
 **`src/app/auth.service.ts`**
+
 ```typescript
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
@@ -164,18 +169,16 @@ export class AuthService {
 ## Auth Guard
 
 **`src/app/auth.guard.ts`**
+
 ```typescript
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from './auth.service';
 
-export const authGuard: CanActivateFn = async (
-  route: ActivatedRouteSnapshot,
-  state: RouterStateSnapshot
-) => {
+export const authGuard: CanActivateFn = async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
   const authService = inject(AuthService);
 
-  if (!await authService.isAuthenticated()) {
+  if (!(await authService.isAuthenticated())) {
     authService.redirectLogin();
     return false;
   }
@@ -187,11 +190,13 @@ export const authGuard: CanActivateFn = async (
 - Functional guard (`CanActivateFn`), not a class-based guard
 - Uses `inject()` for DI (Angular 14+ pattern)
 - Applied to all protected routes (e.g. `/dashboard`, `/feature`)
+
 ---
 
 ## Sign-In Component
 
 **`src/app/sign-in/sign-in.component.ts`**
+
 ```typescript
 import { Component } from '@angular/core';
 import { AuthService } from '../auth.service';
@@ -219,6 +224,7 @@ export class SignInComponent {
 ## Auth Callback Component
 
 **`src/app/auth-callback/auth-callback.component.ts`**
+
 ```typescript
 import { Component } from '@angular/core';
 import { AuthService } from '../auth.service';
@@ -247,6 +253,7 @@ export class AuthCallbackComponent {
 ## Routing
 
 **`src/app/app.routes.ts`**
+
 ```typescript
 import { Routes } from '@angular/router';
 import { LandingPageComponent } from './landing-page/landing-page.component';
@@ -268,14 +275,14 @@ export const routes: Routes = [
 ];
 ```
 
-| Route          | Protected       | Purpose                                  |
-|----------------|-----------------|------------------------------------------|
-| `/`            | No              | Landing page                             |
-| `/sign-in`     | No              | Triggers OAuth redirect                  |
-| `/callback`    | No              | OAuth return URL (Cognito redirects here)|
-| `/static-page` | No              | Example unprotected static page          |
-| `/dashboard`   | Yes (authGuard) | Post-login home / main feature           |
-| `/feature`     | Yes (authGuard) | Any additional protected route           |
+| Route          | Protected       | Purpose                                   |
+| -------------- | --------------- | ----------------------------------------- |
+| `/`            | No              | Landing page                              |
+| `/sign-in`     | No              | Triggers OAuth redirect                   |
+| `/callback`    | No              | OAuth return URL (Cognito redirects here) |
+| `/static-page` | No              | Example unprotected static page           |
+| `/dashboard`   | Yes (authGuard) | Post-login home / main feature            |
+| `/feature`     | Yes (authGuard) | Any additional protected route            |
 
 Add `canActivate: [authGuard]` to every protected route. Unprotected routes require no guard.
 
@@ -284,6 +291,7 @@ Add `canActivate: [authGuard]` to every protected route. Unprotected routes requ
 ## Application Config
 
 **`src/app/app.config.ts`**
+
 ```typescript
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
@@ -337,17 +345,14 @@ this.http.get(`${environment.api}/some-endpoint`, {
 If the project includes a loading spinner, a functional interceptor handles show/hide around HTTP requests. This is **not** related to auth.
 
 **`src/app/spinner.interceptor.ts`**
+
 ```typescript
-import { HttpErrorResponse, HttpEventType, HttpHandlerFn,
-         HttpInterceptorFn, HttpRequest } from '@angular/common/http';
+import { HttpErrorResponse, HttpEventType, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { catchError, tap, throwError } from 'rxjs';
 
-export const spinnerInterceptor: HttpInterceptorFn = (
-  req: HttpRequest<unknown>,
-  next: HttpHandlerFn
-) => {
+export const spinnerInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
   const spinner = inject(NgxSpinnerService);
   spinner.show();
   return next(req).pipe(
@@ -372,6 +377,7 @@ export const spinnerInterceptor: HttpInterceptorFn = (
 ## Bootstrap
 
 **`src/main.ts`**
+
 ```typescript
 import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';

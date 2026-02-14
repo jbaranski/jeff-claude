@@ -1,10 +1,9 @@
 Preconfigured Claude skills and agents. Meant for my own personal use. Skills, agents, etc... are very opinonated and not meant to be generic.
 
-
 Inspired by (and some content copied from):
+
 - https://github.com/ChrisWiles/claude-code-showcase
 - https://github.com/diet103/claude-code-infrastructure-showcase
-
 
 To install or use the plugins:
 /plugin marketplace add jbaranski/jeff-claude

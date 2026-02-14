@@ -1,37 +1,37 @@
 {
-    "permissions": {
-        "allow": [
-            "Edit:*",
-            "Write:*",
-            "MultiEdit:*",
-            "NotebookEdit:*",
-            "Bash:*",
-            "WebSearch"
-        ],
-        "defaultMode": "acceptEdits"
-    },
-    "hooks": {
-        "Notification": [
-            {
-                "matcher": "*",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "afplay /System/Library/Sounds/Glass.aiff"
-                    }
-                ]
-            }
-        ],
-        "Stop": [
-            {
-                "matcher": "*",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "afplay /System/Library/Sounds/Glass.aiff"
-                    }
-                ]
-            }
+  "permissions": {
+    "allow": [
+      "Edit:*", //
+      "Write:*", //
+      "MultiEdit:*", //
+      "NotebookEdit:*", //
+      "Bash:*", //
+      "WebSearch" //
+    ],
+    "defaultMode": "acceptEdits"
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "afplay /System/Library/Sounds/Glass.aiff"
+          }
         ]
-    }
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "afplay /System/Library/Sounds/Glass.aiff"
+          }
+        ]
+      }
+    ]
+  }
 }
