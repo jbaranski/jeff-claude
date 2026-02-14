@@ -6,6 +6,7 @@ skills:
   - jeff-skill-install-nodejs
   - jeff-skill-install-prettier
   - jeff-skill-angular-project
+  - jeff-skill-angular-aws-cognito
   - jeff-skill-install-dependabot
 ---
 

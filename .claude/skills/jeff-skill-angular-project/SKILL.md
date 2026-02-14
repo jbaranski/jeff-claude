@@ -52,3 +52,7 @@ Before proceeding:
 ## Additional resources
 
 - Refer to the Angular documentation if you need help: https://angular.io/docs
+
+## Integration with Other Skills
+
+- **jeff-skill-angular-aws-cognito**: Angular test creation and standards reference
