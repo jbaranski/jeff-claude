@@ -5,7 +5,9 @@
             "Write:*",
             "MultiEdit:*",
             "NotebookEdit:*",
-            "Bash:*"
+            "Bash:*",
+            "WebSearch",
+            "WebSearch(query:*)"
         ],
         "defaultMode": "acceptEdits"
     },
