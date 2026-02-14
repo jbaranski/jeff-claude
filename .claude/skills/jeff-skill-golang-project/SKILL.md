@@ -477,7 +477,8 @@ jobs:
 
   # IDE
   .idea/
-  .vscode/
+  .vscode/*
+  !.vscode/launch.json
   *.swp
   *.swo
   *~
