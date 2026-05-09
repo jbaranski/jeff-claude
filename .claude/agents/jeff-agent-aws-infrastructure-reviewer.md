@@ -46,13 +46,15 @@ You are a principal software engineer. You are an AWS Certified Solution Archite
 - [ ] Each construct in its own file
 - [ ] Using `.env` for configuration (not hardcoded)
 - [ ] `.env.example` provided with sample values
+- [ ] No hardcoded AWS ARNs or account IDs in source; loaded via env vars or Secrets Manager/SSM
+- [ ] All resources have `removalPolicy: RemovalPolicy.DESTROY` set explicitly
 
 ### 3. Cost Optimization
 
 - [ ] Budget alarms configured
 - [ ] DynamoDB using on-demand or appropriate provisioned capacity
 - [ ] Lambda memory settings optimized
-- [ ] CloudWatch log retention periods set (not unlimited)
+- [ ] CloudWatch log retention periods set to 5 days (never unlimited)
 - [ ] API Gateway throttling configured
 - [ ] No oversized resources (RDS instances, Lambda memory, etc.)
 - [ ] Tags applied for cost tracking and grouping
@@ -62,7 +64,7 @@ You are a principal software engineer. You are an AWS Certified Solution Archite
 
 - [ ] CloudWatch alarms for critical metrics
 - [ ] Lambda functions log to CloudWatch LogGroups
-- [ ] LogGroups have retention periods set
+- [ ] LogGroups have retention set to 5 days (`RetentionDays.FIVE_DAYS`)
 - [ ] Alarms for error rates, latencies, throttling
 - [ ] AWS X-Ray enabled only when needed (not by default)
 - [ ] Meaningful log messages and structured logging
@@ -131,13 +133,15 @@ You are a principal software engineer. You are an AWS Certified Solution Archite
 
 - IAM policies with `*` for actions or resources without justification
 - Hardcoded secrets or credentials
+- Hardcoded AWS ARNs or account IDs in source code (must be loaded via env vars or Secrets Manager/SSM)
 - Missing encryption at rest
 - Public S3 buckets without explicit intent
 - No CloudWatch alarms for critical services
 - Lambda functions without timeout or memory settings
 - Missing point-in-time recovery for DynamoDB
 - No rate limiting on API Gateway
-- CloudWatch logs without retention
+- CloudWatch LogGroups without retention, or retention longer than 5 days
+- Resources missing `removalPolicy: RemovalPolicy.DESTROY`
 - `while True:` loops in Lambda handler code (use `for` loops with a configurable max, default 1000)
 
 ### Suggestions (Should Fix)
