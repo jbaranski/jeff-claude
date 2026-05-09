@@ -108,7 +108,7 @@ You are a principal software engineer. You are an AWS Certified Solution Archite
 
 ### 9. Naming & Tagging
 
-- [ ] All CDK construct IDs and resource logical IDs use PascalCase (camelCase starting with capital letter)
+- [ ] All CDK construct IDs and resource logical IDs use PascalCase
 - [ ] Resources have meaningful names
 - [ ] Tags for application, environment, owner
 - [ ] Consistent naming conventions

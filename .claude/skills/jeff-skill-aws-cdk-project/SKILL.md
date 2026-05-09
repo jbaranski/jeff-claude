@@ -232,7 +232,7 @@ It's ok to combine multiple Lambda functions in the same Lambda construct file i
 
 ## Naming Conventions
 
-All CDK infrastructure identifiers (construct IDs, resource logical IDs) must use PascalCase — camelCase starting with a capital letter.
+All CDK infrastructure identifiers (construct IDs, resource logical IDs) must use PascalCase.
 
 ```typescript
 // GOOD
