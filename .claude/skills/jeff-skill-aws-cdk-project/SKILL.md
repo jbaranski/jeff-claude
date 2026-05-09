@@ -43,6 +43,8 @@ Before proceeding:
 
 These must be used for common build/deploy arguments instead of hardcoding in the code (e.g., API Gateway rate limits, AWS account, alarm periods, allowed Cognito origins, etc.).
 
+**Never hardcode AWS ARNs or account IDs in source.** Always load them from environment variables via `.env` or from Secrets Manager/SSM.
+
 ### Unit tests requirements
 
 - Use vitest for unit tests
@@ -51,9 +53,11 @@ These must be used for common build/deploy arguments instead of hardcoding in th
 - Tests must assert configuration expectations, such as:
   - Alarms configured for all infrastructure
   - API Gateway always has a rate limit enforced
-  - CloudWatch log LogGroups always has a retention period set
+  - CloudWatch log LogGroups always have retention set to exactly 5 days (`RetentionDays.FIVE_DAYS`)
   - Lambdas always have memory and timeout explicitly set
   - DynamoDB tables always have point-in-time recovery enabled
+  - All resources have `removalPolicy: RemovalPolicy.DESTROY`
+  - No hardcoded AWS ARNs or account IDs anywhere in source
   - IAM roles have least-privilege permissions and no \* references to refer to actions or resources (unless that's the best practice way for a specific service or permission)
   - etc...
 
@@ -225,6 +229,46 @@ export class DynamoDBConstruct extends Construct {
 ```
 
 It's ok to combine multiple Lambda functions in the same Lambda construct file if they are closely related in business purpose. Same idea applies to other resources (multiple DynamoDB tables can all live in the same construct file if they are closely related in business purpose). But typically do not mix resources in a single construct file (like mixing Lambda and DynamoDB resources in the same construct file).
+
+## Required CDK Defaults
+
+Every CDK construct must follow these non-negotiable defaults:
+
+### Removal Policy
+
+Always set `removalPolicy: cdk.RemovalPolicy.DESTROY` on all resources. This prevents orphaned resources in dev/test environments:
+
+```typescript
+const table = new dynamodb.Table(this, 'MyTable', {
+  partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+  removalPolicy: cdk.RemovalPolicy.DESTROY,
+});
+```
+
+### CloudWatch Log Retention
+
+Always set log retention to 5 days. Never leave it unlimited:
+
+```typescript
+import * as logs from 'aws-cdk-lib/aws-logs';
+
+const logGroup = new logs.LogGroup(this, 'MyLogGroup', {
+  retention: logs.RetentionDays.FIVE_DAYS,
+  removalPolicy: cdk.RemovalPolicy.DESTROY,
+});
+```
+
+### No Hardcoded ARNs or Account IDs
+
+Never hardcode AWS ARNs, account IDs, or region-specific identifiers in source. Load them from `.env` via `process.env`:
+
+```typescript
+// BAD — never do this
+const roleArn = 'arn:aws:iam::123456789012:role/MyRole';
+
+// GOOD — load from environment
+const roleArn = process.env.MY_ROLE_ARN!;
+```
 
 ## GitHub Actions
 

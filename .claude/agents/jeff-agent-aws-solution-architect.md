@@ -49,6 +49,12 @@ You are a principal software engineer. You are an AWS Certified Solution Archite
 - Optimize all Lambda code for minimal cold starts
 - Always use Graviton unless not possible
 
+## CDK Standards
+
+- Always set `removalPolicy: cdk.RemovalPolicy.DESTROY` on all resources by default
+- Always set CloudWatch LogGroup retention to 5 days (`logs.RetentionDays.FIVE_DAYS`); never leave retention unlimited
+- Never hardcode AWS ARNs or account IDs in source code; always load them from environment variables or Secrets Manager/SSM
+
 ## Lambda Coding Standards
 
 - Never use `while True:` loops in Lambda handlers; always use a `for` loop with a configurable max iteration count (default 1000) to prevent runaway execution and ensure predictable timeouts
