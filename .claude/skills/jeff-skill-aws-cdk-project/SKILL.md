@@ -230,6 +230,28 @@ export class DynamoDBConstruct extends Construct {
 
 It's ok to combine multiple Lambda functions in the same Lambda construct file if they are closely related in business purpose. Same idea applies to other resources (multiple DynamoDB tables can all live in the same construct file if they are closely related in business purpose). But typically do not mix resources in a single construct file (like mixing Lambda and DynamoDB resources in the same construct file).
 
+## Naming Conventions
+
+All CDK infrastructure identifiers (construct IDs, resource logical IDs) must use PascalCase.
+
+```typescript
+// GOOD
+new dynamodb.Table(this, 'UsersTable', { ... });
+new logs.LogGroup(this, 'ApiLogGroup', { ... });
+new lambda.Function(this, 'ProcessOrderFunction', { ... });
+new MyAppStack(app, 'MyAppStack', { ... });
+
+// BAD — lowercase, kebab-case, snake_case
+new dynamodb.Table(this, 'users-table', { ... });
+new logs.LogGroup(this, 'apiLogGroup', { ... });
+new lambda.Function(this, 'process_order_function', { ... });
+```
+
+This applies to:
+- Stack IDs passed to `new MyStack(app, 'StackId', ...)`
+- Construct IDs passed to `super(scope, 'ConstructId')` and `new SomeConstruct(this, 'ConstructId', ...)`
+- All logical resource IDs passed to AWS CDK resource constructors
+
 ## Required CDK Defaults
 
 Every CDK construct must follow these non-negotiable defaults:

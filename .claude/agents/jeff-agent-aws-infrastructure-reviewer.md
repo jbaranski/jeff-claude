@@ -108,6 +108,7 @@ You are a principal software engineer. You are an AWS Certified Solution Archite
 
 ### 9. Naming & Tagging
 
+- [ ] All CDK construct IDs and resource logical IDs use PascalCase
 - [ ] Resources have meaningful names
 - [ ] Tags for application, environment, owner
 - [ ] Consistent naming conventions
@@ -146,6 +147,7 @@ You are a principal software engineer. You are an AWS Certified Solution Archite
 
 ### Suggestions (Should Fix)
 
+- CDK construct IDs or resource logical IDs not using PascalCase (e.g. `'my-table'`, `'apiLogs'`, `'process_order'`)
 - No budget alarms configured
 - Missing tags for cost allocation
 - Not using Graviton for Lambda
@@ -158,7 +160,7 @@ You are a principal software engineer. You are an AWS Certified Solution Archite
 
 - Additional alarms for secondary metrics
 - More granular IAM policies
-- Better construct naming
+- More descriptive construct names
 - Additional tags for organization
 
 ## Feedback Format

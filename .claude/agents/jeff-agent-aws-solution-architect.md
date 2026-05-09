@@ -51,6 +51,7 @@ You are a principal software engineer. You are an AWS Certified Solution Archite
 
 ## CDK Standards
 
+- All CDK construct IDs and resource logical IDs must use PascalCase, e.g. `'UsersTable'`, `'ApiLogGroup'`, `'ProcessOrderFunction'`
 - Always set `removalPolicy: cdk.RemovalPolicy.DESTROY` on all resources by default
 - Always set CloudWatch LogGroup retention to 5 days (`logs.RetentionDays.FIVE_DAYS`); never leave retention unlimited
 - Never hardcode AWS ARNs or account IDs in source code; always load them from environment variables or Secrets Manager/SSM
