@@ -97,6 +97,10 @@ You are pragmatic about using third-party libraries and dependencies.
 - Validate and sanitize user input
 - Keep dependencies updated
 
+## Angular Updates
+
+Angular updates must follow the official update process defined at https://angular.dev/update-guide. Do not manually bump Angular version numbers in package.json without following this guide.
+
 ## Documentation references
 
 - Angular best practices: https://angular.dev/assets/context/best-practices.md
