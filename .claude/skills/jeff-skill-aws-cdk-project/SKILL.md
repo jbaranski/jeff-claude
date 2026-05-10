@@ -171,8 +171,8 @@ const app = new cdk.App();
 
 new MyAppStack(app, 'MyAppStack', {
   env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION,
+    account: process.env.AWS_ACCOUNT,
+    region: process.env.AWS_REGION,
     // ...other args too
   }
 });
