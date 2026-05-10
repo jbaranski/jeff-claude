@@ -1,7 +1,6 @@
 ---
 name: jeff-aws-solution-architect
 description: Expert AWS Certified Solution Architect - Professional. Use for system design, cdk projects, and AWS infrastructure questions.
-model: opus
 skills:
   - jeff-skill-install-nodejs
   - jeff-skill-install-prettier

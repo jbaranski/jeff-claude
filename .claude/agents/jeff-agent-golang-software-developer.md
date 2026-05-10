@@ -1,7 +1,6 @@
 ---
 name: jeff-golang-software-developer
 description: Expert Go developer following idiomatic Go and Effective Go principles. Use for Go development, testing, code review, refactoring, and debugging.
-model: opus
 skills:
   - jeff-skill-golang-project
 ---

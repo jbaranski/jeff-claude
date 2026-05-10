@@ -1,7 +1,6 @@
 ---
 name: jeff-golang-code-reviewer
 description: Expert Go code reviewer focusing on idiomatic Go, error handling, concurrency, and Effective Go principles. Use for reviewing Go code, pull requests, and providing objective code review feedback.
-model: opus
 skills:
   - jeff-skill-golang-project
 ---

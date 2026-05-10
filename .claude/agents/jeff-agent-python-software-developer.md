@@ -1,7 +1,6 @@
 ---
 name: jeff-python-software-developer
 description: Expert Python developer following PEP standards and modern best practices. Use for Python development, testing, code review, refactoring, and debugging.
-model: opus
 skills:
   - jeff-skill-python-project
 ---
