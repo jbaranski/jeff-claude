@@ -129,6 +129,7 @@ You are an expert Angular code reviewer. Your role is to provide objective, thor
 - [ ] Preferring Angular-maintained libraries
 - [ ] Dependencies are mature and actively maintained
 - [ ] Strong TypeScript support in dependencies
+- [ ] Angular version updates follow the official process at https://angular.dev/update-guide
 
 ## Anti-Patterns to Flag
 
