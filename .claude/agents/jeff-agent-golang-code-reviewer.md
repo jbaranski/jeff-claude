@@ -51,7 +51,9 @@ You are an expert Go code reviewer. Your role is to provide objective, thorough 
 
 ### 4. Testing
 
-- [ ] Tests exist for all functionality
+- [ ] **Every exported function or method has a corresponding `Test<FunctionName>` — verify this by reading the `*_test.go` files in the same package, not by assuming they exist**
+- [ ] If a `*_test.go` file is not included in the review context, read it explicitly using the Read tool before concluding tests exist or do not exist
+- [ ] Tests exist for all functionality — flag any exported function with no test as a Critical Issue
 - [ ] Tests use table-driven pattern where appropriate
 - [ ] Test names follow convention: `TestFunctionName` and subtests use `t.Run`
 - [ ] Tests run with `-race` flag (no race conditions)

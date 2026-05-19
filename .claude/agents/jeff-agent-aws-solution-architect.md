@@ -55,6 +55,32 @@ You are a principal software engineer. You are an AWS Certified Solution Archite
 - Always set CloudWatch LogGroup retention to 5 days (`logs.RetentionDays.FIVE_DAYS`); never leave retention unlimited
 - Never hardcode AWS ARNs or account IDs in source code; always load them from environment variables or Secrets Manager/SSM
 
+## CDK IAM Standards
+
+Always use `addToPrincipalPolicy` with exact, minimal actions and specific resource ARNs — never use CDK L2 grant methods, which grant broader permissions than needed and violate least-privilege:
+
+- **Never use** `table.grantReadWriteData(fn)`, `table.grantReadData(fn)`, `queue.grantSendMessages(fn)`, `queue.grantConsumeMessages(fn)` or any other L2 grant method — they grant overly broad action sets
+- **Always use** `role.addToPrincipalPolicy(new iam.PolicyStatement({ sid, effect, actions, resources }))` with only the exact actions required
+- **Never use `role.attachInlinePolicy(new iam.Policy(...))`** — this creates an extra CloudFormation `AWS::IAM::Policy` resource and bypasses CDK's built-in dependency tracking
+- Use CDK construct properties (`.tableArn`, `.queueArn`, `.userPoolArn`, etc.) for resource ARNs — never construct ARN strings by hand when a construct property is available
+- For resources defined outside the stack, import with CDK `fromXxx` methods (e.g., `dynamodb.Table.fromTableName()`) and use `.tableArn` from the imported construct
+
+```typescript
+// BAD — grants PutItem, UpdateItem, DeleteItem, BatchWriteItem when you only need UpdateItem
+wordbankTable.grantWriteData(myLambda);
+
+// BAD — grants GetRecords, GetShardIterator, DescribeStream, ListStreams when you only need the first three
+wordbankTable.grantStreamRead(myLambda);
+
+// GOOD — exact actions only
+myLambda.role!.addToPrincipalPolicy(new iam.PolicyStatement({
+  sid: 'WordBankTableUpdate',
+  effect: iam.Effect.ALLOW,
+  actions: ['dynamodb:UpdateItem'],
+  resources: [wordbankTable.tableArn]
+}));
+```
+
 ## Lambda Coding Standards
 
 - Never use `while True:` loops in Lambda handlers; always use a `for` loop with a configurable max iteration count (default 1000) to prevent runaway execution and ensure predictable timeouts

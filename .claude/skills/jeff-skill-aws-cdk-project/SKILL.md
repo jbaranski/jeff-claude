@@ -280,16 +280,60 @@ const logGroup = new logs.LogGroup(this, 'MyLogGroup', {
 });
 ```
 
-### No Hardcoded ARNs or Account IDs
+### No Hardcoded ARNs, Account IDs, or External Resource Names
 
-Never hardcode AWS ARNs, account IDs, or region-specific identifiers in source. Load them from `.env` via `process.env`:
+Never hardcode AWS ARNs, account IDs, region-specific identifiers, or names of resources defined outside this stack. Load them from `.env` via `process.env`:
 
 ```typescript
 // BAD — never do this
 const roleArn = 'arn:aws:iam::123456789012:role/MyRole';
+const unsubUrl = 'https://abc123.execute-api.us-east-1.amazonaws.com/unsubscribe';
 
 // GOOD — load from environment
 const roleArn = process.env.MY_ROLE_ARN!;
+const unsubUrl = process.env.UNSUBSCRIBE_BASE_URL!;
+```
+
+Resource names defined within the same stack (e.g., `'WordBank'` for a DynamoDB table created in this stack) may be hardcoded as constants — no env var needed.
+
+### IAM: Always Use addToPrincipalPolicy with Exact Actions
+
+Always use `addToPrincipalPolicy` with the minimum exact actions required. Never use CDK L2 grant methods — they grant broader permissions than needed and violate least-privilege:
+
+```typescript
+// BAD — attachInlinePolicy creates an extra CloudFormation AWS::IAM::Policy resource
+// and bypasses CDK dependency tracking
+role.attachInlinePolicy(new iam.Policy(this, 'MyPolicy', { ... }));
+
+// BAD — L2 grant methods grant overly broad action sets
+myTable.grantReadData(myLambda);           // grants GetItem, BatchGetItem, Query, Scan, ConditionCheckItem
+myTable.grantReadWriteData(myLambda);      // grants all of the above + PutItem, UpdateItem, DeleteItem, BatchWriteItem
+myQueue.grantSendMessages(myLambda);       // grants SendMessage + GetQueueAttributes + GetQueueUrl
+myQueue.grantConsumeMessages(myLambda);    // grants more than just ReceiveMessage + DeleteMessage
+
+// GOOD — exact actions only, using CDK construct properties for ARNs
+myLambda.role!.addToPrincipalPolicy(new iam.PolicyStatement({
+  sid: 'MyTableQuery',
+  effect: iam.Effect.ALLOW,
+  actions: ['dynamodb:Query'],             // only what's needed
+  resources: [myTable.tableArn]            // use construct property, not a hand-crafted ARN string
+}));
+
+myLambda.role!.addToPrincipalPolicy(new iam.PolicyStatement({
+  sid: 'MyQueueSend',
+  effect: iam.Effect.ALLOW,
+  actions: ['sqs:SendMessage'],            // only what's needed
+  resources: [myQueue.queueArn]
+}));
+
+// GOOD — for external resources not defined in this stack, import first to get the ARN
+const externalTable = dynamodb.Table.fromTableName(this, 'ExternalTable', 'KnownTableName');
+myLambda.role!.addToPrincipalPolicy(new iam.PolicyStatement({
+  sid: 'ExternalTableRead',
+  effect: iam.Effect.ALLOW,
+  actions: ['dynamodb:GetItem'],
+  resources: [externalTable.tableArn]
+}));
 ```
 
 ## GitHub Actions

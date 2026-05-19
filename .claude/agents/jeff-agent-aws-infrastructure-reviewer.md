@@ -134,7 +134,9 @@ You are a principal software engineer. You are an AWS Certified Solution Archite
 
 - IAM policies with `*` for actions or resources without justification
 - Hardcoded secrets or credentials
-- Hardcoded AWS ARNs or account IDs in source code (must be loaded via env vars or Secrets Manager/SSM)
+- Hardcoded AWS ARNs, account IDs, or resource names in source code (must be loaded via env vars or derived from CDK construct properties)
+- Using `role.attachInlinePolicy(new iam.Policy(...))` — creates extra CloudFormation resources and bypasses CDK dependency tracking; always use `role.addToPrincipalPolicy(new iam.PolicyStatement({...}))` with exact least-privilege actions instead
+- Using CDK L2 grant methods (`table.grantReadWriteData(fn)`, `table.grantReadData(fn)`, `queue.grantSendMessages(fn)`, `queue.grantConsumeMessages(fn)`, etc.) — these grant overly broad action sets and violate least-privilege; always use `addToPrincipalPolicy` with the exact actions needed
 - Missing encryption at rest
 - Public S3 buckets without explicit intent
 - No CloudWatch alarms for critical services
