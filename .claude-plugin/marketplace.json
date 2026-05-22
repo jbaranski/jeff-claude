@@ -32,6 +32,11 @@
       "name": "jeff-plugin-golang",
       "source": "./plugins/jeff-plugin-golang",
       "description": "Agents and skills for idiomatic Go development, code review, and project configuration."
+    },
+    {
+      "name": "jeff-plugin-ansible",
+      "source": "./plugins/jeff-plugin-ansible",
+      "description": "Agents and skills for Ansible automation targeting Debian Linux and Docker, covering playbook design, role design, idempotency, and error handling."
     }
   ]
 }

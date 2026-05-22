@@ -1,0 +1,8 @@
+{
+  "name": "jeff-plugin-ansible",
+  "description": "Agents and skills for Ansible automation targeting Debian Linux and Docker, covering playbook design, role design, idempotency, and error handling.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Jeff Baranski"
+  }
+}
