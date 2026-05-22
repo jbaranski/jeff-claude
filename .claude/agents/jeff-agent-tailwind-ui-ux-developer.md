@@ -19,6 +19,5 @@ For design token setup, CSS-first configuration, component architecture, dark mo
 
 - Use semantic design tokens (`bg-primary`, `text-foreground`) — never raw color values
 - Build components following the hierarchy: base styles → variants → sizes → states
-- Accessibility is non-negotiable: proper ARIA roles, keyboard navigation, focus states
 - Dark mode via `@custom-variant` — never with inline conditionals
 - No custom CSS — Tailwind utility classes only
