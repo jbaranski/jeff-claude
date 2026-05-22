@@ -6,6 +6,7 @@ Inspired by (and some content copied from):
 - https://github.com/diet103/claude-code-infrastructure-showcase
 - https://github.com/basher83/lunar-claude/tree/main/plugins/infrastructure/ansible-workflows/skills
 - https://github.com/wshobson/agents/tree/main/plugins/frontend-mobile-development/skills/tailwind-design-system
+- https://github.com/miles990/claude-software-skills/tree/main/programming-languages/shell-bash
 
 To install or use the plugins:
 /plugin marketplace add jbaranski/jeff-claude
@@ -16,5 +17,6 @@ To install or use the plugins:
 /plugin install jeff-plugin-golang@jeff-plugins
 /plugin install jeff-plugin-ansible@jeff-plugins
 /plugin install jeff-plugin-frontend@jeff-plugins
+/plugin install jeff-plugin-shell-bash@jeff-plugins
 
 NOTE: The repo is public just so I can easily download and consume the skills quickly from any machine. The content is dervied from other sources and in some cases modified to be tailored for my needs. I am not trying to take "credit" or pass this off as my own.
