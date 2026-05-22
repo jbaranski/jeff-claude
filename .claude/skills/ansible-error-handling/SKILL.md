@@ -83,10 +83,10 @@ Handle transient failures with retries:
 ### With Command Module
 
 ```yaml
-- name: Wait for cluster to stabilize
-  ansible.builtin.command: pvecm status
-  register: cluster_status
-  until: "'Quorate: Yes' in cluster_status.stdout"
+- name: Wait for PostgreSQL to accept connections
+  ansible.builtin.command: pg_isready -h localhost
+  register: pg_status
+  until: "'accepting connections' in pg_status.stdout"
   retries: 12
   delay: 5
   changed_when: false
@@ -108,16 +108,15 @@ Validate inputs with clear error messages:
 - name: Validate required variables
   ansible.builtin.assert:
     that:
-      - vm_name is defined
-      - vm_name | length > 0
-      - vm_memory >= 1024
-      - vm_cores >= 1
+      - app_name is defined
+      - app_name | length > 0
+      - app_port >= 1024
+      - app_port <= 65535
     fail_msg: |
-      Invalid VM configuration:
-      - vm_name: {{ vm_name | default('NOT SET') }}
-      - vm_memory: {{ vm_memory | default('NOT SET') }} (min: 1024)
-      - vm_cores: {{ vm_cores | default('NOT SET') }} (min: 1)
-    success_msg: "VM configuration validated"
+      Invalid application configuration:
+      - app_name: {{ app_name | default('NOT SET') }}
+      - app_port: {{ app_port | default('NOT SET') }} (must be 1024-65535)
+    success_msg: "Application configuration validated"
     quiet: true
 ```
 
@@ -125,19 +124,19 @@ Validate inputs with clear error messages:
 
 ```yaml
 # Variable defined and non-empty
-- vm_name is defined and vm_name | trim | length > 0
+- app_name is defined and app_name | trim | length > 0
 
 # Numeric range
-- vm_memory >= 1024 and vm_memory <= 65536
+- app_port >= 1024 and app_port <= 65535
 
 # Regex match
-- vm_name is match('^[a-z0-9-]+$')
+- app_name is match('^[a-z0-9-]+$')
 
 # List has items
-- vm_networks | length > 0
+- app_hosts | length > 0
 
 # Value in allowed list
-- vm_ostype in ['l26', 'win10', 'win11']
+- deploy_env in ['staging', 'production']
 ```
 
 ## Fail with Context
@@ -184,14 +183,13 @@ Allow expected "failures":
 ### Multiple Acceptable Conditions
 
 ```yaml
-- name: Join cluster
-  ansible.builtin.command: pvecm add {{ primary_node }}
-  register: cluster_join
+- name: Add user to docker group
+  ansible.builtin.command: usermod -aG docker {{ username }}
+  register: group_add
   failed_when:
-    - cluster_join.rc != 0
-    - "'already in a cluster' not in cluster_join.stderr"
-    - "'cannot join' not in cluster_join.stderr"
-  changed_when: cluster_join.rc == 0
+    - group_add.rc != 0
+    - "'already a member' not in group_add.stderr"
+  changed_when: group_add.rc == 0
 ```
 
 ## Check Before Fail
@@ -223,7 +221,7 @@ Attempt operation, handle specific errors:
   block:
     - name: Connect via primary endpoint
       ansible.builtin.uri:
-        url: "https://{{ primary_host }}:8006/api2/json"
+        url: "https://{{ primary_host }}/api/health"
         validate_certs: true
       register: primary_result
 
@@ -234,7 +232,7 @@ Attempt operation, handle specific errors:
 
     - name: Try fallback endpoint
       ansible.builtin.uri:
-        url: "https://{{ fallback_host }}:8006/api2/json"
+        url: "https://{{ fallback_host }}/api/health"
         validate_certs: false
       register: fallback_result
 ```
@@ -244,20 +242,20 @@ Attempt operation, handle specific errors:
 Run checks from controller for better error context:
 
 ```yaml
-- name: Verify API endpoint from controller
+- name: Verify service endpoint from controller
   ansible.builtin.uri:
-    url: "https://{{ inventory_hostname }}:8006/api2/json/version"
+    url: "http://{{ inventory_hostname }}:{{ app_port }}/health"
     validate_certs: false
   delegate_to: localhost
   register: api_check
   failed_when: false
 
-- name: Report API status
+- name: Report service status
   ansible.builtin.fail:
     msg: |
-      Cannot reach Proxmox API on {{ inventory_hostname }}
+      Cannot reach service on {{ inventory_hostname }}:{{ app_port }}
       Status: {{ api_check.status | default('connection failed') }}
-      Check: Network connectivity, firewall rules, pveproxy service
+      Check: Network connectivity, firewall rules, service status
   when: api_check.status | default(0) != 200
 ```
 
@@ -372,12 +370,6 @@ Run checks from controller for better error context:
             path: /tmp/app.tar.gz
             state: absent
 ```
-
-## Additional Resources
-
-For detailed error handling patterns and techniques, consult:
-
-- **`references/error-handling.md`** - Comprehensive error handling patterns, block/rescue/always examples, retry strategies
 
 ## Related Skills
 

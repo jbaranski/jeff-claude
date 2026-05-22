@@ -56,15 +56,13 @@ Captures task output for use in `changed_when` and `failed_when` expressions.
 Make commands report "changed" only when something actually changed:
 
 ```yaml
-- name: Create Proxmox API token
-  ansible.builtin.command: >
-    pveum user token add {{ username }}@pam {{ token_name }}
-  register: token_result
-  changed_when: "'already exists' not in token_result.stderr"
+- name: Enable Apache module
+  ansible.builtin.command: a2enmod {{ module_name }}
+  register: mod_result
+  changed_when: "'already enabled' not in mod_result.stdout"
   failed_when:
-    - token_result.rc != 0
-    - "'already exists' not in token_result.stderr"
-  no_log: true
+    - mod_result.rc != 0
+    - "'already enabled' not in mod_result.stdout"
 ```
 
 **Key pattern**: Detect specific output that indicates no change occurred.
@@ -74,22 +72,19 @@ Make commands report "changed" only when something actually changed:
 Check if a resource exists before creating it:
 
 ```yaml
-- name: Check if VM template exists
+- name: Check if database exists
   ansible.builtin.shell: |
     set -o pipefail
-    qm list | awk '{print $1}' | grep -q "^{{ template_id }}$"
+    psql -U postgres -lqt | cut -d \| -f 1 | grep -qw "{{ db_name }}"
   args:
     executable: /bin/bash
-  register: template_exists
+  register: db_exists
   changed_when: false  # Checking doesn't change anything
   failed_when: false   # Not finding it isn't a failure
 
-- name: Create VM template
-  ansible.builtin.command: >
-    qm create {{ template_id }}
-    --name {{ template_name }}
-    --memory 2048
-  when: template_exists.rc != 0  # Only create if doesn't exist
+- name: Create database
+  ansible.builtin.command: createdb -U postgres {{ db_name }}
+  when: db_exists.rc != 0  # Only create if doesn't exist
   register: create_result
   changed_when: create_result.rc == 0
 ```
@@ -99,21 +94,16 @@ Check if a resource exists before creating it:
 Confirm resource creation succeeded:
 
 ```yaml
-- name: Create VM
-  ansible.builtin.command: >
-    qm create {{ vmid }} --name {{ vm_name }}
-  register: create_result
+- name: Run database migration
+  ansible.builtin.command: /opt/app/bin/migrate up
+  register: migrate_result
   changed_when: true
 
-- name: Verify VM was created
-  ansible.builtin.shell: |
-    set -o pipefail
-    qm list | grep "{{ vmid }}"
-  args:
-    executable: /bin/bash
+- name: Verify migration succeeded
+  ansible.builtin.command: /opt/app/bin/migrate status
   register: verify_result
   changed_when: false
-  failed_when: verify_result.rc != 0
+  failed_when: "'pending' in verify_result.stdout"
 ```
 
 ## Pattern 4: Conditional Change Detection
@@ -159,16 +149,16 @@ Mark read-only operations as never changed:
 
 ```yaml
 # Checking status
-- name: Get cluster status
-  ansible.builtin.command: pvecm status
-  register: cluster_status
+- name: Get service status
+  ansible.builtin.command: systemctl status nginx
+  register: service_status
   changed_when: false
   failed_when: false
 
 # Gathering information
-- name: List available images
-  ansible.builtin.command: qm list
-  register: vm_list
+- name: List installed packages
+  ansible.builtin.command: dpkg -l
+  register: package_list
   changed_when: false
 
 # Verification checks
@@ -198,10 +188,10 @@ Use `until` for operations that may need retries:
 With command:
 
 ```yaml
-- name: Wait for VM to get IP address
-  ansible.builtin.command: qm agent {{ vmid }} network-get-interfaces
-  register: vm_network
-  until: vm_network.rc == 0
+- name: Wait for application port to be available
+  ansible.builtin.command: ss -tlnp sport = :{{ app_port }}
+  register: port_check
+  until: port_check.rc == 0 and port_check.stdout != ""
   retries: 12
   delay: 5
   changed_when: false
@@ -212,22 +202,22 @@ With command:
 Use facts to track state across tasks:
 
 ```yaml
-- name: Check existing cluster status
-  ansible.builtin.command: pvecm status
-  register: cluster_status
+- name: Check if nginx service is enabled
+  ansible.builtin.command: systemctl is-enabled nginx
+  register: nginx_enabled
   failed_when: false
   changed_when: false
 
-- name: Set cluster facts
+- name: Set service state facts
   ansible.builtin.set_fact:
-    is_cluster_member: "{{ cluster_status.rc == 0 }}"
-    in_target_cluster: "{{ cluster_name in cluster_status.stdout }}"
+    nginx_is_enabled: "{{ nginx_enabled.rc == 0 }}"
+    nginx_is_active: "{{ 'enabled' in nginx_enabled.stdout }}"
 
-- name: Create cluster
-  ansible.builtin.command: pvecm create {{ cluster_name }}
-  when: not in_target_cluster
-  register: cluster_create
-  changed_when: cluster_create.rc == 0
+- name: Enable nginx service
+  ansible.builtin.command: systemctl enable nginx
+  when: not nginx_is_enabled
+  register: enable_result
+  changed_when: enable_result.rc == 0
 ```
 
 ## Anti-Patterns to Avoid
@@ -371,4 +361,3 @@ Script location: `${CLAUDE_PLUGIN_ROOT}/skills/ansible-idempotency/scripts/check
 
 - **ansible-error-handling** - Block/rescue patterns
 - **ansible-fundamentals** - Module selection (prefer native modules)
-- **ansible-proxmox** - Proxmox-specific idempotency patterns

@@ -115,21 +115,19 @@ Native modules provide:
 Use `command` or `shell` modules when:
 
 1. No native module exists for the operation
-2. Interacting with vendor CLI tools (pvecm, pveceph, kubectl)
+2. Interacting with vendor CLI tools (certbot, kubectl, aws)
 3. Running one-off scripts
 
 Add proper controls:
 
 ```yaml
-- name: Create Proxmox API token
-  ansible.builtin.command: >
-    pveum user token add {{ username }}@pam {{ token_name }}
-  register: token_result
-  changed_when: "'already exists' not in token_result.stderr"
+- name: Enable Apache module
+  ansible.builtin.command: a2enmod {{ module_name }}
+  register: mod_result
+  changed_when: "'already enabled' not in mod_result.stdout"
   failed_when:
-    - token_result.rc != 0
-    - "'already exists' not in token_result.stderr"
-  no_log: true
+    - mod_result.rc != 0
+    - "'already enabled' not in mod_result.stdout"
 ```
 
 ## Collections in Use
@@ -141,8 +139,6 @@ This repository uses these Ansible collections:
 | `ansible.builtin` | Core functionality | copy, template, command, user |
 | `ansible.posix` | POSIX systems | authorized_key, synchronize |
 | `community.general` | General utilities | interfaces_file, ini_file |
-| `community.proxmox` | Proxmox VE | proxmox_vm, proxmox_kvm |
-| `infisical.vault` | Secrets management | read_secrets |
 | `community.docker` | Docker management | docker_container, docker_image |
 
 ### Installing Collections
@@ -152,7 +148,7 @@ This repository uses these Ansible collections:
 cd ansible && uv run ansible-galaxy collection install -r requirements.yml
 
 # Install specific collection
-uv run ansible-galaxy collection install community.proxmox
+uv run ansible-galaxy collection install community.docker
 ```
 
 ## Common Execution Patterns
@@ -182,9 +178,6 @@ uv run ansible-playbook playbooks/setup.yml --tags "network,storage"
 
 ```bash
 # Run ansible-lint
-mise run ansible-lint
-
-# Or directly
 uv run ansible-lint ansible/playbooks/
 ```
 
@@ -217,24 +210,24 @@ Use snake_case with descriptive names:
 
 ```yaml
 # GOOD - clear, descriptive
-proxmox_api_user: terraform@pam
+web_server_port: 8080
 docker_compose_version: "2.24.0"
-vm_memory_mb: 4096
+db_backup_retention_days: 7
 
 # BAD - vague, abbreviated
-pve_usr: terraform@pam
+port: 8080
 dc_ver: "2.24.0"
-mem: 4096
+days: 7
 ```
 
 ## Quick Reference Commands
 
 ```bash
 # Lint all Ansible files
-mise run ansible-lint
+uv run ansible-lint ansible/playbooks/
 
-# Run playbook with secrets from Infisical
-cd ansible && uv run ansible-playbook playbooks/my-playbook.yml
+# Run playbook
+uv run ansible-playbook playbooks/my-playbook.yml
 
 # Check syntax
 uv run ansible-playbook --syntax-check playbooks/my-playbook.yml
@@ -305,9 +298,25 @@ uv run ansible all -m ping
   no_log: true
 ```
 
+## Secrets Management
+
+Secrets (passwords, API keys, tokens) live in plain YAML files on the local machine or in GitHub Actions secrets — no third-party secrets manager. Keep it simple.
+
+```yaml
+# group_vars/all.yml or host_vars/hostname.yml (gitignored if sensitive)
+db_password: "changeme"
+api_key: "mykey"
+```
+
+Pass GitHub Actions secrets as extra vars at runtime:
+
+```bash
+uv run ansible-playbook playbooks/deploy.yml -e "db_password={{ secrets.DB_PASSWORD }}"
+```
+
+Always use `no_log: true` on tasks that reference these values to prevent exposure in logs.
+
 ## Related Skills
 
 - **ansible-idempotency** - Detailed changed_when/failed_when patterns
-- **ansible-secrets** - Infisical integration and security
-- **ansible-proxmox** - Proxmox-specific module selection
 - **ansible-error-handling** - Block/rescue, retry patterns

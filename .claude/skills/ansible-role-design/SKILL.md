@@ -227,9 +227,9 @@ Use lowercase with action + service pattern:
 For cluster operations, restart one node at a time:
 
 ```yaml
-- name: restart pve-cluster
+- name: restart postgresql
   ansible.builtin.systemd:
-    name: pve-cluster
+    name: postgresql
     state: restarted
   throttle: 1
 ```
@@ -388,18 +388,7 @@ Every role needs a README.md with:
 4. **Dependencies** - Other roles needed
 5. **Example Playbook** - How to use it
 
-## Additional Resources
-
-For detailed role design patterns and techniques, consult:
-
-- **`references/role-structure-standards.md`** - Production role structure patterns from geerlingguy analysis
-- **`references/handler-best-practices.md`** - Handler design, notification patterns, flush strategies
-- **`references/meta-dependencies.md`** - Role dependencies, Galaxy metadata, platform support
-- **`references/variable-management-patterns.md`** - Variable naming, scoping, precedence patterns
-- **`references/documentation-templates.md`** - README templates and documentation standards
-
 ## Related Skills
 
 - **ansible-playbook-design** - When to use roles vs playbooks
 - **ansible-fundamentals** - Module selection and naming
-- **ansible-testing** - Role testing with molecule

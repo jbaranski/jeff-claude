@@ -138,11 +138,11 @@ From lowest to highest precedence:
 ansible/
 ├── group_vars/
 │   ├── all.yml           # Variables for ALL hosts
-│   ├── proxmox.yml       # Proxmox cluster hosts
-│   └── docker_hosts.yml  # Docker host group
+│   ├── webservers.yml    # Web server hosts
+│   └── db_servers.yml    # Database server hosts
 ├── host_vars/
-│   ├── node01.yml        # Host-specific overrides
-│   └── node02.yml
+│   ├── web01.yml         # Host-specific overrides
+│   └── web02.yml
 └── playbooks/
     └── deploy.yml        # Uses vars: for playbook-specific
 ```
@@ -156,15 +156,15 @@ ntp_servers:
   - 0.pool.ntp.org
   - 1.pool.ntp.org
 
-# group_vars/proxmox.yml - Group-specific
-proxmox_api_host: "192.168.1.10"
-proxmox_cluster_name: "production"
+# group_vars/webservers.yml - Group-specific
+nginx_http_port: 80
+nginx_https_port: 443
 
-# host_vars/node01.yml - Host-specific overrides
-proxmox_node_id: 1
-ceph_osd_devices:
-  - /dev/sdb
-  - /dev/sdc
+# host_vars/web01.yml - Host-specific overrides
+nginx_worker_processes: 4
+ssl_cert_domains:
+  - example.com
+  - www.example.com
 ```
 
 ## Task Organization with Includes
@@ -180,23 +180,23 @@ Split playbook tasks into separate files when:
 ### Include Patterns
 
 ```yaml
-# playbooks/setup-cluster.yml
+# playbooks/setup-webserver.yml
 ---
-- name: Setup Proxmox cluster
-  hosts: proxmox
+- name: Setup web server
+  hosts: webservers
   become: true
 
   tasks:
-    - name: Configure networking
-      ansible.builtin.include_tasks: tasks/networking.yml
+    - name: Install and configure nginx
+      ansible.builtin.include_tasks: tasks/nginx.yml
 
-    - name: Setup storage
-      ansible.builtin.include_tasks: tasks/storage.yml
-      when: setup_storage | default(true)
+    - name: Configure SSL
+      ansible.builtin.include_tasks: tasks/ssl.yml
+      when: setup_ssl | default(true)
 
-    - name: Initialize cluster
-      ansible.builtin.include_tasks: tasks/cluster-init.yml
-      when: inventory_hostname == groups['proxmox'][0]
+    - name: Deploy application
+      ansible.builtin.include_tasks: tasks/app-deploy.yml
+      when: inventory_hostname == groups['webservers'][0]
 ```
 
 ### import_tasks vs include_tasks
@@ -225,33 +225,38 @@ Use multiple plays for different host groups or privilege levels:
 
 ```yaml
 ---
-# Play 1: Gather facts from all nodes
-- name: Gather cluster information
-  hosts: proxmox
-  gather_facts: true
-  tasks:
-    - name: Set cluster facts
-      ansible.builtin.set_fact:
-        cluster_node_count: "{{ groups['proxmox'] | length }}"
-
-# Play 2: Initialize primary node
-- name: Initialize cluster on primary
-  hosts: proxmox[0]
+# Play 1: Configure database server first
+- name: Configure database server
+  hosts: db_servers
   become: true
   tasks:
-    - name: Create cluster
-      ansible.builtin.command: pvecm create {{ cluster_name }}
-      when: not cluster_exists
+    - name: Ensure PostgreSQL is started
+      ansible.builtin.systemd:
+        name: postgresql
+        state: started
+        enabled: true
 
-# Play 3: Join secondary nodes
-- name: Join cluster on secondary nodes
-  hosts: proxmox[1:]
+# Play 2: Deploy application to app servers
+- name: Deploy application
+  hosts: app_servers
   become: true
-  serial: 1  # One node at a time
+  serial: 1  # One server at a time for rolling deploy
   tasks:
-    - name: Join cluster
-      ansible.builtin.command: pvecm add {{ primary_node }}
-      when: not node_in_cluster
+    - name: Install application package
+      ansible.builtin.apt:
+        name: "{{ app_package }}"
+        state: present
+      notify: restart app
+
+# Play 3: Reload load balancer
+- name: Update load balancer
+  hosts: load_balancers
+  become: true
+  tasks:
+    - name: Reload nginx
+      ansible.builtin.systemd:
+        name: nginx
+        state: reloaded
 ```
 
 ## Handler Best Practices
@@ -372,12 +377,6 @@ Add validation at the start of playbooks:
       ansible.builtin.debug:
         msg: "Playbook completed successfully"
 ```
-
-## Additional Resources
-
-For detailed playbook patterns and techniques, consult:
-
-- **`references/playbook-role-patterns.md`** - Comprehensive playbook organization patterns, play structure, import strategies
 
 ## Related Skills
 
