@@ -1,4 +1,4 @@
-When asked to integrate these skills into a new repository, create a Makefile entry like this (create the Makefile if the repo doesn't already have one in project root).
+When asked to integrate these plugins into a new repository, create a Makefile entry like this (create the Makefile if the repo doesn't already have one in project root).
 
 Please note in the snippet "<the list of plugins the user asked for>" needs to be replaced with the actual plugin or plugins the user asked for.
 
