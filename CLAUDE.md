@@ -135,35 +135,31 @@ The `zip/` directory is auto-populated by the GitHub Actions workflow `.github/w
 
 These were real errors made during implementation — documented so future sessions don't repeat them.
 
-### Mistake 1: Fetched skill content from wrong URL
-
-Fetched from `.codex/skills/phaser-gamedev` instead of `.claude/skills/phaser-gamedev`. Always confirm the exact path in the source repo before fetching.
-
-### Mistake 2: Wrong naming — didn't follow existing conventions
+### Mistake 1: Wrong naming — didn't follow existing conventions
 
 Named the skill `phaser-gamedev` instead of `jeff-skill-phaser-gamedev` and the agent `jeff-agent-phaser-gamedev` instead of `jeff-agent-phaser-software-developer`. **Before writing a single file, look at existing agents and skills in `.claude/agents/` and `.claude/skills/` and match the pattern exactly.**
 
-### Mistake 3: Created real files in `plugins/` instead of symlinks
+### Mistake 2: Created real files in `plugins/` instead of symlinks
 
 Put actual `.md` files and a real directory in `plugins/jeff-plugin-phaser/agents/` and `plugins/jeff-plugin-phaser/skills/`. **All entries in a plugin's `agents/` and `skills/` directories are always relative symlinks — never real files.** Verify with `ls -la` before committing.
 
-### Mistake 4: Missing `plugin.json`
+### Mistake 3: Missing `plugin.json`
 
 Forgot to create `plugins/jeff-plugin-phaser/.claude-plugin/plugin.json`. Every plugin needs this file.
 
-### Mistake 5: Missing marketplace.json registration
+### Mistake 4: Missing marketplace.json registration
 
 Forgot to add the new plugin to `.claude-plugin/marketplace.json`. The plugin won't be discoverable without this.
 
-### Mistake 6: Forgot to update README
+### Mistake 5: Forgot to update README
 
 Forgot both the inspiration link and the `/plugin install` command in `README`. The README is the user-facing install reference — always update it.
 
-### Mistake 7: Manually created zip files
+### Mistake 6: Manually created zip files
 
 Created zip files by hand in `zip/`. CI generates these automatically. Manual zips add noise and may conflict with CI output. Never touch the `zip/` directory.
 
-### Mistake 8: Didn't run Prettier before committing
+### Mistake 7: Didn't run Prettier before committing
 
 All 7 new phaser markdown files failed `prettier --check`. Run `npx prettier --write` on all new files before staging them, then verify with `--check`.
 
