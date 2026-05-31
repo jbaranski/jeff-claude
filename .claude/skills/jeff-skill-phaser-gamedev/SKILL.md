@@ -29,13 +29,13 @@ Spritesheet loading is fragile—a few pixels off causes silent corruption that 
 
 Read these BEFORE working on the relevant feature:
 
-| When working on... | Read first |
-|--------------------|------------|
-| Loading ANY spritesheet | [spritesheets-nineslice.md](references/spritesheets-nineslice.md) |
-| Nine-slice UI panels | [spritesheets-nineslice.md](references/spritesheets-nineslice.md) |
-| Tiled tilemaps, collision layers | [tilemaps.md](references/tilemaps.md) |
-| Physics tuning, groups, pooling | [arcade-physics.md](references/arcade-physics.md) |
-| Performance issues, object pooling | [performance.md](references/performance.md) |
+| When working on...                 | Read first                                                        |
+| ---------------------------------- | ----------------------------------------------------------------- |
+| Loading ANY spritesheet            | [spritesheets-nineslice.md](references/spritesheets-nineslice.md) |
+| Nine-slice UI panels               | [spritesheets-nineslice.md](references/spritesheets-nineslice.md) |
+| Tiled tilemaps, collision layers   | [tilemaps.md](references/tilemaps.md)                             |
+| Physics tuning, groups, pooling    | [arcade-physics.md](references/arcade-physics.md)                 |
+| Performance issues, object pooling | [performance.md](references/performance.md)                       |
 
 ---
 
@@ -43,11 +43,11 @@ Read these BEFORE working on the relevant feature:
 
 ### Physics System Choice
 
-| System | Use When |
-|--------|----------|
-| **Arcade** | Platformers, shooters, most 2D games. Fast AABB collisions |
+| System     | Use When                                                               |
+| ---------- | ---------------------------------------------------------------------- |
+| **Arcade** | Platformers, shooters, most 2D games. Fast AABB collisions             |
 | **Matter** | Physics puzzles, ragdolls, realistic collisions. Slower, more accurate |
-| **None** | Menu scenes, visual novels, card games |
+| **None**   | Menu scenes, visual novels, card games                                 |
 
 ### Scene Structure
 
@@ -63,10 +63,10 @@ scenes/
 ### Scene Transitions
 
 ```typescript
-this.scene.start('GameScene', { level: 1 });     // Stop current, start new
-this.scene.launch('UIScene');                     // Run in parallel
-this.scene.pause('GameScene');                    // Pause
-this.scene.stop('UIScene');                       // Stop
+this.scene.start('GameScene', { level: 1 }); // Stop current, start new
+this.scene.launch('UIScene'); // Run in parallel
+this.scene.pause('GameScene'); // Pause
+this.scene.stop('UIScene'); // Stop
 ```
 
 ---
@@ -96,10 +96,10 @@ const config: Phaser.Types.Core.GameConfig = {
 
 ```typescript
 class GameScene extends Phaser.Scene {
-  init(data) { }      // Receive data from previous scene
-  preload() { }       // Load assets (runs before create)
-  create() { }        // Set up game objects, physics, input
-  update(time, delta) { }  // Game loop, use delta for frame-rate independence
+  init(data) {} // Receive data from previous scene
+  preload() {} // Load assets (runs before create)
+  create() {} // Set up game objects, physics, input
+  update(time, delta) {} // Game loop, use delta for frame-rate independence
 }
 ```
 
@@ -117,15 +117,15 @@ this.player.x += this.speed;
 
 ## Anti-Patterns
 
-| Anti-Pattern | Problem | Solution |
-|--------------|---------|----------|
-| Global state on `window` | Scene transitions break state | Use scene data, registries |
-| Loading in `create()` | Assets not ready when referenced | Load in `preload()`, use Boot scene |
-| Frame counting | Game speed varies with FPS | Use `delta / 1000` |
-| Matter for simple collisions | Unnecessary complexity | Arcade handles most 2D games |
-| One giant scene | Hard to extend | Separate gameplay/UI/menus |
-| Magic numbers | Impossible to balance | Config objects, constants |
-| No object pooling | GC stutters | Groups with `setActive(false)` |
+| Anti-Pattern                 | Problem                          | Solution                            |
+| ---------------------------- | -------------------------------- | ----------------------------------- |
+| Global state on `window`     | Scene transitions break state    | Use scene data, registries          |
+| Loading in `create()`        | Assets not ready when referenced | Load in `preload()`, use Boot scene |
+| Frame counting               | Game speed varies with FPS       | Use `delta / 1000`                  |
+| Matter for simple collisions | Unnecessary complexity           | Arcade handles most 2D games        |
+| One giant scene              | Hard to extend                   | Separate gameplay/UI/menus          |
+| Magic numbers                | Impossible to balance            | Config objects, constants           |
+| No object pooling            | GC stutters                      | Groups with `setActive(false)`      |
 
 ---
 

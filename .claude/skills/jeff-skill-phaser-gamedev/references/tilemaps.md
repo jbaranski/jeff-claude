@@ -8,19 +8,19 @@ Comprehensive guide for Phaser 3 tilemap integration with Tiled Map Editor.
 
 ### Tileset Types
 
-| Type | Description | Use Case |
-|------|-------------|----------|
-| **Image-based** | Single image with fixed tile size, margin, spacing | Standard tilesets, consistent tile sizes |
-| **Collection-based** | Each tile is separate image file | Variable-size tiles, sprites as tiles |
+| Type                 | Description                                        | Use Case                                 |
+| -------------------- | -------------------------------------------------- | ---------------------------------------- |
+| **Image-based**      | Single image with fixed tile size, margin, spacing | Standard tilesets, consistent tile sizes |
+| **Collection-based** | Each tile is separate image file                   | Variable-size tiles, sprites as tiles    |
 
 ### Layer Types
 
-| Layer | Purpose | Phaser Access |
-|-------|---------|---------------|
-| **Tile Layer** | Grid-based tile storage with flip flags | `map.createLayer()` |
+| Layer            | Purpose                                                | Phaser Access          |
+| ---------------- | ------------------------------------------------------ | ---------------------- |
+| **Tile Layer**   | Grid-based tile storage with flip flags                | `map.createLayer()`    |
 | **Object Layer** | Free-positioned shapes, points, polygons, tile objects | `map.getObjectLayer()` |
-| **Image Layer** | Background/foreground images with repeat | `map.images` array |
-| **Group Layer** | Hierarchical organization | Flattened on export |
+| **Image Layer**  | Background/foreground images with repeat               | `map.images` array     |
+| **Group Layer**  | Hierarchical organization                              | Flattened on export    |
 
 ### Recommended Layer Structure (Top to Bottom in Tiled)
 
@@ -57,14 +57,14 @@ Critical concept for understanding tilemap data.
 
 ```javascript
 const FLIPPED_HORIZONTALLY = 0x80000000;
-const FLIPPED_VERTICALLY   = 0x40000000;
-const FLIPPED_DIAGONALLY   = 0x20000000;
+const FLIPPED_VERTICALLY = 0x40000000;
+const FLIPPED_DIAGONALLY = 0x20000000;
 
 function parseGID(rawGid) {
   const flipH = (rawGid & FLIPPED_HORIZONTALLY) !== 0;
   const flipV = (rawGid & FLIPPED_VERTICALLY) !== 0;
   const flipD = (rawGid & FLIPPED_DIAGONALLY) !== 0;
-  const gid = rawGid & ~(0xF0000000);
+  const gid = rawGid & ~0xf0000000;
   return { gid, flipH, flipV, flipD };
 }
 ```
@@ -119,11 +119,7 @@ create() {
 ### Multiple Tilesets Per Layer
 
 ```javascript
-const groundLayer = map.createLayer('Ground', [
-  terrainTileset,
-  propsTileset,
-  decorTileset
-]);
+const groundLayer = map.createLayer('Ground', [terrainTileset, propsTileset, decorTileset]);
 ```
 
 ---
@@ -149,7 +145,7 @@ groundLayer.setCollisionByExclusion([-1, 0]);
 ### One-Way Platforms
 
 ```javascript
-groundLayer.forEachTile(tile => {
+groundLayer.forEachTile((tile) => {
   if (tile.properties.oneWay) {
     tile.collideDown = false;
     tile.collideLeft = false;
@@ -179,11 +175,11 @@ onHazardHit(player, tile) {
 const objectLayer = map.getObjectLayer('Objects');
 
 // Find by name
-const spawnPoint = map.findObject('Objects', obj => obj.name === 'PlayerSpawn');
+const spawnPoint = map.findObject('Objects', (obj) => obj.name === 'PlayerSpawn');
 player.setPosition(spawnPoint.x, spawnPoint.y);
 
 // Filter by type
-const enemies = map.filterObjects('Enemies', obj => obj.type === 'goblin');
+const enemies = map.filterObjects('Enemies', (obj) => obj.type === 'goblin');
 ```
 
 ### Accessing Custom Properties
@@ -193,7 +189,7 @@ Properties are stored as array of `{name, type, value}`:
 ```javascript
 function getProperty(obj, propName) {
   if (!obj.properties) return undefined;
-  const prop = obj.properties.find(p => p.name === propName);
+  const prop = obj.properties.find((p) => p.name === propName);
   return prop ? prop.value : undefined;
 }
 
@@ -210,7 +206,7 @@ const coins = map.createFromObjects('Collectibles', {
   classType: Phaser.Physics.Arcade.Sprite
 });
 
-coins.forEach(coin => {
+coins.forEach((coin) => {
   this.physics.add.existing(coin);
   coin.body.setAllowGravity(false);
 });
@@ -240,7 +236,7 @@ groundLayer.weightedRandomize(x, y, width, height, [
 ]);
 
 // Iterate all tiles
-groundLayer.forEachTile(tile => {
+groundLayer.forEachTile((tile) => {
   if (tile.properties.spawnEnemy) {
     spawnEnemy(tile.getCenterX(), tile.getCenterY());
     groundLayer.removeTileAt(tile.x, tile.y);

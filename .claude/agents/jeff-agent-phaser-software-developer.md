@@ -43,11 +43,11 @@ Use `this.scene.start()` to transition, `this.scene.launch()` for parallel scene
 
 ## Physics Guidelines
 
-| System | Use when |
-|--------|----------|
+| System | Use when                                                    |
+| ------ | ----------------------------------------------------------- |
 | Arcade | Platformers, shooters, most 2D games — fast AABB collisions |
-| Matter | Physics puzzles, ragdolls, realistic collisions — slower |
-| None | Menu/UI-only scenes |
+| Matter | Physics puzzles, ragdolls, realistic collisions — slower    |
+| None   | Menu/UI-only scenes                                         |
 
 ## Code Quality
 
@@ -59,13 +59,13 @@ Use `this.scene.start()` to transition, `this.scene.launch()` for parallel scene
 
 ## Common Pitfalls to Avoid
 
-| Avoid | Use Instead |
-|-------|------------|
-| Global `window` state | Scene data registry or event emitter |
-| Asset loading in `create()` | Load in `preload()` |
-| Frame counting for timing | Delta-time calculations |
-| `new Vector2()` in update loop | Pre-allocate, reuse with `.set()` |
-| Monolithic scene classes | Modular systems per concern |
+| Avoid                          | Use Instead                          |
+| ------------------------------ | ------------------------------------ |
+| Global `window` state          | Scene data registry or event emitter |
+| Asset loading in `create()`    | Load in `preload()`                  |
+| Frame counting for timing      | Delta-time calculations              |
+| `new Vector2()` in update loop | Pre-allocate, reuse with `.set()`    |
+| Monolithic scene classes       | Modular systems per concern          |
 
 ## TypeScript Setup (Preferred)
 
@@ -75,6 +75,7 @@ npm install phaser
 ```
 
 Use Phaser's type definitions for autocomplete:
+
 ```typescript
 import Phaser from 'phaser';
 

@@ -56,10 +56,10 @@ player.body.setBounce(0.5, 0.5);
 player.body.setDrag(100, 100);
 player.body.setFriction(0.5, 0.5);
 player.body.setMaxVelocity(300, 400);
-player.body.setGravityY(500);           // Additional gravity
+player.body.setGravityY(500); // Additional gravity
 player.body.setAcceleration(100, 0);
 player.body.setCollideWorldBounds(true);
-player.body.onWorldBounds = true;       // Enable worldbounds event
+player.body.onWorldBounds = true; // Enable worldbounds event
 ```
 
 ### Static Bodies
@@ -84,7 +84,7 @@ sprite.refreshBody();
 ```javascript
 // Custom body size
 sprite.body.setSize(width, height, center);
-sprite.body.setSize(32, 48, true);      // Centered
+sprite.body.setSize(32, 48, true); // Centered
 
 // Offset body from sprite
 sprite.body.setOffset(x, y);
@@ -107,7 +107,7 @@ this.physics.add.collider(player, enemies, hitEnemy, null, this);
 this.physics.add.overlap(player, coins, collectCoin, null, this);
 
 function collectCoin(player, coin) {
-  coin.disableBody(true, true);  // (disableGameObject, hideGameObject)
+  coin.disableBody(true, true); // (disableGameObject, hideGameObject)
 }
 ```
 
@@ -169,13 +169,13 @@ const enemies = this.physics.add.group({
 const bullets = this.physics.add.group({
   defaultKey: 'bullet',
   maxSize: 50,
-  runChildUpdate: true,           // Call update() on children
+  runChildUpdate: true, // Call update() on children
   collideWorldBounds: true,
   velocityY: -300
 });
 
 // Iterate children
-enemies.children.iterate(enemy => {
+enemies.children.iterate((enemy) => {
   enemy.setBounce(0.5);
 });
 
@@ -334,9 +334,7 @@ if (player.body.wasTouching.down && !player.body.touching.down) {
 const overlapping = this.physics.overlap(player, enemy);
 
 // Distance check
-const distance = Phaser.Math.Distance.Between(
-  player.x, player.y, enemy.x, enemy.y
-);
+const distance = Phaser.Math.Distance.Between(player.x, player.y, enemy.x, enemy.y);
 ```
 
 ## World Bounds
@@ -358,7 +356,7 @@ this.cameras.main.startFollow(player);
 ```javascript
 // Toggle debug at runtime
 this.physics.world.drawDebug = true;
-this.physics.world.debugGraphic.clear();  // Clear previous
+this.physics.world.debugGraphic.clear(); // Clear previous
 
 // Custom debug rendering
 const graphics = this.add.graphics();
@@ -366,12 +364,8 @@ const graphics = this.add.graphics();
 this.physics.world.on('worldstep', () => {
   graphics.clear();
 
-  enemies.children.iterate(enemy => {
-    graphics.strokeCircle(
-      enemy.body.center.x,
-      enemy.body.center.y,
-      enemy.body.halfWidth
-    );
+  enemies.children.iterate((enemy) => {
+    graphics.strokeCircle(enemy.body.center.x, enemy.body.center.y, enemy.body.halfWidth);
   });
 });
 ```
@@ -384,8 +378,7 @@ this.physics.world.on('worldstep', () => {
 // In process callback
 function oneWayPlatform(player, platform) {
   // Only collide if player is falling and above platform
-  if (player.body.velocity.y > 0 &&
-      player.body.bottom <= platform.body.top + 10) {
+  if (player.body.velocity.y > 0 && player.body.bottom <= platform.body.top + 10) {
     return true;
   }
   return false;
@@ -429,8 +422,7 @@ this.tweens.add({
 });
 
 // In update() - move player with platform
-if (player.body.touching.down &&
-    player.body.blocked.down) {
+if (player.body.touching.down && player.body.blocked.down) {
   // Player is on platform
 }
 ```
