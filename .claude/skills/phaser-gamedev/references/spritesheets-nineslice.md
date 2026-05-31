@@ -51,6 +51,28 @@ imageWidth = (frameWidth × cols) + (spacing × (cols - 1)) + (margin × 2)
 imageHeight = (frameHeight × rows) + (spacing × (rows - 1)) + (margin × 2)
 ```
 
+**CRITICAL: Check for Square Frames First**
+
+Character spritesheets commonly use **square frames** (frameWidth = frameHeight). Before assuming different width/height:
+
+```
+Image: 448×392 pixels
+
+WRONG approach (assuming 8x8 grid):
+  - 448/8 = 56 (width) ✓
+  - 392/8 = 49 (height) ← Produces bleeding artifacts!
+
+CORRECT approach (try square frames first):
+  - Try 56×56: 448/56 = 8 cols ✓, 392/56 = 7 rows ✓
+  - This is an 8×7 grid with square 56×56 frames
+```
+
+**Verification Steps**:
+1. Calculate frameWidth from image width and visible column count
+2. **Try using that same value for frameHeight** (square frames)
+3. Check if height divides evenly: `imageHeight / frameWidth = integer?`
+4. Only use different height if square doesn't work
+
 **Example Calculation**:
 ```
 448px image with 3 columns:
@@ -79,6 +101,8 @@ Before writing spritesheet loader code:
 - Image dimension doesn't divide evenly by expected frame count
 - Calculated frame size has decimals
 - Visual inspection shows gaps between frame content
+- **frameWidth ≠ frameHeight for character sprites** - most character animations use square frames; non-square dimensions are a warning sign to re-verify
+- **Assuming row count matches column count** - an 8-column sheet is NOT necessarily 8 rows; count rows visually or test if `imageHeight / frameWidth` gives an integer
 
 ---
 
@@ -224,34 +248,25 @@ const UI_PANEL_CONFIG = {
 
 ### 5. Internal Padding Inside Frames ("Side Bars")
 
-**Symptom**: Paper-like panels show opaque vertical (or horizontal) "bands" just inside the left/right (or top/bottom) edges.
+**Symptom**: Paper-like UI panels show opaque bands just inside the edges.
 
-**Cause**: The art inside each 3×3 cell is centered with lots of transparent padding. Edge frames (3/5 or 1/7) often include a wide region of interior fill, so using the full frame as the slice region paints that fill into the panel as a visible band.
+**Cause**: The art in each 3×3 cell is centered with transparent padding, so the edge tiles contribute interior fill when stretched.
 
-**Fix**: Build nine-slice panels from **trimmed slices**, not full frames:
-1. Inspect the 9 frames and find the *effective content bounds* (alpha bounding box) per row/col.
-2. Crop each tile to that effective region (removing padded interior space).
-3. Composite/cache a single texture for the target panel size (canvas or RenderTexture).
-4. Use a small overlap (≈1px) + disable smoothing to avoid seam lines.
+**Fix**: Trim each tile to the actual painted bounds (alpha bbox), composite/cache a texture at the target size, and add a small overlap (≈1px, smoothing off) to avoid seams.
 
 ### 6. Scaling Discontinuous UI Art (Ribbons / Banners)
 
-**Symptom**: A ribbon/banner looks fine at native resolution, but appears split/"broken" when scaled up (gaps become obvious).
+**Symptom**: A ribbon looks broken or the fill disappears when scaled.
 
-**Cause**: The source image contains multiple separated slices (e.g., left/center/right) with transparent gutters between them. Scaling the whole image scales the gutters too.
+**Cause**: The source row is actually three separate slices (left cap, center bar, right cap) with transparent gutters. Scaling the entire crop includes the gutters, making the UI look segmented or blank.
 
-**Fix**: Treat it as a multi-slice (often a 3-slice), and stitch a cached texture at the target size:
-- crop/draw the left cap, center band, right cap separately
-- stretch only the center band to fill the requested width
-- use ~1px seam overlap + disable smoothing to hide hairline seams
+**Fix**: Treat it as a multi-slice (usually 3-slice). Draw left cap, stretched center, right cap into a canvas at the desired width; disable smoothing and include small seam overlaps so the stitched texture feels seamless.
 
 ```javascript
-// Example: 3-slice stitcher for a single ribbon row
-function getOrCreate3Slice(scene, sourceKey, width, height, slices, row = 0) {
-  const texKey = `${sourceKey}_3slice_${row}_${width}x${height}`;
-  if (scene.textures.exists(texKey)) return texKey;
+function createRibbonSlice(scene, srcKey, width, height, row, slices) {
+  const key = `${srcKey}_3slice_${row}_${width}x${height}`;
+  if (scene.textures.exists(key)) return key;
 
-  const src = scene.textures.get(sourceKey).getSourceImage();
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
@@ -259,19 +274,18 @@ function getOrCreate3Slice(scene, sourceKey, width, height, slices, row = 0) {
   ctx.imageSmoothingEnabled = false;
 
   const sy = row * slices.frameH;
-  const scaleY = height / slices.frameH;
+  const leftW = Math.round(slices.left.w * (height / slices.frameH));
+  const rightW = Math.round(slices.right.w * (height / slices.frameH));
+  const centerW = Math.max(1, width - leftW - rightW);
   const seam = 1;
 
-  const leftW = Math.max(1, Math.round(slices.left.w * scaleY));
-  const rightW = Math.max(1, Math.round(slices.right.w * scaleY));
-  const centerW = Math.max(1, width - leftW - rightW);
-
+  const src = scene.textures.get(srcKey).getSourceImage();
   ctx.drawImage(src, slices.left.x, sy, slices.left.w, slices.frameH, 0, 0, leftW + seam, height);
   ctx.drawImage(src, slices.center.x, sy, slices.center.w, slices.frameH, leftW - seam, 0, centerW + seam * 2, height);
   ctx.drawImage(src, slices.right.x, sy, slices.right.w, slices.frameH, leftW + centerW - seam, 0, rightW + seam, height);
 
-  scene.textures.addCanvas(texKey, canvas);
-  return texKey;
+  scene.textures.addCanvas(key, canvas);
+  return key;
 }
 ```
 

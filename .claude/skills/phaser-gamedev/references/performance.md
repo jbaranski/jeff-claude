@@ -1,51 +1,115 @@
-# Performance Optimization in Phaser 3
+# Performance Optimization
 
-Strategies for maintaining smooth 60fps gameplay.
+Strategies for maintaining smooth 60fps in Phaser 3 games.
 
 ## Object Pooling
 
-The most impactful optimization. Reuse inactive instances instead of creating/destroying objects continuously—eliminates GC pauses that cause stuttering.
+The most impactful optimization for games with many spawning/despawning objects.
+
+### Why Pool?
+
+Creating/destroying objects causes:
+- Memory allocation overhead
+- Garbage collection pauses (stutters)
+- Texture rebinding costs
+
+### Implementation Pattern
 
 ```javascript
-// Create pool in create()
-this.bulletPool = this.physics.add.group({
-  defaultKey: 'bullet',
-  maxSize: 100
+class BulletPool {
+  constructor(scene) {
+    this.scene = scene;
+    this.pool = scene.physics.add.group({
+      defaultKey: 'bullet',
+      maxSize: 100,
+      runChildUpdate: true
+    });
+  }
+
+  spawn(x, y, velocityX, velocityY) {
+    const bullet = this.pool.get(x, y);
+
+    if (!bullet) return null;  // Pool exhausted
+
+    bullet.setActive(true);
+    bullet.setVisible(true);
+    bullet.body.enable = true;
+    bullet.body.reset(x, y);
+    bullet.setVelocity(velocityX, velocityY);
+
+    return bullet;
+  }
+
+  kill(bullet) {
+    bullet.setActive(false);
+    bullet.setVisible(false);
+    bullet.body.enable = false;
+    bullet.body.stop();
+  }
+}
+
+// Usage
+this.bulletPool = new BulletPool(this);
+
+// Spawn
+const bullet = this.bulletPool.spawn(player.x, player.y, 500, 0);
+
+// Kill (in collision callback or update)
+this.bulletPool.kill(bullet);
+```
+
+### Built-in Group Pooling
+
+```javascript
+// Configure group for pooling
+const enemies = this.physics.add.group({
+  maxSize: 50,
+  classType: Enemy,
+  createCallback: (enemy) => {
+    enemy.setName('enemy' + enemies.getLength());
+  },
+  removeCallback: (enemy) => {
+    enemy.setName('');
+  }
 });
 
-// Acquire from pool
-fire(x, y, vx, vy) {
-  const bullet = this.bulletPool.get(x, y);
-  if (!bullet) return;  // Pool exhausted
-  bullet.setActive(true).setVisible(true);
-  bullet.body.enable = true;
-  bullet.body.setVelocity(vx, vy);
-}
+// Get inactive member (or create if under maxSize)
+const enemy = enemies.get(x, y);
 
-// Return to pool
-killBullet(bullet) {
-  bullet.setActive(false).setVisible(false);
-  bullet.body.enable = false;
-  bullet.body.stop();
-}
+// Return to pool (don't destroy)
+enemy.setActive(false);
+enemy.setVisible(false);
 ```
 
 ## Texture Atlases
 
-Combine sprites into a single texture to reduce draw calls and HTTP requests.
+Combine sprites into atlases to reduce draw calls.
+
+### Why Atlases?
+
+- Single texture bind per atlas
+- Reduced HTTP requests
+- Better GPU memory usage
+
+### Using TexturePacker
+
+Export as Phaser 3 JSON Hash format.
 
 ```javascript
-// Load atlas (created with TexturePacker or similar)
-this.load.atlas('sprites', 'assets/sprites.png', 'assets/sprites.json');
+// Load atlas
+this.load.atlas('sprites', 'atlas/sprites.png', 'atlas/sprites.json');
 
-// Use frames from atlas
-const player = this.add.sprite(x, y, 'sprites', 'player_idle_0');
+// Use frames
+this.add.sprite(x, y, 'sprites', 'player-idle-1');
+
+// Animation from atlas
 this.anims.create({
   key: 'walk',
   frames: this.anims.generateFrameNames('sprites', {
-    prefix: 'player_walk_',
-    start: 0,
-    end: 7
+    prefix: 'player-walk-',
+    start: 1,
+    end: 8,
+    zeroPad: 2
   }),
   frameRate: 10,
   repeat: -1
@@ -54,126 +118,290 @@ this.anims.create({
 
 ## Camera Culling
 
-Phaser automatically culls off-screen sprites and images. Ensure it's working:
+Only render what's visible.
+
+### Automatic Culling
+
+Phaser culls off-camera objects by default for:
+- Sprites
+- Images
+- TileSprites
+
+Disable if needed:
+```javascript
+sprite.setScrollFactor(0);  // Fixed to camera (no culling)
+```
+
+### Manual Culling for Custom Objects
 
 ```javascript
-// Verify culling is active (default: true)
-this.cameras.main.disableCull = false;
+update() {
+  const cam = this.cameras.main;
+  const bounds = cam.worldView;
 
-// For large worlds, set explicit cull padding
-layer.setCullPadding(2, 2);  // Extra tiles around viewport
-
-// Check how many tiles are being rendered
-console.log('Visible tiles:', groundLayer.culledTiles.length);
+  this.enemies.children.iterate(enemy => {
+    if (Phaser.Geom.Rectangle.Contains(bounds, enemy.x, enemy.y)) {
+      enemy.setActive(true);
+      enemy.setVisible(true);
+    } else {
+      enemy.setActive(false);
+      enemy.setVisible(false);
+    }
+  });
+}
 ```
 
 ## Physics Optimization
 
-```javascript
-// Disable physics on off-screen bodies
-enemies.children.iterate(enemy => {
-  if (!this.cameras.main.worldView.contains(enemy.x, enemy.y)) {
-    enemy.body.enable = false;
-  } else {
-    enemy.body.enable = true;
-  }
-});
+### Reduce Collision Checks
 
-// Use simpler collision shapes
-// Circles are faster than rectangles
+```javascript
+// Only check relevant collisions
+this.physics.add.collider(player, groundLayer);
+this.physics.add.collider(enemies, groundLayer);
+this.physics.add.overlap(player, enemies, hitEnemy);
+
+// DON'T: enemies vs enemies if not needed
+// this.physics.add.collider(enemies, enemies);
+```
+
+### Disable Physics When Not Needed
+
+```javascript
+// Disable body temporarily
+sprite.body.enable = false;
+
+// Re-enable
+sprite.body.enable = true;
+
+// For off-screen objects
+if (!cam.worldView.contains(enemy.x, enemy.y)) {
+  enemy.body.enable = false;
+} else {
+  enemy.body.enable = true;
+}
+```
+
+### Use Spatial Hash for Many Objects
+
+```javascript
+physics: {
+  arcade: {
+    useTree: true,      // Enable quadtree (default)
+    maxEntries: 16      // Tune for your object count
+  }
+}
+
+// For >5000 dynamic bodies, disable tree
+// useTree: false
+```
+
+### Simplify Collision Shapes
+
+```javascript
+// Use circles for round objects (faster than rectangles)
 sprite.body.setCircle(16);
 
-// Spatial hash for large numbers of bodies (>5000)
-physics: {
-  arcade: { useTree: false }
-}
-
-// Reduce unnecessary collision pairs
-// Only add colliders you actually need
+// Reduce body size for tighter collisions
+sprite.body.setSize(24, 32);  // Smaller than sprite
 ```
 
-## Update Loop Best Practices
+## Rendering Optimization
+
+### Batch Similar Sprites
+
+Group sprites using same texture for batching:
 
 ```javascript
-// Never create objects in update()—allocates memory every frame
-// Bad:
-update() {
-  const pos = new Phaser.Math.Vector2(this.player.x, this.player.y); // BAD
-}
-
-// Good: pre-allocate
-create() {
-  this._tempVec = new Phaser.Math.Vector2();
-}
-update() {
-  this._tempVec.set(this.player.x, this.player.y); // Reuse
-}
-
-// Throttle expensive operations
-update(time, delta) {
-  // AI runs every 200ms, not every frame
-  if (time > this._nextAiUpdate) {
-    this._nextAiUpdate = time + 200;
-    this.updateEnemyAI();
-  }
-
-  // Critical: player movement runs every frame
-  this.updatePlayer(delta);
-}
-```
-
-## Rendering Improvements
-
-```javascript
-// Batch similar sprites (automatic with texture atlases)
-
-// Avoid expensive blend modes
-sprite.blendMode = Phaser.BlendModes.NORMAL;  // Cheapest
-
-// Limit particles
-this.add.particles(x, y, 'spark', {
-  maxParticles: 50,  // Cap particle count
-  lifespan: 500,
-  speed: { min: 50, max: 150 }
+// Good: All use same atlas
+const coins = this.add.group({
+  key: 'atlas',
+  frame: 'coin',
+  repeat: 100
 });
 
-// Use renderTexture to cache complex static scenes
-const rt = this.add.renderTexture(0, 0, 800, 600);
-rt.draw(complexGroup);  // Bake to texture
-complexGroup.destroy(); // Remove originals
+// Bad: Mixed textures break batching
 ```
 
-## Monitoring Performance
+### Reduce Blend Modes
 
 ```javascript
-// Built-in FPS display
-this.game.config.fps = {
-  target: 60,
-  forceSetTimeOut: false,
-  deltaHistory: 10,
-  panicMax: 120
-};
+// Normal blend mode is fastest
+sprite.setBlendMode(Phaser.BlendModes.NORMAL);
 
-// Show FPS counter
-this.add.text(16, 16, '', { fontSize: '12px' })
-  .setScrollFactor(0)
-  .setDepth(1000);
-
-update() {
-  fpsText.setText('FPS: ' + Math.round(this.game.loop.actualFps));
-}
-
-// Chrome DevTools Performance tab
-// Look for: long GC pauses, excessive draw calls, memory growth
+// Avoid if possible:
+// - ADD, MULTIPLY, SCREEN cause extra draw calls
 ```
 
-## Summary Checklist
+### Use Static Images for Backgrounds
 
-- [ ] Object pooling for bullets, particles, enemies
-- [ ] Texture atlas instead of individual images
-- [ ] No `new` allocations inside `update()`
-- [ ] Throttle AI/pathfinding to intervals
-- [ ] Limit particle `maxParticles`
-- [ ] Disable physics bodies for off-screen objects
-- [ ] `roundPixels: true` for pixel-art games (prevents sub-pixel blurring)
-- [ ] Monitor actual FPS during development
+```javascript
+// TileSprite for repeating backgrounds (efficient)
+this.add.tileSprite(0, 0, 800, 600, 'background').setOrigin(0);
+
+// Don't animate large backgrounds in update()
+```
+
+### Limit Particle Count
+
+```javascript
+const emitter = this.add.particles(x, y, 'particle', {
+  speed: 100,
+  lifespan: 500,
+  quantity: 2,       // Particles per emit
+  maxParticles: 100, // Hard limit
+  frequency: 50      // ms between emits
+});
+```
+
+## Memory Management
+
+### Destroy Unused Objects
+
+```javascript
+// Properly destroy sprites
+sprite.destroy();
+
+// Clear groups
+group.clear(true, true);  // Remove from scene, destroy
+
+// Scene cleanup
+shutdown() {
+  this.enemies.destroy(true);
+  this.bulletPool.destroy(true);
+}
+```
+
+### Unload Unused Assets
+
+```javascript
+// Remove texture
+this.textures.remove('unused-texture');
+
+// Remove audio
+this.sound.remove('unused-sound');
+
+// In scene shutdown
+shutdown() {
+  this.cache.tilemap.remove('level1');
+}
+```
+
+### Monitor Memory
+
+```javascript
+// Check texture memory (approximate)
+console.log(this.textures.list);
+
+// Chrome DevTools:
+// - Memory tab for heap snapshots
+// - Performance tab for frame timing
+```
+
+## Update Loop Optimization
+
+### Throttle Expensive Operations
+
+```javascript
+create() {
+  this.lastAIUpdate = 0;
+  this.aiUpdateInterval = 100; // ms
+}
+
+update(time, delta) {
+  // Every frame (required for smooth movement)
+  this.updatePlayerMovement();
+
+  // Throttled (AI, pathfinding)
+  if (time - this.lastAIUpdate > this.aiUpdateInterval) {
+    this.updateEnemyAI();
+    this.lastAIUpdate = time;
+  }
+}
+```
+
+### Avoid Creating Objects in Update
+
+```javascript
+// BAD: Creates new object every frame
+update() {
+  const velocity = { x: 100, y: 0 };  // GC pressure
+  sprite.setVelocity(velocity.x, velocity.y);
+}
+
+// GOOD: Reuse or use primitives
+update() {
+  sprite.setVelocity(100, 0);
+}
+
+// Or pre-create
+create() {
+  this.tempVec = new Phaser.Math.Vector2();
+}
+
+update() {
+  this.tempVec.set(100, 0);
+  sprite.body.velocity.copy(this.tempVec);
+}
+```
+
+### Use Delta Time
+
+```javascript
+// Framerate-independent movement
+update(time, delta) {
+  const speed = 200;  // pixels per second
+  sprite.x += speed * (delta / 1000);
+}
+```
+
+## Profiling
+
+### Built-in Stats
+
+```javascript
+const config = {
+  // ...
+  fps: {
+    target: 60,
+    forceSetTimeOut: false,
+    smoothStep: true
+  }
+};
+
+// Add FPS display
+this.fpsText = this.add.text(10, 10, '').setScrollFactor(0);
+
+update() {
+  this.fpsText.setText('FPS: ' + Math.round(this.game.loop.actualFps));
+}
+```
+
+### Chrome DevTools
+
+1. **Performance Tab**: Record gameplay, identify frame drops
+2. **Memory Tab**: Track heap size, find leaks
+3. **Console**: `Phaser.GAMES[0].loop.actualFps`
+
+### Common Bottlenecks
+
+| Symptom | Likely Cause | Solution |
+|---------|--------------|----------|
+| Gradual slowdown | Memory leak | Check destroy() calls |
+| Periodic stutters | GC pauses | Object pooling |
+| Low FPS always | Too many objects | Culling, pooling |
+| Spikes on spawn | Object creation | Pre-pool objects |
+| Slow collisions | Too many checks | Spatial partitioning |
+
+## Quick Wins Checklist
+
+- [ ] Use texture atlases (not individual images)
+- [ ] Pool frequently spawned objects
+- [ ] Disable physics for off-screen objects
+- [ ] Use appropriate physics shapes (circles are faster)
+- [ ] Throttle AI/pathfinding updates
+- [ ] Avoid object creation in update loop
+- [ ] Use delta time for movement
+- [ ] Destroy objects when done
+- [ ] Limit particle counts
+- [ ] Profile before optimizing

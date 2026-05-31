@@ -1,55 +1,138 @@
 ---
 name: phaser-gamedev
-description: Build 2D browser games with Phaser 3. Covers scene architecture, physics (Arcade/Matter), spritesheets, tilemaps, input, animations, and performance optimization. Use when developing Phaser 3 games, setting up game scenes, integrating physics, loading spritesheets/tilemaps, or optimizing game performance.
+description: Build 2D browser games with Phaser 3. Use for scene architecture, physics (Arcade/Matter), spritesheet loading, tilemap integration, input handling, animations, and performance optimization. Covers TypeScript patterns and common pitfalls.
 ---
 
-# Phaser Game Development Guide
+# Phaser Game Development
 
-This skill covers building 2D browser games with Phaser 3.
+Build 2D browser games using Phaser 3's scene-based architecture and physics systems.
 
-## Before You Start
+---
 
-**Read the spritesheet reference first** (`references/spritesheets-nineslice.md`). Spritesheet loading is fragile—a few pixels off causes silent corruption that compounds into broken visuals. Measure assets before writing any loader code.
+## STOP: Before Loading Any Spritesheet
 
-## Architecture Planning
+**Read [spritesheets-nineslice.md](references/spritesheets-nineslice.md) FIRST.**
 
-Establish these before writing code:
+Spritesheet loading is fragile—a few pixels off causes silent corruption that compounds into broken visuals. The reference file contains the mandatory inspection protocol.
 
-1. **Scenes** — Which scenes are needed? (Boot, Menu, Game, UI, GameOver)
-2. **Entities** — What are the core game objects and how do they interact?
-3. **Physics** — Arcade (fast AABB, most games), Matter (realistic/complex), or None (UI-only scenes)
-4. **Input** — Keyboard, pointer, or both?
+**Quick rules** (details in reference):
 
-## Core Philosophy
+1. **Measure the asset** before writing loader code—never guess frame dimensions
+2. **Character sprites use SQUARE frames**: If you calculate frameWidth=56, try 56 for height first
+3. **Different animations have different frame sizes**: A run cycle needs wider frames than idle; an attack needs extra width for weapon swing. Measure EACH spritesheet independently
+4. **Check for spacing**: Gaps between frames require `spacing: N` in loader config
+5. **Verify the math**: `imageWidth = (frameWidth × cols) + (spacing × (cols - 1))`
 
-- Scene-first architecture: organize code around scene lifecycles
-- Composition over inheritance for game entities
-- Make physics decisions early—changing physics systems later is painful
-- "Phaser provides powerful primitives—scenes, sprites, physics, input—but architecture is your responsibility"
+---
 
-## Common Pitfalls
+## Reference Files
 
-| Avoid | Use Instead |
-|-------|------------|
-| Global `window` state | Scene data registry or event emitter |
-| Loading assets in `create()` | Load in `preload()` |
-| Frame counting for timing | Delta-time calculations |
-| Monolithic scene classes | Modular systems, scene boundaries |
+Read these BEFORE working on the relevant feature:
 
-## Reference Materials
+| When working on... | Read first |
+|--------------------|------------|
+| Loading ANY spritesheet | [spritesheets-nineslice.md](references/spritesheets-nineslice.md) |
+| Nine-slice UI panels | [spritesheets-nineslice.md](references/spritesheets-nineslice.md) |
+| Tiled tilemaps, collision layers | [tilemaps.md](references/tilemaps.md) |
+| Physics tuning, groups, pooling | [arcade-physics.md](references/arcade-physics.md) |
+| Performance issues, object pooling | [performance.md](references/performance.md) |
 
-See the `references/` directory for detailed guides:
+---
 
-- **core-patterns.md** — Game config, scene lifecycle, game objects, input, animations, asset loading
-- **spritesheets-nineslice.md** — Spritesheet loading, nine-slice UI panels, debugging visuals
-- **arcade-physics.md** — Arcade physics deep dive: bodies, groups, colliders, movement patterns
-- **tilemaps.md** — Tiled integration, collision setup, object layers, tile manipulation
-- **performance.md** — 60fps optimization: object pooling, texture atlases, culling, update loop best practices
+## Architecture Decisions (Make Early)
 
-## Tailoring Your Approach
+### Physics System Choice
 
-Adjust based on:
-- **Game genre** — platformer vs. top-down vs. puzzle
-- **Target platform** — mobile (touch input, fewer particles) vs. desktop
-- **Visual style** — pixel art (integer scaling, `roundPixels: true`) vs. smooth assets
-- **Entity count** — object pooling becomes critical above ~50 dynamic objects
+| System | Use When |
+|--------|----------|
+| **Arcade** | Platformers, shooters, most 2D games. Fast AABB collisions |
+| **Matter** | Physics puzzles, ragdolls, realistic collisions. Slower, more accurate |
+| **None** | Menu scenes, visual novels, card games |
+
+### Scene Structure
+
+```
+scenes/
+├── BootScene.ts      # Asset loading, progress bar
+├── MenuScene.ts      # Title screen, options
+├── GameScene.ts      # Main gameplay
+├── UIScene.ts        # HUD overlay (launched parallel)
+└── GameOverScene.ts  # End screen, restart
+```
+
+### Scene Transitions
+
+```typescript
+this.scene.start('GameScene', { level: 1 });     // Stop current, start new
+this.scene.launch('UIScene');                     // Run in parallel
+this.scene.pause('GameScene');                    // Pause
+this.scene.stop('UIScene');                       // Stop
+```
+
+---
+
+## Core Patterns
+
+### Game Configuration
+
+```typescript
+const config: Phaser.Types.Core.GameConfig = {
+  type: Phaser.AUTO,
+  width: 800,
+  height: 600,
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH
+  },
+  physics: {
+    default: 'arcade',
+    arcade: { gravity: { y: 300 }, debug: false }
+  },
+  scene: [BootScene, MenuScene, GameScene]
+};
+```
+
+### Scene Lifecycle
+
+```typescript
+class GameScene extends Phaser.Scene {
+  init(data) { }      // Receive data from previous scene
+  preload() { }       // Load assets (runs before create)
+  create() { }        // Set up game objects, physics, input
+  update(time, delta) { }  // Game loop, use delta for frame-rate independence
+}
+```
+
+### Frame-Rate Independent Movement
+
+```typescript
+// CORRECT: scales with frame rate
+this.player.x += this.speed * (delta / 1000);
+
+// WRONG: varies with frame rate
+this.player.x += this.speed;
+```
+
+---
+
+## Anti-Patterns
+
+| Anti-Pattern | Problem | Solution |
+|--------------|---------|----------|
+| Global state on `window` | Scene transitions break state | Use scene data, registries |
+| Loading in `create()` | Assets not ready when referenced | Load in `preload()`, use Boot scene |
+| Frame counting | Game speed varies with FPS | Use `delta / 1000` |
+| Matter for simple collisions | Unnecessary complexity | Arcade handles most 2D games |
+| One giant scene | Hard to extend | Separate gameplay/UI/menus |
+| Magic numbers | Impossible to balance | Config objects, constants |
+| No object pooling | GC stutters | Groups with `setActive(false)` |
+
+---
+
+## Remember
+
+"Phaser provides powerful primitives—scenes, sprites, physics, input—but architecture is your responsibility."
+
+Before coding: What scenes? What entities? How do they interact? What physics model?
+
+**Claude can build complete, polished Phaser games. These guidelines illuminate the path—they don't fence it.**
