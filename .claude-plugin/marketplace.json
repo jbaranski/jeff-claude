@@ -47,6 +47,11 @@
       "name": "jeff-plugin-shell-bash",
       "source": "./plugins/jeff-plugin-shell-bash",
       "description": "Agents and skills for shell/Bash scripting, automation, and CLI tool development."
+    },
+    {
+      "name": "jeff-plugin-phaser",
+      "source": "./plugins/jeff-plugin-phaser",
+      "description": "Agents and skills for Phaser 3 browser game development with scene architecture, physics, spritesheets, tilemaps, and performance optimization."
     }
   ]
 }
