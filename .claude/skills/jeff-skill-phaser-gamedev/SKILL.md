@@ -1,5 +1,5 @@
 ---
-name: phaser-gamedev
+name: jeff-skill-phaser-gamedev
 description: Build 2D browser games with Phaser 3. Use for scene architecture, physics (Arcade/Matter), spritesheet loading, tilemap integration, input handling, animations, and performance optimization. Covers TypeScript patterns and common pitfalls.
 ---
 
