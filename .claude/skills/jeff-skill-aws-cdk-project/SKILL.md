@@ -248,6 +248,7 @@ new lambda.Function(this, 'process_order_function', { ... });
 ```
 
 This applies to:
+
 - Stack IDs passed to `new MyStack(app, 'StackId', ...)`
 - Construct IDs passed to `super(scope, 'ConstructId')` and `new SomeConstruct(this, 'ConstructId', ...)`
 - All logical resource IDs passed to AWS CDK resource constructors
@@ -263,7 +264,7 @@ Always set `removalPolicy: cdk.RemovalPolicy.DESTROY` on all resources. This pre
 ```typescript
 const table = new dynamodb.Table(this, 'MyTable', {
   partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
-  removalPolicy: cdk.RemovalPolicy.DESTROY,
+  removalPolicy: cdk.RemovalPolicy.DESTROY
 });
 ```
 
@@ -276,7 +277,7 @@ import * as logs from 'aws-cdk-lib/aws-logs';
 
 const logGroup = new logs.LogGroup(this, 'MyLogGroup', {
   retention: logs.RetentionDays.FIVE_DAYS,
-  removalPolicy: cdk.RemovalPolicy.DESTROY,
+  removalPolicy: cdk.RemovalPolicy.DESTROY
 });
 ```
 

@@ -20,9 +20,10 @@ To install or use the plugins:
 /plugin install jeff-plugin-frontend@jeff-plugins
 /plugin install jeff-plugin-shell-bash@jeff-plugins
 /plugin install jeff-plugin-phaser@jeff-plugins
+/plugin install jeff-plugin-project@jeff-plugins
 
 NOTE: The repo is public just so I can easily download and consume the skills quickly from any machine. The content is dervied from other sources and in some cases modified to be tailored for my needs. I am not trying to take "credit" or pass this off as my own.
 
 Common prompts:
-- https://raw.githubusercontent.com/jbaranski/jeff-claude/refs/heads/main/prompts/dependabot-issue.md
-- https://raw.githubusercontent.com/jbaranski/jeff-claude/refs/heads/main/prompts/project-integration.md
+
+- https://raw.githubusercontent.com/jbaranski/jeff-claude/refs/heads/main/INTEGRATION.md

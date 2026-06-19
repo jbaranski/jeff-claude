@@ -26,7 +26,7 @@ which always report changed by default.
 - name: Check if service exists
   ansible.builtin.command: systemctl status myservice
   register: service_check
-  changed_when: false  # Read-only operation, never changes anything
+  changed_when: false # Read-only operation, never changes anything
 ```
 
 ### failed_when
@@ -37,7 +37,7 @@ Controls when Ansible considers a task failed. Allows graceful handling of expec
 - name: Check resource existence
   ansible.builtin.command: check-resource {{ resource_id }}
   register: check_result
-  failed_when: false  # Don't fail, we'll check the result ourselves
+  failed_when: false # Don't fail, we'll check the result ourselves
 ```
 
 ### register
@@ -79,12 +79,12 @@ Check if a resource exists before creating it:
   args:
     executable: /bin/bash
   register: db_exists
-  changed_when: false  # Checking doesn't change anything
-  failed_when: false   # Not finding it isn't a failure
+  changed_when: false # Checking doesn't change anything
+  failed_when: false # Not finding it isn't a failure
 
 - name: Create database
   ansible.builtin.command: createdb -U postgres {{ db_name }}
-  when: db_exists.rc != 0  # Only create if doesn't exist
+  when: db_exists.rc != 0 # Only create if doesn't exist
   register: create_result
   changed_when: create_result.rc == 0
 ```
@@ -120,13 +120,13 @@ Use output content to determine if change occurred:
 
 ### Common Patterns
 
-| Output Indicator | changed_when Expression |
-|-----------------|------------------------|
-| "already exists" | `"'already exists' not in result.stderr"` |
-| "no changes" | `"'no changes' not in result.stdout"` |
-| "created" | `"'created' in result.stdout"` |
-| "updated" | `"'updated' in result.stdout"` |
-| Exit code 0 = created | `result.rc == 0` |
+| Output Indicator      | changed_when Expression                   |
+| --------------------- | ----------------------------------------- |
+| "already exists"      | `"'already exists' not in result.stderr"` |
+| "no changes"          | `"'no changes' not in result.stdout"`     |
+| "created"             | `"'created' in result.stdout"`            |
+| "updated"             | `"'updated' in result.stdout"`            |
+| Exit code 0 = created | `result.rc == 0`                          |
 
 ## Pattern 5: Multiple Failure Conditions
 
@@ -210,7 +210,7 @@ Use facts to track state across tasks:
 
 - name: Set service state facts
   ansible.builtin.set_fact:
-    nginx_is_enabled: "{{ nginx_enabled.rc == 0 }}"
+    nginx_is_enabled: '{{ nginx_enabled.rc == 0 }}'
     nginx_is_active: "{{ 'enabled' in nginx_enabled.stdout }}"
 
 - name: Enable nginx service
@@ -285,11 +285,11 @@ Use strict error handling in shell scripts:
 
 ### Why set -euo pipefail?
 
-| Flag | Purpose |
-|------|---------|
-| `-e` | Exit on any command failure |
-| `-u` | Error on undefined variables |
-| `-o pipefail` | Catch errors in pipelines |
+| Flag          | Purpose                      |
+| ------------- | ---------------------------- |
+| `-e`          | Exit on any command failure  |
+| `-u`          | Error on undefined variables |
+| `-o pipefail` | Catch errors in pipelines    |
 
 ## Testing Idempotency
 

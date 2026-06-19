@@ -77,15 +77,15 @@ These rules apply to ALL Ansible code in this repository:
 
 ### Decision Matrix
 
-| Need | Use | Why |
-|------|-----|-----|
-| Install packages | `ansible.builtin.apt/yum/dnf` | Native modules handle state |
-| Manage files | `ansible.builtin.copy/template/file` | Idempotent by default |
-| Edit config lines | `ansible.builtin.lineinfile` | Surgical edits, not full replace |
-| Run commands | `ansible.builtin.command` | When no native module exists |
-| Need shell features | `ansible.builtin.shell` | Pipes, redirects, globs |
-| Manage services | `ansible.builtin.systemd/service` | State management built-in |
-| Manage users | `ansible.builtin.user` | Cross-platform, idempotent |
+| Need                | Use                                  | Why                              |
+| ------------------- | ------------------------------------ | -------------------------------- |
+| Install packages    | `ansible.builtin.apt/yum/dnf`        | Native modules handle state      |
+| Manage files        | `ansible.builtin.copy/template/file` | Idempotent by default            |
+| Edit config lines   | `ansible.builtin.lineinfile`         | Surgical edits, not full replace |
+| Run commands        | `ansible.builtin.command`            | When no native module exists     |
+| Need shell features | `ansible.builtin.shell`              | Pipes, redirects, globs          |
+| Manage services     | `ansible.builtin.systemd/service`    | State management built-in        |
+| Manage users        | `ansible.builtin.user`               | Cross-platform, idempotent       |
 
 ### Prefer Native Modules
 
@@ -134,12 +134,12 @@ Add proper controls:
 
 This repository uses these Ansible collections:
 
-| Collection | Purpose | Example Modules |
-|------------|---------|-----------------|
-| `ansible.builtin` | Core functionality | copy, template, command, user |
-| `ansible.posix` | POSIX systems | authorized_key, synchronize |
-| `community.general` | General utilities | interfaces_file, ini_file |
-| `community.docker` | Docker management | docker_container, docker_image |
+| Collection          | Purpose            | Example Modules                |
+| ------------------- | ------------------ | ------------------------------ |
+| `ansible.builtin`   | Core functionality | copy, template, command, user  |
+| `ansible.posix`     | POSIX systems      | authorized_key, synchronize    |
+| `community.general` | General utilities  | interfaces_file, ini_file      |
+| `community.docker`  | Docker management  | docker_container, docker_image |
 
 ### Installing Collections
 
@@ -185,15 +185,15 @@ uv run ansible-lint ansible/playbooks/
 
 Use descriptive names with action verbs:
 
-| Verb | Use When |
-|------|----------|
-| Ensure | Verifying state exists |
-| Configure | Modifying settings |
-| Install | Adding packages |
-| Create | Making new resources |
-| Remove | Deleting resources |
-| Deploy | Releasing applications |
-| Update | Modifying existing resources |
+| Verb      | Use When                     |
+| --------- | ---------------------------- |
+| Ensure    | Verifying state exists       |
+| Configure | Modifying settings           |
+| Install   | Adding packages              |
+| Create    | Making new resources         |
+| Remove    | Deleting resources           |
+| Deploy    | Releasing applications       |
+| Update    | Modifying existing resources |
 
 Examples:
 
@@ -211,12 +211,12 @@ Use snake_case with descriptive names:
 ```yaml
 # GOOD - clear, descriptive
 web_server_port: 8080
-docker_compose_version: "2.24.0"
+docker_compose_version: '2.24.0'
 db_backup_retention_days: 7
 
 # BAD - vague, abbreviated
 port: 8080
-dc_ver: "2.24.0"
+dc_ver: '2.24.0'
 days: 7
 ```
 
@@ -304,8 +304,8 @@ Secrets (passwords, API keys, tokens) live in plain YAML files on the local mach
 
 ```yaml
 # group_vars/all.yml or host_vars/hostname.yml (gitignored if sensitive)
-db_password: "changeme"
-api_key: "mykey"
+db_password: 'changeme'
+api_key: 'mykey'
 ```
 
 Pass GitHub Actions secrets as extra vars at runtime:

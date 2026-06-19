@@ -41,15 +41,15 @@ role-name/
 
 ### Directory Purposes
 
-| Directory | Purpose | Precedence |
-|-----------|---------|------------|
-| `defaults/` | User-overridable values | Lowest |
-| `vars/` | Internal/OS-specific values | High |
-| `tasks/` | Ansible tasks | N/A |
-| `handlers/` | Service restarts, reloads | N/A |
-| `templates/` | Jinja2 config files | N/A |
-| `files/` | Static files to copy | N/A |
-| `meta/` | Galaxy info, dependencies | N/A |
+| Directory    | Purpose                     | Precedence |
+| ------------ | --------------------------- | ---------- |
+| `defaults/`  | User-overridable values     | Lowest     |
+| `vars/`      | Internal/OS-specific values | High       |
+| `tasks/`     | Ansible tasks               | N/A        |
+| `handlers/`  | Service restarts, reloads   | N/A        |
+| `templates/` | Jinja2 config files         | N/A        |
+| `files/`     | Static files to copy        | N/A        |
+| `meta/`      | Galaxy info, dependencies   | N/A        |
 
 ### When to Omit Directories
 
@@ -70,7 +70,7 @@ Use `tasks/main.yml` as a routing file that includes feature-specific files:
 # tasks/main.yml
 ---
 - name: Include OS-specific variables
-  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: '{{ ansible_os_family }}.yml'
 
 - name: Install packages
   ansible.builtin.include_tasks: install.yml
@@ -85,13 +85,13 @@ Use `tasks/main.yml` as a routing file that includes feature-specific files:
 
 ### When to Split Tasks
 
-| Scenario | Approach |
-|----------|----------|
-| < 30 lines | Keep in main.yml |
-| 30-100 lines | Consider splitting |
-| > 100 lines | Definitely split |
+| Scenario          | Approach                   |
+| ----------------- | -------------------------- |
+| < 30 lines        | Keep in main.yml           |
+| 30-100 lines      | Consider splitting         |
+| > 100 lines       | Definitely split           |
 | Optional features | Separate file with `when:` |
-| OS-specific logic | Separate files per OS |
+| OS-specific logic | Separate files per OS      |
 
 ### Task File Naming
 
@@ -111,11 +111,11 @@ tasks/
 
 ### defaults/ vs vars/
 
-| Location | Purpose | User Override? |
-|----------|---------|----------------|
-| `defaults/main.yml` | User configuration | Yes (easily) |
-| `vars/main.yml` | Internal constants | Possible but discouraged |
-| `vars/Debian.yml` | OS-specific values | No (internal) |
+| Location            | Purpose            | User Override?           |
+| ------------------- | ------------------ | ------------------------ |
+| `defaults/main.yml` | User configuration | Yes (easily)             |
+| `vars/main.yml`     | Internal constants | Possible but discouraged |
+| `vars/Debian.yml`   | OS-specific values | No (internal)            |
 
 ### defaults/main.yml Example
 
@@ -123,14 +123,14 @@ tasks/
 # defaults/main.yml
 ---
 # User-configurable options
-docker_edition: "ce"
+docker_edition: 'ce'
 docker_service_state: started
 docker_service_enabled: true
 docker_users: []
 
 # Feature toggles
 docker_install_compose: true
-docker_compose_version: "2.24.0"
+docker_compose_version: '2.24.0'
 ```
 
 ### vars/Debian.yml Example
@@ -150,7 +150,7 @@ Simple pattern:
 
 ```yaml
 - name: Include OS-specific variables
-  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: '{{ ansible_os_family }}.yml'
 ```
 
 Advanced pattern with fallback:
@@ -161,8 +161,8 @@ Advanced pattern with fallback:
   vars:
     params:
       files:
-        - "{{ ansible_distribution }}.yml"
-        - "{{ ansible_os_family }}.yml"
+        - '{{ ansible_distribution }}.yml'
+        - '{{ ansible_os_family }}.yml'
         - main.yml
       paths:
         - vars
@@ -176,14 +176,14 @@ Prefix variables with role name:
 # Pattern: {role_name}_{feature}_{attribute}
 
 # Examples
-docker_edition: "ce"
+docker_edition: 'ce'
 docker_service_state: started
-docker_compose_version: "2.24.0"
+docker_compose_version: '2.24.0'
 docker_users: []
 
 # Grouped by feature
 security_ssh_port: 22
-security_ssh_password_auth: "no"
+security_ssh_password_auth: 'no'
 security_fail2ban_enabled: true
 ```
 
@@ -217,9 +217,9 @@ security_fail2ban_enabled: true
 Use lowercase with action + service pattern:
 
 ```yaml
-- name: restart ssh      # Not "Restart SSH Service"
-- name: reload nginx     # Not "Reload Nginx Config"
-- name: reload systemd   # For daemon-reload
+- name: restart ssh # Not "Restart SSH Service"
+- name: reload nginx # Not "Reload Nginx Config"
+- name: reload systemd # For daemon-reload
 ```
 
 ### Throttled Handlers
@@ -264,7 +264,7 @@ nginx_vhost_template: vhost.j2
 # tasks/configure.yml
 - name: Deploy nginx config
   ansible.builtin.template:
-    src: "{{ nginx_conf_template }}"
+    src: '{{ nginx_conf_template }}'
     dest: /etc/nginx/nginx.conf
   notify: reload nginx
 ```
@@ -280,7 +280,7 @@ galaxy_info:
   author: your_name
   description: Role description
   license: MIT
-  min_ansible_version: "2.12"
+  min_ansible_version: '2.12'
   platforms:
     - name: Debian
       versions:
@@ -301,11 +301,11 @@ dependencies:
 
 Based on geerlingguy role analysis:
 
-| Role Complexity | Directories | Task Files | Examples |
-|-----------------|-------------|------------|----------|
-| Minimal | 3-4 | 1 (main.yml) | pip, git |
-| Standard | 5-6 | 2-4 | security, docker |
-| Complex | 7+ | 5-8 | postgresql, nginx |
+| Role Complexity | Directories | Task Files   | Examples          |
+| --------------- | ----------- | ------------ | ----------------- |
+| Minimal         | 3-4         | 1 (main.yml) | pip, git          |
+| Standard        | 5-6         | 2-4          | security, docker  |
+| Complex         | 7+          | 5-8          | postgresql, nginx |
 
 ### Minimal Role
 
@@ -366,15 +366,15 @@ Validate critical configuration files:
 - name: Update SSH configuration
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
-    regexp: "^PermitRootLogin"
-    line: "PermitRootLogin no"
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin no'
     validate: 'sshd -T -f %s'
   notify: restart ssh
 
 - name: Update sudoers
   ansible.builtin.lineinfile:
     path: /etc/sudoers
-    line: "{{ user }} ALL=(ALL) NOPASSWD: ALL"
+    line: '{{ user }} ALL=(ALL) NOPASSWD: ALL'
     validate: 'visudo -cf %s'
 ```
 

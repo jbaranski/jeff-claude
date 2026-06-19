@@ -16,11 +16,11 @@ and related packages managed by `uv`). It does **not** support Ansible Galaxy co
 
 ## What Dependabot Covers
 
-| Dependency type | Supported | Ecosystem |
-|---|---|---|
-| `ansible`, `ansible-lint`, etc. (`pyproject.toml`) | ✅ Yes | `uv` |
-| GitHub Actions workflows | ✅ Yes | `github-actions` |
-| Ansible Galaxy collections (`requirements.yml`) | ❌ No | — |
+| Dependency type                                    | Supported | Ecosystem        |
+| -------------------------------------------------- | --------- | ---------------- |
+| `ansible`, `ansible-lint`, etc. (`pyproject.toml`) | ✅ Yes    | `uv`             |
+| GitHub Actions workflows                           | ✅ Yes    | `github-actions` |
+| Ansible Galaxy collections (`requirements.yml`)    | ❌ No     | —                |
 
 ## Steps
 
