@@ -52,8 +52,12 @@ If any test or build fails:
 1. Methodically determine which specific dependency update caused the failure
    (e.g. bisect by reverting bumps one at a time).
 2. Exclude that single dependency from the batch (revert it to its prior version).
-3. Re-run the tests and continue with the remaining updates.
-4. Repeat until the test suite passes with the largest possible set of updates.
+3. Post a comment on the corresponding Dependabot PR (and linked issue, if any)
+   explaining why it was skipped: which test or build step failed, the error
+   message or stack trace summary, and that the PR was excluded from this batch
+   so it can be revisited independently.
+4. Re-run the tests and continue with the remaining updates.
+5. Repeat until the test suite passes with the largest possible set of updates.
 
 ## Report and finalize
 
