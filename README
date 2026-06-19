@@ -14,7 +14,7 @@ To install or use the plugins:
 /plugin install jeff-plugin-typescript@jeff-plugins
 /plugin install jeff-plugin-angular@jeff-plugins
 /plugin install jeff-plugin-python@jeff-plugins
-/plugin install jeff-plugin-aws@jeff-plugins
+/plugin install jeff-plugin-aws-solution-architect@jeff-plugins
 /plugin install jeff-plugin-golang@jeff-plugins
 /plugin install jeff-plugin-ansible@jeff-plugins
 /plugin install jeff-plugin-frontend@jeff-plugins
