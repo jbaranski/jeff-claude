@@ -11,26 +11,37 @@ passes its tests, and dropping any update that breaks the build.
 
 ```
 ## Setup
-- [ ] Identified all open Dependabot PRs and linked issues
-- [ ] Created consolidation branch off main
+- [ ] Listed every open Dependabot PR and its linked issue (if any)
+- [ ] Created branch chore/dependabot-batch-<date> off main
 
-## Angular/npm (skip if no Angular sub-project)
-- [ ] Checked Angular update guide for correct upgrade path
-- [ ] Ran ng update (core + CLI)
-- [ ] Applied mandatory Angular-constrained dependency changes
-- [ ] Verified Angular sub-project builds and tests pass
-- [ ] Applied remaining standalone npm updates
-- [ ] Verified again after standalone updates
+## Angular/npm (skip section if no Angular sub-project exists)
+- [ ] Opened https://angular.dev/update-guide and confirmed the correct upgrade
+      path from the current Angular version to the latest
+- [ ] Ran `ng update @angular/core @angular/cli` following the guide's steps
+- [ ] For every OTHER npm dependency being bumped by Dependabot: checked its
+      required version range against the new Angular version's peer dependency
+      constraints — any conflict must be treated as a skip (do NOT force the
+      version); see "On failure or incompatibility" below
+- [ ] Applied only the npm deps that are required to satisfy Angular's new
+      peer dependency constraints (zone.js, typescript, test tooling, etc.)
+- [ ] Confirmed `ng build` and full test suite pass before touching anything else
+- [ ] Applied remaining standalone npm updates that are not Angular-constrained
+- [ ] Confirmed `ng build` and full test suite still pass after standalone updates
 
-## Other ecosystems (one entry per ecosystem)
-- [ ] <ecosystem>: coalesced dependency bumps
-- [ ] <ecosystem>: tests pass
+## Other ecosystems (repeat block for each — Go, Python, etc.)
+- [ ] <ecosystem>: applied all Dependabot version bumps from the relevant PRs
+- [ ] <ecosystem>: full test suite passes
+
+## For every dependency that was skipped or failed
+- [ ] Posted a comment on the Dependabot PR stating: which constraint or test
+      failed, the exact error or version conflict, and that it was excluded from
+      this batch for independent follow-up
+- [ ] Posted the same explanation on the linked issue (if one exists)
 
 ## Finalize
-- [ ] Full test suite passes for all sub-projects
-- [ ] Report produced (successes + failures with reasons)
-- [ ] Commented on skipped PRs/issues with reason
-- [ ] Successful Dependabot PRs closed
+- [ ] Full test suite passes for all sub-projects with all applied updates
+- [ ] Written report lists every dependency: updated vs. skipped, with reasons
+- [ ] Closed the Dependabot PR and linked issue for every successfully updated dep
 - [ ] Consolidated PR merged to main
 ```
 
