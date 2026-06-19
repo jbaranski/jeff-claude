@@ -26,20 +26,20 @@ Design playbooks to handle both creation and removal via a `state` variable.
   become: true
 
   vars:
-    admin_state: present  # or absent
+    admin_state: present # or absent
 
   tasks:
     - name: Create admin user
       ansible.builtin.user:
-        name: "{{ admin_name }}"
-        groups: "{{ admin_groups }}"
-        state: "{{ admin_state }}"
+        name: '{{ admin_name }}'
+        groups: '{{ admin_groups }}'
+        state: '{{ admin_state }}'
 
     - name: Configure SSH key
       ansible.posix.authorized_key:
-        user: "{{ admin_name }}"
-        key: "{{ admin_ssh_key }}"
-        state: "{{ admin_state }}"
+        user: '{{ admin_name }}'
+        key: '{{ admin_ssh_key }}'
+        state: '{{ admin_state }}'
       when: admin_state == 'present'
 ```
 
@@ -79,7 +79,7 @@ Order sections consistently across all playbooks:
 
   vars:
     # Play-level variables
-    app_version: "2.0.0"
+    app_version: '2.0.0'
 
   vars_files:
     # External variable files
@@ -97,7 +97,7 @@ Order sections consistently across all playbooks:
     - role: common
     - role: app_deploy
       vars:
-        deploy_version: "{{ app_version }}"
+        deploy_version: '{{ app_version }}'
 
   tasks:
     # Play-specific tasks
@@ -109,7 +109,7 @@ Order sections consistently across all playbooks:
     # Cleanup or finalization
     - name: Send deployment notification
       ansible.builtin.debug:
-        msg: "Deployment complete"
+        msg: 'Deployment complete'
 
   handlers:
     # Event-triggered tasks
@@ -151,7 +151,7 @@ ansible/
 
 ```yaml
 # group_vars/all.yml - Global defaults
-default_timezone: "UTC"
+default_timezone: 'UTC'
 ntp_servers:
   - 0.pool.ntp.org
   - 1.pool.ntp.org
@@ -201,12 +201,12 @@ Split playbook tasks into separate files when:
 
 ### import_tasks vs include_tasks
 
-| Feature | import_tasks | include_tasks |
-|---------|--------------|---------------|
-| When evaluated | Parse time (static) | Runtime (dynamic) |
-| Supports loops | No | Yes |
-| Supports conditionals on import | Limited | Full |
-| Use case | Ordered execution | Conditional/looped |
+| Feature                         | import_tasks        | include_tasks      |
+| ------------------------------- | ------------------- | ------------------ |
+| When evaluated                  | Parse time (static) | Runtime (dynamic)  |
+| Supports loops                  | No                  | Yes                |
+| Supports conditionals on import | Limited             | Full               |
+| Use case                        | Ordered execution   | Conditional/looped |
 
 ```yaml
 # Static import - always loaded, order matters
@@ -214,9 +214,9 @@ Split playbook tasks into separate files when:
 - ansible.builtin.import_tasks: permissions.yml
 
 # Dynamic include - conditional, looped
-- ansible.builtin.include_tasks: "setup-{{ ansible_os_family }}.yml"
+- ansible.builtin.include_tasks: 'setup-{{ ansible_os_family }}.yml'
 - ansible.builtin.include_tasks: deploy-app.yml
-  loop: "{{ applications }}"
+  loop: '{{ applications }}'
 ```
 
 ## Multi-Play Playbooks
@@ -240,11 +240,11 @@ Use multiple plays for different host groups or privilege levels:
 - name: Deploy application
   hosts: app_servers
   become: true
-  serial: 1  # One server at a time for rolling deploy
+  serial: 1 # One server at a time for rolling deploy
   tasks:
     - name: Install application package
       ansible.builtin.apt:
-        name: "{{ app_package }}"
+        name: '{{ app_package }}'
         state: present
       notify: restart app
 
@@ -278,7 +278,7 @@ Use multiple plays for different host groups or privilege levels:
 
     - name: Update SSL certificates
       ansible.builtin.copy:
-        src: "{{ item }}"
+        src: '{{ item }}'
         dest: /etc/nginx/ssl/
       loop:
         - cert.pem
@@ -336,12 +336,12 @@ Add validation at the start of playbooks:
           - app_version is defined
           - app_version | regex_search('^\d+\.\d+\.\d+$')
           - deploy_env in ['staging', 'production']
-        fail_msg: "Invalid configuration. Check app_version and deploy_env."
+        fail_msg: 'Invalid configuration. Check app_version and deploy_env.'
 
     - name: Check disk space
       ansible.builtin.assert:
         that: ansible_mounts | selectattr('mount', 'equalto', '/') | map(attribute='size_available') | first > 1073741824
-        fail_msg: "Insufficient disk space. Need at least 1GB free."
+        fail_msg: 'Insufficient disk space. Need at least 1GB free.'
 ```
 
 ## Template Patterns
@@ -369,13 +369,13 @@ Add validation at the start of playbooks:
       ansible.builtin.assert:
         that:
           - required_var is defined
-        fail_msg: "required_var must be defined"
+        fail_msg: 'required_var must be defined'
 
     # Main tasks...
 
     - name: Verify completion
       ansible.builtin.debug:
-        msg: "Playbook completed successfully"
+        msg: 'Playbook completed successfully'
 ```
 
 ## Related Skills

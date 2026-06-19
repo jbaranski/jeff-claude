@@ -49,7 +49,7 @@ Handle errors and perform cleanup:
 
     - name: Report failure
       ansible.builtin.fail:
-        msg: "Deployment failed, rolled back to previous version"
+        msg: 'Deployment failed, rolled back to previous version'
 
   always:
     - name: Cleanup temp files
@@ -94,11 +94,11 @@ Handle transient failures with retries:
 
 ### Retry Parameters
 
-| Parameter | Description |
-|-----------|-------------|
-| `until` | Condition that must be true to stop retrying |
-| `retries` | Maximum number of attempts |
-| `delay` | Seconds between attempts |
+| Parameter | Description                                  |
+| --------- | -------------------------------------------- |
+| `until`   | Condition that must be true to stop retrying |
+| `retries` | Maximum number of attempts                   |
+| `delay`   | Seconds between attempts                     |
 
 ## Assert for Validation
 
@@ -116,7 +116,7 @@ Validate inputs with clear error messages:
       Invalid application configuration:
       - app_name: {{ app_name | default('NOT SET') }}
       - app_port: {{ app_port | default('NOT SET') }} (must be 1024-65535)
-    success_msg: "Application configuration validated"
+    success_msg: 'Application configuration validated'
     quiet: true
 ```
 
@@ -201,7 +201,7 @@ Separate checking from failing for better control:
   ansible.builtin.command: check-resource {{ resource_id }}
   register: resource_check
   changed_when: false
-  failed_when: false  # Don't fail here
+  failed_when: false # Don't fail here
 
 - name: Fail with context if missing
   ansible.builtin.fail:
@@ -221,7 +221,7 @@ Attempt operation, handle specific errors:
   block:
     - name: Connect via primary endpoint
       ansible.builtin.uri:
-        url: "https://{{ primary_host }}/api/health"
+        url: 'https://{{ primary_host }}/api/health'
         validate_certs: true
       register: primary_result
 
@@ -232,7 +232,7 @@ Attempt operation, handle specific errors:
 
     - name: Try fallback endpoint
       ansible.builtin.uri:
-        url: "https://{{ fallback_host }}/api/health"
+        url: 'https://{{ fallback_host }}/api/health'
         validate_certs: false
       register: fallback_result
 ```
@@ -244,7 +244,7 @@ Run checks from controller for better error context:
 ```yaml
 - name: Verify service endpoint from controller
   ansible.builtin.uri:
-    url: "http://{{ inventory_hostname }}:{{ app_port }}/health"
+    url: 'http://{{ inventory_hostname }}:{{ app_port }}/health'
     validate_certs: false
   delegate_to: localhost
   register: api_check
@@ -314,7 +314,7 @@ Run checks from controller for better error context:
       block:
         - name: Download release
           ansible.builtin.get_url:
-            url: "https://releases.example.com/{{ app_version }}.tar.gz"
+            url: 'https://releases.example.com/{{ app_version }}.tar.gz'
             dest: /tmp/app.tar.gz
           register: download
           until: download is succeeded
