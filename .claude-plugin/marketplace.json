@@ -24,8 +24,8 @@
       "description": "Agents and skills for Python development using uv, ruff, and pytest with PEP standards and modern best practices."
     },
     {
-      "name": "jeff-plugin-aws-solution-architect",
-      "source": "./plugins/jeff-plugin-aws-solution-architect",
+      "name": "jeff-plugin-aws",
+      "source": "./plugins/jeff-plugin-aws",
       "description": "Agents and skills for AWS CDK infrastructure, solution architecture, and infrastructure review with TypeScript tooling."
     },
     {
