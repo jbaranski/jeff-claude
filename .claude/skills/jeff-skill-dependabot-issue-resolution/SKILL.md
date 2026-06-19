@@ -7,6 +7,35 @@ Goal: Resolve all open Dependabot PRs in this project by consolidating their
 dependency updates into a single feature branch, verifying the project still
 passes its tests, and dropping any update that breaks the build.
 
+**Before starting, copy this checklist and track each item as you work:**
+
+```
+## Setup
+- [ ] Identified all open Dependabot PRs and linked issues
+- [ ] Created consolidation branch off main
+
+## Angular/npm (skip if no Angular sub-project)
+- [ ] Checked Angular update guide for correct upgrade path
+- [ ] Ran ng update (core + CLI)
+- [ ] Applied mandatory Angular-constrained dependency changes
+- [ ] Verified Angular sub-project builds and tests pass
+- [ ] Applied remaining standalone npm updates
+- [ ] Verified again after standalone updates
+
+## Other ecosystems (one entry per ecosystem)
+- [ ] <ecosystem>: coalesced dependency bumps
+- [ ] <ecosystem>: tests pass
+
+## Finalize
+- [ ] Full test suite passes for all sub-projects
+- [ ] Report produced (successes + failures with reasons)
+- [ ] Commented on skipped PRs/issues with reason
+- [ ] Successful Dependabot PRs closed
+- [ ] Consolidated PR merged to main
+```
+
+---
+
 ## Setup
 
 1. Identify all open Dependabot PRs (and their associated issues, if any).
@@ -22,6 +51,12 @@ passes its tests, and dropping any update that breaks the build.
 
 The Angular-first rule is scoped to this sub-project only — it does not block or
 gate updates in other directories/ecosystems.
+
+**Do not skip the version compatibility check.** Before applying any update,
+confirm it is compatible with the current (or newly updated) Angular version.
+If a dependency's required version range conflicts with Angular's constraints,
+treat it as a failure and follow the "comment and skip" steps below — do not
+force the version.
 
 1. Before touching ANY other npm dependency in this sub-project, update Angular
    itself first. Consult https://angular.dev/update-guide for the correct upgrade
@@ -45,17 +80,18 @@ branch. No special ordering required.
 Run the full test suite (and build, if applicable) for each affected sub-project
 with all the updates applied.
 
-## On failure — isolate and exclude
+## On failure or incompatibility — comment, isolate, and exclude
 
-If any test or build fails:
+If any test or build fails, OR if a dependency cannot be applied due to version
+incompatibility (e.g. conflicts with Angular's peer dependency constraints):
 
 1. Methodically determine which specific dependency update caused the failure
    (e.g. bisect by reverting bumps one at a time).
 2. Exclude that single dependency from the batch (revert it to its prior version).
 3. Post a comment on the corresponding Dependabot PR (and linked issue, if any)
-   explaining why it was skipped: which test or build step failed, the error
-   message or stack trace summary, and that the PR was excluded from this batch
-   so it can be revisited independently.
+   explaining why it was skipped: the incompatibility or failure encountered,
+   the error message or constraint summary, and that the PR was excluded from
+   this batch so it can be revisited independently.
 4. Re-run the tests and continue with the remaining updates.
 5. Repeat until the test suite passes with the largest possible set of updates.
 
@@ -64,7 +100,7 @@ If any test or build fails:
 1. Produce a clear report listing, per sub-project:
    - Dependencies successfully updated.
    - Dependencies that could NOT be updated, with the reason (which test/build
-     broke and why, if known).
+     broke, which version constraint was violated, or why, if known).
 2. For each dependency that was successfully updated, close its corresponding
    Dependabot PR and any linked issue.
 3. Merge the consolidated feature branch's PR into `main`.
