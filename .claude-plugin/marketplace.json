@@ -52,6 +52,11 @@
       "name": "jeff-plugin-phaser",
       "source": "./plugins/jeff-plugin-phaser",
       "description": "Agents and skills for Phaser 3 browser game development with scene architecture, physics, spritesheets, tilemaps, and performance optimization."
+    },
+    {
+      "name": "jeff-plugin-project",
+      "source": "./plugins/jeff-plugin-project",
+      "description": "General project workflows that apply across technology stacks — dependency management, issue resolution, and project-level automation."
     }
   ]
 }
