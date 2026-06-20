@@ -99,7 +99,8 @@ test:
 	npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox
 
 build:
-	npm run prod:build
+	npm run update-csp
+	npm run build:prod
 
 # netlify-cli is NOT added as a devDependency — npx downloads it at deploy time.
 # Update --dir to match angular.json outputPath (typically dist/<app-name>/browser).
@@ -111,25 +112,25 @@ deploy: build
 
 ---
 
-### `.github/workflows/<workflow-name>.yml`
+### `.github/workflows/deploy-web.yml`
 
-Fill in `<workflow-name>`, `<app-directory>`, `<node-version>`, `<lockfile-path>`, and `<github-environment>` from Steps 1–2.
+Fill in `<app-directory>`, `<node-version>`, and `<lockfile-path>` from Step 1. Add any additional environment secrets your app needs (e.g. API URLs, feature flags) alongside `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` in the Deploy step.
 
 ```yaml
-name: <workflow-name>
+name: deploy-web
 
 on:
   workflow_dispatch: # manual trigger only — no auto-deploy on push
 
 concurrency:
-  group: <concurrency-group>
+  group: deploy-web
   cancel-in-progress: false # never cancel an in-flight deploy
 
 jobs:
   deploy:
     name: Angular — lint, test & deploy to Netlify
     runs-on: ubuntu-latest
-    environment: <github-environment> # GitHub environment gate; secrets live here
+    environment: prod # GitHub environment gate; secrets live here
     defaults:
       run:
         working-directory: <app-directory>
@@ -156,10 +157,12 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          # Add any additional secrets the app needs at build/deploy time:
+          # MY_API_URL: ${{ secrets.MY_API_URL }}
 ```
 
 **Why `workflow_dispatch` only?**
-Netlify deployments are intentional, not automatic. This prevents a bad push from immediately going to production. Trigger from the GitHub Actions UI or via `gh workflow run <workflow-name>`.
+Netlify deployments are intentional, not automatic. This prevents a bad push from immediately going to production. Trigger from the GitHub Actions UI or via `gh workflow run deploy-web`.
 
 **Why `cancel-in-progress: false`?**
 An in-flight deploy to Netlify should never be interrupted mid-upload. A new deploy queues behind the current one.
@@ -276,12 +279,12 @@ In `package.json`:
 }
 ```
 
-In the `Makefile`, update the `build` target so the hash is always recomputed before a deploy:
+In the `Makefile`, update the `build` target so the hash is recomputed first, then the Angular build runs:
 
 ```makefile
 build:
-	npm run prod:build
 	npm run update-csp
+	npm run build:prod
 ```
 
 ### 5. Allow `scripts/*.js` in `.gitignore`
