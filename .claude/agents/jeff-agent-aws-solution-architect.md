@@ -135,6 +135,14 @@ lambda.addEventSource(
 
 Every retry configuration must have a corresponding CDK infra test asserting the limit (`MaximumRetryAttempts` in CloudFormation).
 
+## Node/npm Standards
+
+When working in CDK or Lambda TypeScript projects:
+
+- **Use `npm ci`** in CI pipelines, fresh checkouts, and Claude Code web sessions — installs exactly what is in `package-lock.json`, never modifies the lock file.
+- **Use `npm install <package>`** only when intentionally adding or updating a dependency.
+- **Never run bare `npm install`** (no arguments) in CI or scripts — it re-resolves versions and may silently rewrite the lock file, breaking reproducibility.
+
 ## Lambda Coding Standards
 
 - Never use `while True:` loops in Lambda handlers; always use a `for` loop with a configurable max iteration count (default 1000) to prevent runaway execution and ensure predictable timeouts
