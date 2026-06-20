@@ -14,7 +14,7 @@ passes its tests, and dropping any update that breaks the build.
 - [ ] Listed every open Dependabot PR and its linked issue (if any)
 - [ ] Created branch chore/dependabot-batch-<date> off main
 
-## Angular (only if an Angular sub-project exists in this repo)
+## Angular
 - [ ] Opened https://angular.dev/update-guide and confirmed the correct upgrade
       path from the current Angular version to the latest
 - [ ] Ran `ng update @angular/core @angular/cli` following the guide's steps
