@@ -195,52 +195,110 @@ In production, Netlify serves the real file and the `301` redirect in `netlify.t
 
 ## Optional: PostHog Integration
 
-If the project uses PostHog analytics, do **not** put the init snippet inline in `index.html`. An inline script requires `'unsafe-hashes'` plus a `sha256-...` hash in the CSP `script-src`, and that hash must be updated every time the PostHog snippet changes — which busts Netlify's CDN cache for `index.html` on every update.
+If the project uses PostHog analytics, keep the init snippet **inline in `src/index.html`**. Do not extract it to an external file.
 
-Instead:
+**Why inline is required:** Angular's build tool (Beasties) generates `<link onload="...">` event handlers for CSS preloading. These are inline event handlers that require `'unsafe-hashes'` in the CSP `script-src` — regardless of PostHog. Since `'unsafe-hashes'` must be present anyway, the PostHog inline script needs only a `sha256-...` hash added alongside it. Removing `'unsafe-hashes'` to avoid the hash breaks CSS entirely.
 
-### 1. Create `public/posthog-init.js`
+### 1. Add the PostHog snippet inline in `src/index.html`
 
-Place the PostHog init snippet in a standalone file inside the Angular project's `public/` directory (which Angular copies verbatim into `dist/`):
-
-```js
-!(function (t, e) {
-  // paste the PostHog snippet here exactly as provided by PostHog
-})(window, document);
-```
-
-### 2. Reference it from `index.html`
-
-Replace any inline `<script>` PostHog block with:
+Paste the PostHog snippet as the first inline `<script>` in `<head>`. Add a comment so future editors know the hash in `netlify.toml` must stay in sync:
 
 ```html
-<script src="/posthog-init.js"></script>
+<!-- PostHog analytics — inline so Beasties CSS preload handlers (which also need
+     'unsafe-hashes') share the same CSP exception. If you change this snippet,
+     run `npm run update-csp` to recompute the sha256 hash in netlify.toml. -->
+<script>
+  !(function (t, e) {
+    /* paste PostHog snippet here */
+  })(window, document);
+</script>
 ```
 
-Because the file is served from the same origin, `'self'` in `script-src` already covers it — no hash, no `'unsafe-hashes'` needed.
+### 2. Add CSP headers to `netlify.toml`
 
-### 3. Add CSP headers to `netlify.toml`
-
-Add a headers block for `/*`. The key point is that `script-src 'self'` is sufficient — no inline-script exceptions required:
+Add a headers block for `/*`. The `sha256-...` value covers the PostHog inline script; `'unsafe-hashes'` covers Beasties' `<link onload="...">` handlers. Add a comment so future editors know only the first `sha256-` token is replaced by the automation script:
 
 ```toml
+# script-src: 'unsafe-hashes' is required for Angular's Beasties CSS preload <link onload="..."> handlers.
+# The sha256 hash covers the inline PostHog snippet in src/index.html.
+# Only the first 'sha256-...' token here is replaced by `npm run update-csp` — do not reorder.
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self'; connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com; img-src 'self' data:; style-src 'self' 'unsafe-inline';"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-hashes' 'sha256-PLACEHOLDER'; connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com; img-src 'self' data:; style-src 'self' 'unsafe-inline';"
 ```
 
-Adjust `connect-src` to match the PostHog region/endpoint shown in your PostHog project settings.
+Replace `PLACEHOLDER` by running `npm run update-csp` (see below). Adjust `connect-src` to match the PostHog region/endpoint in your PostHog project settings.
 
-### 4. Add `posthog-init.js` to `.prettierignore`
+### 3. Add `scripts/update-csp-hash.js`
 
-The PostHog snippet is minified vendored code — Prettier will mangle it. Add to `.prettierignore` at the repo root:
+Create this file in the Angular app directory. It reads the first inline `<script>` from `index.html`, computes its SHA-256, and patches the hash in `netlify.toml` — so updating the PostHog snippet never requires manually touching the CSP:
+
+```js
+#!/usr/bin/env node
+// Recomputes the SHA-256 hash of the first inline <script> in src/index.html
+// and writes the updated hash into the script-src directive in netlify.toml.
+// Run this after changing the PostHog snippet, then commit both files.
+const { createHash } = require('node:crypto');
+const { readFileSync, writeFileSync } = require('node:fs');
+const { join } = require('node:path');
+
+const root = join(__dirname, '..');
+
+const indexHtml = readFileSync(join(root, 'src/index.html'), 'utf8');
+const match = indexHtml.match(/<script>([\s\S]*?)<\/script>/);
+if (!match) {
+  console.error('No inline <script> found in src/index.html');
+  process.exit(1);
+}
+
+const hash = `sha256-${createHash('sha256').update(match[1], 'utf8').digest('base64')}`;
+
+const tomlPath = join(root, 'netlify.toml');
+const toml = readFileSync(tomlPath, 'utf8');
+const updated = toml.replace(/'sha256-[A-Za-z0-9+/=]+'/, `'${hash}'`);
+
+if (updated === toml) {
+  console.log(`CSP hash already up to date: '${hash}'`);
+} else {
+  writeFileSync(tomlPath, updated);
+  console.log(`netlify.toml updated with: '${hash}'`);
+}
+```
+
+### 4. Expose as `npm run update-csp` and wire into `make build`
+
+In `package.json`:
+
+```json
+"scripts": {
+  "update-csp": "node scripts/update-csp-hash.js"
+}
+```
+
+In the `Makefile`, update the `build` target so the hash is always recomputed before a deploy:
+
+```makefile
+build:
+	npm run prod:build
+	npm run update-csp
+```
+
+### 5. Allow `scripts/*.js` in `.gitignore`
+
+If the repo's root `.gitignore` blocks `*.js`, add an exception in the Angular app directory's own `.gitignore`:
 
 ```
-**/posthog-init.js
+!scripts/*.js
 ```
 
-**Why this works:** Netlify caches `index.html` based on its content hash. With the snippet extracted to an external file, `index.html` is stable across PostHog updates — only `posthog-init.js` changes, and its filename stays the same so the CDN for `index.html` is never invalidated unnecessarily.
+### 6. Add `.prettierignore` for the script
+
+`scripts/update-csp-hash.js` uses CommonJS `require` — Prettier may flag it depending on your config. Add to `.prettierignore`:
+
+```
+scripts/update-csp-hash.js
+```
 
 ---
 
