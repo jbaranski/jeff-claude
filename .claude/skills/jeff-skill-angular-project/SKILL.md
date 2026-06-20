@@ -38,12 +38,45 @@ Before proceeding:
      - `src/styles.css` should contain `@import "tailwindcss"`;
 
 5. Create a `netlify.toml` file in the root of the Angular project directory with the following content:
+
    ```
     [[redirects]]
       from = "/*"
       to = "/index.html"
       status = 200
    ```
+
+6. Create `.nvmrc` in the project root to lock the Node version for nvm users:
+
+   ```
+   24
+   ```
+
+7. Add an `engines` field to `package.json` and create `.npmrc` to enforce the Node version:
+
+   In `package.json`, add:
+
+   ```json
+   "engines": {
+     "node": ">=24.0.0"
+   }
+   ```
+
+   Create `.npmrc` in the project root:
+
+   ```
+   engine-strict=true
+   ```
+
+   With `engine-strict=true`, any `npm` command on the wrong Node version will error immediately instead of silently corrupting the lock file.
+
+8. Configure the session-start hook using the `session-start-hook` skill so that Claude Code web sessions automatically install Node 24 at container startup.
+
+## npm ci vs npm install
+
+- **Use `npm ci`** in CI pipelines, fresh checkouts, and Claude Code web sessions. It installs exactly what is in `package-lock.json`, never modifies the lock file, and fails fast if the lock file is missing or inconsistent.
+- **Use `npm install <package>`** only when intentionally adding or updating a dependency.
+- **Never run bare `npm install`** (no arguments) in CI or fresh environments — it re-resolves versions and may silently rewrite the lock file, which defeats reproducibility and can break CI.
 
 ## Integration with Other Skills
 

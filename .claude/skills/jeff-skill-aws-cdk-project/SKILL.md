@@ -128,6 +128,38 @@ Also always include `source-map-support` as a `devDependencies` for better error
 }
 ```
 
+### Node Version Enforcement
+
+Create `.nvmrc` at the repo root to lock the Node version for nvm users:
+
+```
+24
+```
+
+Create `.npmrc` in `cdk/` to enforce the Node version:
+
+```
+engine-strict=true
+```
+
+Add an `engines` field to `cdk/package.json`:
+
+```json
+"engines": {
+  "node": ">=24.0.0"
+}
+```
+
+With `engine-strict=true`, any `npm` command on the wrong Node version will error immediately instead of silently corrupting the lock file.
+
+Configure the session-start hook using the `session-start-hook` skill so that Claude Code web sessions automatically install Node 24 at container startup.
+
+### npm ci vs npm install
+
+- **Use `npm ci`** in CI pipelines, fresh checkouts, and Claude Code web sessions. It installs exactly what is in `package-lock.json`, never modifies the lock file, and fails fast if the lock file is missing or inconsistent.
+- **Use `npm install <package>`** only when intentionally adding or updating a dependency.
+- **Never run bare `npm install`** (no arguments) in CI or fresh environments — it re-resolves versions and may silently rewrite the lock file, which defeats reproducibility and can break CI.
+
 ### Scripts
 
 Prefer npx cdk or local cdk scripts; do not rely on global install.

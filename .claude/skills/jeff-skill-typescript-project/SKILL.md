@@ -63,7 +63,7 @@ project-root/
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -260,7 +260,17 @@ mkdir -p src/lib tests
 
 # Create initial files
 touch src/index.ts tests/example.test.ts
+
+# Lock Node version and enforce it
+echo "24" > .nvmrc
+echo "engine-strict=true" > .npmrc
 ```
+
+## npm ci vs npm install
+
+- **Use `npm ci`** in CI pipelines, fresh checkouts, and Claude Code web sessions. It installs exactly what is in `package-lock.json`, never modifies the lock file, and fails fast if the lock file is missing or inconsistent.
+- **Use `npm install <package>`** only when intentionally adding or updating a dependency.
+- **Never run bare `npm install`** (no arguments) in CI or fresh environments — it re-resolves versions and may silently rewrite the lock file, which defeats reproducibility and can break CI.
 
 ### Common Commands
 
@@ -361,7 +371,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies
@@ -391,7 +401,9 @@ jobs:
 - Use `tsx` for development with hot reload
 - Build with `tsc` for production
 - Never commit `node_modules/` or `dist/`
-- Use `.nvmrc` to specify Node.js version
+- Use `.nvmrc` (containing `24`) to lock the Node version; nvm auto-switches when you `cd` into the repo
+- Create `.npmrc` containing `engine-strict=true` so any `npm` command on the wrong Node version fails loudly instead of silently corrupting the lock file
+- Configure the session-start hook via the `session-start-hook` skill so Claude Code web sessions auto-install Node 24 at container startup
 - Export types from your library's main entry point
 
 ## For Library Projects
