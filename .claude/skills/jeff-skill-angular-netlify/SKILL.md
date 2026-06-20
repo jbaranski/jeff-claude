@@ -211,9 +211,7 @@ Paste the PostHog snippet as the first inline `<script>` in `<head>`. Add a comm
      'unsafe-hashes') share the same CSP exception. If you change this snippet,
      run `npm run update-csp` to recompute the sha256 hash in netlify.toml. -->
 <script>
-  !(function (t, e) {
-    /* paste PostHog snippet here */
-  })(window, document);
+  /* paste PostHog snippet here */
 </script>
 ```
 
