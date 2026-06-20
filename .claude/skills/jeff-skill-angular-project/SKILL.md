@@ -38,16 +38,7 @@ Before proceeding:
 
      - `src/styles.css` should contain `@import "tailwindcss"`;
 
-5. Create a `netlify.toml` file in the root of the Angular project directory with the following content:
-
-   ```
-    [[redirects]]
-      from = "/*"
-      to = "/index.html"
-      status = 200
-   ```
-
-   > This is the minimal redirect needed for a new project. For the full production Netlify setup (caching headers, CI/CD workflow, route guards), use the `jeff-skill-angular-netlify` skill.
+5. Set up Netlify deployment using the `jeff-skill-angular-netlify` skill.
 
 6. Create `.nvmrc` in the project root with the current Node LTS major version (visit https://nodejs.org/en and look for the "LTS" badge):
 
