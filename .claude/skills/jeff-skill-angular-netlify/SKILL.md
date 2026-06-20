@@ -120,7 +120,9 @@ Fill in `<app-directory>`, `<node-version>`, and `<lockfile-path>` from Step 1. 
 name: deploy-web
 
 on:
-  workflow_dispatch: # manual trigger only — no auto-deploy on push
+  push:
+    branches: [main]
+  workflow_dispatch: # also triggerable ad-hoc from the GitHub Actions UI
 
 concurrency:
   group: deploy-web
@@ -161,8 +163,7 @@ jobs:
           # MY_API_URL: ${{ secrets.MY_API_URL }}
 ```
 
-**Why `workflow_dispatch` only?**
-Netlify deployments are intentional, not automatic. This prevents a bad push from immediately going to production. Trigger from the GitHub Actions UI or via `gh workflow run deploy-web`.
+**Triggers:** Deploys automatically on every merge to `main`, and can also be triggered ad-hoc from the GitHub Actions UI or via `gh workflow run deploy-web`.
 
 **Why `cancel-in-progress: false`?**
 An in-flight deploy to Netlify should never be interrupted mid-upload. A new deploy queues behind the current one.
