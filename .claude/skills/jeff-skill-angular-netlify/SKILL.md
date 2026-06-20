@@ -1,5 +1,5 @@
 ---
-name: jeff-skill-netlify-angular-deploy
+name: jeff-skill-angular-netlify
 description: Scaffold Netlify deployment for an Angular SPA project. Generates netlify.toml, a Makefile deploy target, and a GitHub Actions workflow. Use when asked to "deploy to Netlify", "set up Netlify for Angular", or "add Netlify CI/CD".
 ---
 
