@@ -11,6 +11,7 @@ Before proceeding:
 2. Use WebSearch to verify current versions:
    - "Angular latest version [current-year]"
    - "Tailwind CSS latest version [current-year]"
+   - Visit https://nodejs.org/en to find the current Node.js LTS major version (look for the "LTS" badge)
    - Update any version references in examples below with verified versions
    - DO NOT skip this step. DO NOT guess at version numbers.
 
@@ -46,19 +47,19 @@ Before proceeding:
       status = 200
    ```
 
-6. Create `.nvmrc` in the project root to lock the Node version for nvm users:
+6. Create `.nvmrc` in the project root with the current Node LTS major version (visit https://nodejs.org/en and look for the "LTS" badge):
 
    ```
-   24
+   <NODE_LTS>
    ```
 
 7. Add an `engines` field to `package.json` and create `.npmrc` to enforce the Node version:
 
-   In `package.json`, add:
+   In `package.json`, add (replacing `<NODE_LTS>` with the current LTS major version):
 
    ```json
    "engines": {
-     "node": ">=24.0.0"
+     "node": ">= <NODE_LTS>.0.0"
    }
    ```
 
@@ -70,7 +71,7 @@ Before proceeding:
 
    With `engine-strict=true`, any `npm` command on the wrong Node version will error immediately instead of silently corrupting the lock file.
 
-8. Configure the session-start hook using the `session-start-hook` skill so that Claude Code web sessions automatically install Node 24 at container startup.
+8. Configure the session-start hook using the `session-start-hook` skill so that Claude Code web sessions automatically install the current Node LTS version at container startup.
 
 ## npm ci vs npm install
 

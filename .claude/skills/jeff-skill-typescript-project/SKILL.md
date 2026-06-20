@@ -15,6 +15,7 @@ Before proceeding:
    - "TypeScript latest version [current-year]"
    - "Vitest latest version [current-year]"
    - "ESLint TypeScript latest version [current-year]"
+   - Visit https://nodejs.org/en to find the current Node.js LTS major version (look for the "LTS" badge)
    - Update all version numbers in examples below with verified versions
    - DO NOT skip this step. DO NOT guess at version numbers.
 
@@ -63,7 +64,7 @@ project-root/
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "engines": {
-    "node": ">=24.0.0"
+    "node": ">= <NODE_LTS>.0.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -262,7 +263,8 @@ mkdir -p src/lib tests
 touch src/index.ts tests/example.test.ts
 
 # Lock Node version and enforce it
-echo "24" > .nvmrc
+# Replace <NODE_LTS> with the current LTS major version from https://nodejs.org/en
+echo "<NODE_LTS>" > .nvmrc
 echo "engine-strict=true" > .npmrc
 ```
 
@@ -371,7 +373,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '<NODE_LTS>'
           cache: 'npm'
 
       - name: Install dependencies
@@ -401,9 +403,9 @@ jobs:
 - Use `tsx` for development with hot reload
 - Build with `tsc` for production
 - Never commit `node_modules/` or `dist/`
-- Use `.nvmrc` (containing `24`) to lock the Node version; nvm auto-switches when you `cd` into the repo
+- Use `.nvmrc` (containing the current LTS major version from https://nodejs.org/en) to lock the Node version; nvm auto-switches when you `cd` into the repo
 - Create `.npmrc` containing `engine-strict=true` so any `npm` command on the wrong Node version fails loudly instead of silently corrupting the lock file
-- Configure the session-start hook via the `session-start-hook` skill so Claude Code web sessions auto-install Node 24 at container startup
+- Configure the session-start hook via the `session-start-hook` skill so Claude Code web sessions auto-install the current Node LTS version at container startup
 - Export types from your library's main entry point
 
 ## For Library Projects

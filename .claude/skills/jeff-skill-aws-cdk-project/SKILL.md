@@ -16,6 +16,7 @@ Before proceeding:
    - "TypeScript latest version [current-year]"
    - "vitest latest version [current-year]"
    - "constructs library latest version [current-year]"
+   - Visit https://nodejs.org/en to find the current Node.js LTS major version (look for the "LTS" badge)
    - Update all version numbers in examples below with verified versions
    - DO NOT skip this step. DO NOT guess at version numbers.
 
@@ -130,10 +131,10 @@ Also always include `source-map-support` as a `devDependencies` for better error
 
 ### Node Version Enforcement
 
-Create `.nvmrc` at the repo root to lock the Node version for nvm users:
+Create `.nvmrc` at the repo root with the current Node LTS major version (visit https://nodejs.org/en and look for the "LTS" badge):
 
 ```
-24
+<NODE_LTS>
 ```
 
 Create `.npmrc` in `cdk/` to enforce the Node version:
@@ -142,17 +143,17 @@ Create `.npmrc` in `cdk/` to enforce the Node version:
 engine-strict=true
 ```
 
-Add an `engines` field to `cdk/package.json`:
+Add an `engines` field to `cdk/package.json` (replacing `<NODE_LTS>` with the current LTS major version):
 
 ```json
 "engines": {
-  "node": ">=24.0.0"
+  "node": ">= <NODE_LTS>.0.0"
 }
 ```
 
 With `engine-strict=true`, any `npm` command on the wrong Node version will error immediately instead of silently corrupting the lock file.
 
-Configure the session-start hook using the `session-start-hook` skill so that Claude Code web sessions automatically install Node 24 at container startup.
+Configure the session-start hook using the `session-start-hook` skill so that Claude Code web sessions automatically install the current Node LTS version at container startup.
 
 ### npm ci vs npm install
 
