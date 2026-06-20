@@ -193,6 +193,57 @@ In production, Netlify serves the real file and the `301` redirect in `netlify.t
 
 ---
 
+## Optional: PostHog Integration
+
+If the project uses PostHog analytics, do **not** put the init snippet inline in `index.html`. An inline script requires `'unsafe-hashes'` plus a `sha256-...` hash in the CSP `script-src`, and that hash must be updated every time the PostHog snippet changes — which busts Netlify's CDN cache for `index.html` on every update.
+
+Instead:
+
+### 1. Create `public/posthog-init.js`
+
+Place the PostHog init snippet in a standalone file inside the Angular project's `public/` directory (which Angular copies verbatim into `dist/`):
+
+```js
+!(function (t, e) {
+  // paste the PostHog snippet here exactly as provided by PostHog
+})(window, document);
+```
+
+### 2. Reference it from `index.html`
+
+Replace any inline `<script>` PostHog block with:
+
+```html
+<script src="/posthog-init.js"></script>
+```
+
+Because the file is served from the same origin, `'self'` in `script-src` already covers it — no hash, no `'unsafe-hashes'` needed.
+
+### 3. Add CSP headers to `netlify.toml`
+
+Add a headers block for `/*`. The key point is that `script-src 'self'` is sufficient — no inline-script exceptions required:
+
+```toml
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com; img-src 'self' data:; style-src 'self' 'unsafe-inline';"
+```
+
+Adjust `connect-src` to match the PostHog region/endpoint shown in your PostHog project settings.
+
+### 4. Add `posthog-init.js` to `.prettierignore`
+
+The PostHog snippet is minified vendored code — Prettier will mangle it. Add to `.prettierignore` at the repo root:
+
+```
+**/posthog-init.js
+```
+
+**Why this works:** Netlify caches `index.html` based on its content hash. With the snippet extracted to an external file, `index.html` is stable across PostHog updates — only `posthog-init.js` changes, and its filename stays the same so the CDN for `index.html` is never invalidated unnecessarily.
+
+---
+
 ## Step 4 — Post-generation checklist
 
 Remind the user to complete these manual steps before the first deploy:
