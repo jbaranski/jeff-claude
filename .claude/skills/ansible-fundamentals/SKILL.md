@@ -220,6 +220,25 @@ dc_ver: '2.24.0'
 days: 7
 ```
 
+## Quick Reference Commands
+
+```bash
+# Lint all Ansible files
+uv run ansible-lint ansible/playbooks/
+
+# Run playbook
+uv run ansible-playbook playbooks/my-playbook.yml
+
+# Check syntax
+uv run ansible-playbook --syntax-check playbooks/my-playbook.yml
+
+# List hosts in inventory
+uv run ansible-inventory --list
+
+# Test connection
+uv run ansible all -m ping
+```
+
 ## Secrets Management
 
 Secrets (passwords, API keys, tokens) live in plain YAML files on the local machine or in GitHub Actions secrets — no third-party secrets manager. Keep it simple.
