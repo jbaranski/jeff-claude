@@ -330,7 +330,6 @@ This project was generated from v22 with `zone.js` never present. The only chang
 
 - `NgZone.run()` and `NgZone.runOutsideAngular()` — compatible with zoneless; removing them can cause perf regressions in libraries
 
-**SSR:** async work that must complete before serialization must use `PendingTasks.run()` or `pendingUntilEvent()` from `@angular/core/rxjs-interop`.
 
 ### Signals & Reactivity
 - Verify signals are used instead of traditional `@Input()`

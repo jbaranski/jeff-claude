@@ -87,17 +87,6 @@ Never call `markForCheck()` as a workaround for reactive form updates.
 - Use `toSignal()` from `@angular/core/rxjs-interop` to convert observables to signals — the only accepted pattern for consuming observables in templates
 - Use `takeUntilDestroyed()` from `@angular/core/rxjs-interop` for subscription cleanup
 - Use `toObservable()` when a downstream API requires an observable
-- For SSR: use `pendingUntilEvent()` from `@angular/core/rxjs-interop` to keep the app unstable until an observable emits
-
-**SSR and `PendingTasks`:** Angular uses `PendingTasks` to determine when the app is stable enough to serialize. Register async work that must complete before serialization:
-
-```typescript
-const tasks = inject(PendingTasks);
-tasks.run(async () => {
-  const result = await fetchData();
-  this.data.set(result);
-});
-```
 
 **Testing:**
 
