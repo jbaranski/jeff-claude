@@ -262,13 +262,3 @@ jobs:
   build/
   *.egg-info/
   ```
-
-## Integration with Other Skills
-
-
-## Additional Resources
-
-- uv documentation: https://docs.astral.sh/uv/
-- ruff documentation: https://docs.astral.sh/ruff/
-- pytest documentation: https://docs.pytest.org/
-- Python PEPs: https://peps.python.org/
