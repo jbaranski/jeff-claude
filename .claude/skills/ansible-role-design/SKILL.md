@@ -342,22 +342,6 @@ postgresql/
 └── README.md
 ```
 
-## Task Naming Convention
-
-Start task names with action verbs:
-
-```yaml
-# GOOD
-- name: Ensure Docker is installed
-- name: Configure SSH security settings
-- name: Add user to docker group
-
-# BAD
-- name: Docker installation
-- name: SSH settings
-- name: User docker group
-```
-
 ## File Validation
 
 Validate critical configuration files:

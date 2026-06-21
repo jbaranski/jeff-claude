@@ -92,14 +92,6 @@ Handle transient failures with retries:
   changed_when: false
 ```
 
-### Retry Parameters
-
-| Parameter | Description                                  |
-| --------- | -------------------------------------------- |
-| `until`   | Condition that must be true to stop retrying |
-| `retries` | Maximum number of attempts                   |
-| `delay`   | Seconds between attempts                     |
-
 ## Assert for Validation
 
 Validate inputs with clear error messages:
@@ -210,31 +202,6 @@ Separate checking from failing for better control:
       Command output: {{ resource_check.stderr }}
       Hint: Ensure resource was created first.
   when: resource_check.rc != 0
-```
-
-## Error Recovery Pattern
-
-Attempt operation, handle specific errors:
-
-```yaml
-- name: Attempt primary approach
-  block:
-    - name: Connect via primary endpoint
-      ansible.builtin.uri:
-        url: 'https://{{ primary_host }}/api/health'
-        validate_certs: true
-      register: primary_result
-
-  rescue:
-    - name: Log primary failure
-      ansible.builtin.debug:
-        msg: "Primary endpoint failed: {{ primary_result.msg | default('unknown error') }}"
-
-    - name: Try fallback endpoint
-      ansible.builtin.uri:
-        url: 'https://{{ fallback_host }}/api/health'
-        validate_certs: false
-      register: fallback_result
 ```
 
 ## Delegate Error Handling

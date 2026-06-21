@@ -169,35 +169,7 @@ Mark read-only operations as never changed:
   failed_when: false
 ```
 
-## Pattern 7: Retry Until Success
-
-Use `until` for operations that may need retries:
-
-```yaml
-- name: Wait for service to be ready
-  ansible.builtin.uri:
-    url: http://localhost:8080/health
-    status_code: 200
-  register: health_check
-  until: health_check.status == 200
-  retries: 30
-  delay: 10
-  # Total wait: up to 5 minutes
-```
-
-With command:
-
-```yaml
-- name: Wait for application port to be available
-  ansible.builtin.command: ss -tlnp sport = :{{ app_port }}
-  register: port_check
-  until: port_check.rc == 0 and port_check.stdout != ""
-  retries: 12
-  delay: 5
-  changed_when: false
-```
-
-## Pattern 8: Set Facts for State
+## Pattern 7: Set Facts for State
 
 Use facts to track state across tasks:
 
@@ -290,20 +262,6 @@ Use strict error handling in shell scripts:
 | `-e`          | Exit on any command failure  |
 | `-u`          | Error on undefined variables |
 | `-o pipefail` | Catch errors in pipelines    |
-
-## Testing Idempotency
-
-Verify playbooks are idempotent by running twice:
-
-```bash
-# First run - may show changes
-uv run ansible-playbook playbooks/setup.yml
-
-# Second run - should show 0 changes
-uv run ansible-playbook playbooks/setup.yml
-
-# If second run shows changes, playbook is NOT idempotent
-```
 
 ## Common changed_when Expressions
 

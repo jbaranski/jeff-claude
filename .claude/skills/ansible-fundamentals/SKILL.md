@@ -181,6 +181,19 @@ uv run ansible-playbook playbooks/setup.yml --tags "network,storage"
 uv run ansible-lint ansible/playbooks/
 ```
 
+### Diagnostic Commands
+
+```bash
+# Check syntax without running
+uv run ansible-playbook --syntax-check playbooks/my-playbook.yml
+
+# List hosts in inventory
+uv run ansible-inventory --list
+
+# Test connection to all hosts
+uv run ansible all -m ping
+```
+
 ## Task Naming Conventions
 
 Use descriptive names with action verbs:
@@ -202,100 +215,6 @@ Examples:
 - name: Configure SSH security settings
 - name: Create admin user account
 - name: Deploy application configuration
-```
-
-## Variable Naming
-
-Use snake_case with descriptive names:
-
-```yaml
-# GOOD - clear, descriptive
-web_server_port: 8080
-docker_compose_version: '2.24.0'
-db_backup_retention_days: 7
-
-# BAD - vague, abbreviated
-port: 8080
-dc_ver: '2.24.0'
-days: 7
-```
-
-## Quick Reference Commands
-
-```bash
-# Lint all Ansible files
-uv run ansible-lint ansible/playbooks/
-
-# Run playbook
-uv run ansible-playbook playbooks/my-playbook.yml
-
-# Check syntax
-uv run ansible-playbook --syntax-check playbooks/my-playbook.yml
-
-# List hosts in inventory
-uv run ansible-inventory --list
-
-# Test connection
-uv run ansible all -m ping
-```
-
-## Common Anti-Patterns
-
-### Missing FQCN
-
-```yaml
-# BAD
-- name: Copy file
-  copy:
-    src: file.txt
-    dest: /tmp/
-
-# GOOD
-- name: Copy file
-  ansible.builtin.copy:
-    src: file.txt
-    dest: /tmp/
-```
-
-### Uncontrolled Commands
-
-```yaml
-# BAD - always shows changed, no error handling
-- name: Check status
-  ansible.builtin.command: systemctl status app
-
-# GOOD
-- name: Check status
-  ansible.builtin.command: systemctl status app
-  register: status_check
-  changed_when: false
-  failed_when: false
-```
-
-### Using shell When command Suffices
-
-```yaml
-# BAD - shell not needed
-- name: List files
-  ansible.builtin.shell: ls -la /tmp
-
-# GOOD - command is sufficient
-- name: List files
-  ansible.builtin.command: ls -la /tmp
-  changed_when: false
-```
-
-### Missing no_log on Secrets
-
-```yaml
-# BAD - password in logs
-- name: Set password
-  ansible.builtin.command: set-password {{ password }}
-
-# GOOD
-- name: Set password
-  ansible.builtin.command: set-password {{ password }}
-  no_log: true
 ```
 
 ## Secrets Management

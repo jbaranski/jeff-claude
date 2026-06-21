@@ -74,13 +74,6 @@ and related packages managed by `uv`). It does **not** support Ansible Galaxy co
 Ansible Galaxy collection versions pinned in `requirements.yml` are not a supported
 Dependabot ecosystem. Those updates must be handled manually or via Renovate Bot.
 
-See `TODO.md` in the repo root for the open discussion on automating collection updates.
-
-## Additional Resources
-
-- https://docs.github.com/en/code-security/dependabot/working-with-dependabot/keeping-your-actions-up-to-date-with-dependabot
-- https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference
-
 ## Related Skills
 
 - **ansible-fundamentals** - uv run conventions and collection management
