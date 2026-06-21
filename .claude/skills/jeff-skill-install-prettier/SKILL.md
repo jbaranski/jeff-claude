@@ -73,6 +73,31 @@ prettier-check:
 	npx prettier --check .
 ```
 
+## Monorepo Root Makefile
+
+In a monorepo where sub-packages own their own prettier config, the root `Makefile` must have `prettier` and `prettier-check` targets that:
+
+1. Delegate to each sub-package that owns its own prettier (via its `npm run prettier:fix` / `npm run prettier:check` script)
+2. Run the root prettier last (covering everything the sub-packages exclude)
+
+```makefile
+prettier:
+	cd apps/web && npm run prettier:fix
+	cd infra && npm run prettier:fix
+	npx prettier --write .
+
+prettier-check:
+	cd apps/web && npm run prettier:check
+	cd infra && npm run prettier:check
+	npx prettier --check .
+```
+
+Replace `apps/web/` with the actual client sub-package directory (e.g. `client/`, `client/src/`). Add or remove lines for each sub-package that owns its own prettier config.
+
+Add `prettier` and `prettier-check` to the `.PHONY` declaration.
+
+**Always run `make prettier` (not `npx prettier --write .` directly) when formatting the whole monorepo.** Running prettier from the root without the Makefile target skips sub-package formatting.
+
 ## .prettierignore Patterns by Context
 
 ### Single-package Angular project (one `.prettierignore` at root)
@@ -96,7 +121,9 @@ Also add `scripts/update-csp-hash.js` if that file exists in the project.
 
 Same as single-package Angular above — applied within the sub-package directory.
 
-### Root monorepo `.prettierignore` (covers everything not caught by sub-package ignores)
+### Root monorepo `.prettierignore`
+
+The root `.prettierignore` must **exclude the entire directory** of every sub-package that owns its own prettier config. This prevents the root prettier from touching files those sub-packages manage themselves:
 
 ```
 node_modules
@@ -104,9 +131,11 @@ dist
 build
 coverage
 client/src/index.html
+apps/web/
+infra/
 ```
 
-Also add `client/scripts/update-csp-hash.js` if that file exists. Replace `client/` with the actual client directory name (e.g. `apps/web/`).
+Replace `apps/web/` and `infra/` with the actual sub-package directories (e.g. `client/`, `client/src/`). Do **not** list individual file exclusions from sub-packages here — exclude the whole directory instead.
 
 ### CDK / infra package
 
@@ -136,5 +165,6 @@ coverage
 - Do not add prettier to `dependencies` (only `devDependencies`)
 - Do not put additional prettier config in sub-package `package.json` files beyond the two scripts
 - Do not have sub-package configs inherit or extend a parent config
+- Do not run `npx prettier --write .` from the monorepo root directly — always use `make prettier`
 
 If extra prettier configuration exists in `package.json` or any other non-standard location, remove it and consolidate everything into `.prettierrc.json` / `.prettierrc.yaml` and `.prettierignore`.
