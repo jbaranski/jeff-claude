@@ -342,22 +342,6 @@ postgresql/
 └── README.md
 ```
 
-## Task Naming Convention
-
-Start task names with action verbs:
-
-```yaml
-# GOOD
-- name: Ensure Docker is installed
-- name: Configure SSH security settings
-- name: Add user to docker group
-
-# BAD
-- name: Docker installation
-- name: SSH settings
-- name: User docker group
-```
-
 ## File Validation
 
 Validate critical configuration files:
@@ -377,16 +361,6 @@ Validate critical configuration files:
     line: '{{ user }} ALL=(ALL) NOPASSWD: ALL'
     validate: 'visudo -cf %s'
 ```
-
-## Documentation
-
-Every role needs a README.md with:
-
-1. **Description** - What the role does
-2. **Requirements** - Prerequisites
-3. **Role Variables** - All variables with defaults
-4. **Dependencies** - Other roles needed
-5. **Example Playbook** - How to use it
 
 ## Related Skills
 
