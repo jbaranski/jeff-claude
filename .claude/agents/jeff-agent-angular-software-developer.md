@@ -27,7 +27,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 
 - Always use standalone components over NgModules
 - Must NOT set `standalone: true` inside Angular decorators. It's the default in Angular v20+.
-- Always use zoneless change detection — provide `provideZonelessChangeDetection()` in `app.config.ts` and ensure `zone.js` is NOT in the `polyfills` array in `angular.json`
+- Always use zoneless change detection. Zoneless is the default in Angular v21+; do not add `provideZoneChangeDetection()` anywhere. If on v20, add `provideZonelessChangeDetection()` explicitly in `app.config.ts`. Always remove `zone.js` and `zone.js/testing` from `polyfills` in `angular.json` (both `build` and `test` targets) and run `npm uninstall zone.js`.
 - Use signals for state management
 - Implement lazy loading for feature routes
 - Do NOT use the `@HostBinding` and `@HostListener` decorators. Put host bindings inside the `host` object of the `@Component` or `@Directive` decorator instead
@@ -53,11 +53,64 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Keep state transformations pure and predictable
 - Do NOT use `mutate` on signals, use `update` or `set` instead
 
+## Zoneless Change Detection
+
+Angular is configured zoneless — `zone.js` is never present. Change detection only runs when Angular is explicitly notified.
+
+**What triggers change detection** (the complete list from the Angular guide):
+
+- Updating a signal that is read in a template
+- `ChangeDetectorRef.markForCheck()` (called automatically by `AsyncPipe`)
+- `ComponentRef.setInput()`
+- Bound host or template listener callbacks
+- Attaching a view that was marked dirty by one of the above
+
+**Prefer signals for all state.** Signals are the primary mechanism. The other triggers (`markForCheck`, `setInput`) exist for compatibility but should not be your first choice.
+
+**Side effects:** Use `effect()` to react to signal changes with side effects (logging, DOM writes outside Angular, storage sync). Never derive new state inside `effect()` — use `computed()` for derivation.
+
+**Post-render DOM operations:** Replace `NgZone.onMicrotaskEmpty` / `NgZone.onStable` patterns with:
+
+- `afterNextRender()` — runs once after the next render cycle
+- `afterEveryRender()` — runs after every render cycle
+
+**NgZone:**
+
+- **Remove** `NgZone.onMicrotaskEmpty`, `NgZone.onUnstable`, `NgZone.isStable`, and `NgZone.onStable` — these never emit in zoneless applications
+- `NgZone.run()` and `NgZone.runOutsideAngular()` are compatible with zoneless and do not need to be removed
+
+**Reactive forms in zoneless:** `setValue`, `patchValue`, `FormArray.push`, and similar APIs update form state but do **not** automatically schedule change detection. If a template depends on reactive form state, connect form observables to a signal or call `ChangeDetectorRef.markForCheck()`.
+
+**RxJS interop:**
+
+- Use `toSignal()` from `@angular/core/rxjs-interop` to convert observables to signals — preferred over async pipe
+- Use `takeUntilDestroyed()` from `@angular/core/rxjs-interop` for subscription cleanup
+- Use `toObservable()` when a downstream API requires an observable
+- For SSR: use `pendingUntilEvent()` from `@angular/core/rxjs-interop` to keep the app unstable until an observable emits
+
+**SSR and `PendingTasks`:** In SSR, Angular uses `PendingTasks` (not ZoneJS) to determine when the app is stable enough to serialize. Register async work that must complete before serialization:
+
+```typescript
+const tasks = inject(PendingTasks);
+tasks.run(async () => {
+  const result = await fetchData();
+  this.data.set(result);
+});
+```
+
+**Testing:**
+
+- Add `provideZonelessChangeDetection()` to `TestBed.configureTestingModule` to match production behavior
+- Prefer `await fixture.whenStable()` over `fixture.detectChanges()` — let Angular decide when to synchronize state rather than forcing it
+- `fixture.detectChanges()` is acceptable in existing test suites but is not the zoneless-idiomatic pattern
+- `TestBed` will throw `ExpressionChangedAfterItHasBeenCheckedError` if template values are updated without a change notification — fix by using signals or `markForCheck()`
+- For debug mode, use `provideCheckNoChangesConfig({ exhaustive: true, interval: <ms> })` to periodically verify no bindings were updated without a notification
+
 ## Templates
 
 - Keep templates simple and avoid complex logic
 - Use native control flow (`@if`, `@for`, `@switch`) instead of `*ngIf`, `*ngFor`, `*ngSwitch`
-- Use the async pipe to handle observables
+- Prefer `toSignal()` from `@angular/core/rxjs-interop` over the async pipe for observables — `toSignal()` integrates directly with the signal-based change detection model and eliminates manual subscription management. The async pipe still works (it calls `markForCheck`) but is the secondary option.
 - Do not assume globals like (`new Date()`) are available.
 - Do not write arrow functions in templates (they are not supported).
 - **Never use a component method for display-only value transformation.** Use Angular pipes instead — built-in pipes for standard formatting, custom `@Pipe` classes for app-specific transformation. Calling a method from a template for formatting is unacceptable.
@@ -140,6 +193,7 @@ The feature must appear **only** under "Lazy chunk files". A passing build and p
 
 - Angular best practices: https://angular.dev/assets/context/best-practices.md
 - Angular style guide: https://angular.dev/style-guide
+- Angular zoneless guide: https://angular.dev/guide/zoneless
 - Angular llms.txt: https://angular.dev/llms.txt
 - Angular llms-full.txt: https://angular.dev/assets/context/llms-full.txt
 - Tailwind CSS docs: https://tailwindcss.com/docs

@@ -32,7 +32,7 @@ You are an expert Angular code reviewer. Your role is to provide objective, thor
 
 - [ ] Using standalone components (not NgModules)
 - [ ] NOT setting `standalone: true` explicitly (default in Angular 20+)
-- [ ] Using zoneless change detection — `provideZonelessChangeDetection()` in `app.config.ts` and `zone.js` absent from `polyfills` in `angular.json`
+- [ ] Zoneless is active — `zone.js` and `zone.js/testing` absent from `polyfills` in `angular.json` (both `build` and `test` targets); `provideZoneChangeDetection()` not used anywhere; on v20 `provideZonelessChangeDetection()` present in `app.config.ts`
 - [ ] Using signals for state management
 - [ ] Using `input()` and `output()` functions, not decorators
 - [ ] Using `computed()` for derived state
@@ -61,7 +61,7 @@ You are an expert Angular code reviewer. Your role is to provide objective, thor
 
 - [ ] Templates are simple without complex logic
 - [ ] Using native control flow (`@if`, `@for`, `@switch`) not structural directives
-- [ ] Using async pipe for observables
+- [ ] Preferring `toSignal()` over async pipe for observables (async pipe still works but is secondary)
 - [ ] No arrow functions in templates
 - [ ] No assumption of globals like `new Date()` in templates
 - [ ] Using `trackBy` with `@for` for lists
@@ -130,7 +130,12 @@ You are an expert Angular code reviewer. Your role is to provide objective, thor
 ### Critical Issues (Must Fix)
 
 - Using deprecated Angular APIs
-- `zone.js` present in `polyfills` in `angular.json`, or `provideZonelessChangeDetection()` missing from `app.config.ts` — project must be zoneless
+- `zone.js` or `zone.js/testing` present in `polyfills` in `angular.json` (either `build` or `test` target) — must be removed entirely; run `npm uninstall zone.js`
+- `provideZoneChangeDetection()` present anywhere — overrides the zoneless default; remove it
+- `NgZone.onMicrotaskEmpty`, `NgZone.onUnstable`, `NgZone.isStable`, or `NgZone.onStable` used — these never emit in zoneless; replace with `afterNextRender()` / `afterEveryRender()` or a direct DOM API
+- Reactive forms (`setValue`, `patchValue`, `FormArray.push`, etc.) used in a component whose template depends on that form state, without connecting the form observable to a signal or calling `markForCheck()` — change detection will not run automatically
+- TestBed missing `provideZonelessChangeDetection()` — tests won't match production zoneless behavior
+- `fixture.detectChanges()` used in new tests — prefer `await fixture.whenStable()` to let Angular schedule change detection naturally
 - Using `any` type extensively
 - Memory leaks (unsubscribed observables)
 - Security issues (XSS, unsafe bindings)
@@ -300,6 +305,20 @@ The state management in lines 45-60 uses signals and computed values beautifully
 ````
 
 ## Angular-Specific Review Focus
+
+### Zoneless Change Detection
+
+Angular is fully zoneless — `zone.js` is not present. Change detection only fires when Angular is explicitly notified via: signal updates in templates, `ChangeDetectorRef.markForCheck()`, `ComponentRef.setInput()`, or bound template/host listener callbacks.
+
+**Check for:**
+
+- Any `NgZone.onMicrotaskEmpty`, `NgZone.onUnstable`, `NgZone.isStable`, or `NgZone.onStable` usage — flag as critical; these never emit in zoneless. Replace with `afterNextRender()` / `afterEveryRender()`.
+- `NgZone.run()` and `NgZone.runOutsideAngular()` — these are compatible with zoneless; do not flag them.
+- Reactive form APIs (`setValue`, `patchValue`, `FormArray.push`) where the template depends on form state but no signal or `markForCheck()` is wired up — view will not update.
+- `provideZoneChangeDetection()` anywhere — removes the zoneless default; must be deleted.
+- `provideZonelessChangeDetection()` in TestBed — required for tests to match production behavior.
+- `fixture.detectChanges()` in new tests — prefer `await fixture.whenStable()`.
+- SSR: async work that must complete before serialization should use `PendingTasks.run()` or `pendingUntilEvent()` from `@angular/core/rxjs-interop`.
 
 ### Signals & Reactivity
 - Verify signals are used instead of traditional `@Input()`
