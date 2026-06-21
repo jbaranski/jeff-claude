@@ -65,7 +65,8 @@ This project was generated from Angular v22 onwards. `zone.js` never existed in 
 
 - [ ] Templates are simple without complex logic
 - [ ] Using native control flow (`@if`, `@for`, `@switch`) not structural directives
-- [ ] Using `toSignal()` for all observables — async pipe is forbidden in zoneless applications
+- [ ] No async pipe — observables converted to signals at the boundary with `toSignal()`
+- [ ] No `new Subject()`, `new BehaviorSubject()`, or `new Observable()` in application code — signals used instead
 - [ ] No arrow functions in templates
 - [ ] No assumption of globals like `new Date()` in templates
 - [ ] Using `trackBy` with `@for` for lists
@@ -107,7 +108,7 @@ This project was generated from Angular v22 onwards. `zone.js` never existed in 
 - [ ] Lazy loading implemented for routes
 - [ ] OnPush change detection strategy used
 - [ ] No unnecessary re-renders
-- [ ] Observables converted to signals with `toSignal()` — no manual subscriptions or async pipe
+- [ ] No observables created in application code — signals used for all own state
 - [ ] No memory leaks
 - [ ] Efficient `trackBy` functions for lists
 - [ ] **Lazy bundle isolation verified** — for any `loadComponent` route, check that `app.routes.ts` has NO static imports of classes from that feature. Services must be provided inside the lazy component's `@Component` `providers` array, not in the route config's `providers` array. Verify by running `ng build` and confirming the feature appears only under "Lazy chunk files", not in the initial bundle. A clean build and passing tests do NOT prove correct bundle placement.
@@ -137,7 +138,8 @@ This project was generated from Angular v22 onwards. `zone.js` never existed in 
 - Using deprecated Angular APIs
 - `zone.js` or `zone.js/testing` present in `polyfills` in `angular.json` (either `build` or `test` target) — remove entirely; run `npm uninstall zone.js`
 - `provideZoneChangeDetection()` present anywhere — overrides the zoneless default; delete it
-- `async` pipe used anywhere — forbidden; replace with `toSignal()` from `@angular/core/rxjs-interop`
+- `async` pipe used anywhere — forbidden; convert the observable to a signal with `toSignal()` at the boundary where it enters the component
+- `new Subject()`, `new BehaviorSubject()`, or `new Observable()` in application code — forbidden; use signals for own state; observables only appear at external API boundaries (`HttpClient`, `Router`, third-party SDKs) and must be converted immediately with `toSignal()`
 - `ChangeDetectorRef` injected or used anywhere — zone.js-era API with no place in a v22 greenfield project; remove it and fix the state to use signals
 - `ChangeDetectorRef.markForCheck()` called anywhere — not a fix; the underlying state must be moved into a signal
 - `fixture.detectChanges()` in any test — forbidden; replace with `await fixture.whenStable()`
@@ -145,7 +147,7 @@ This project was generated from Angular v22 onwards. `zone.js` never existed in 
 - `NgZone.onMicrotaskEmpty`, `NgZone.onUnstable`, `NgZone.isStable`, or `NgZone.onStable` used — these never emit in zoneless; replace with `afterNextRender()` / `afterEveryRender()` or a direct DOM API such as `MutationObserver`
 - Reactive forms (`setValue`, `patchValue`, `FormArray.push`, etc.) driving template state without wrapping in a signal — fix by piping `form.valueChanges` through `toSignal()`; calling `markForCheck()` as a workaround is also forbidden
 - Using `any` type extensively
-- Memory leaks (unsubscribed observables)
+- Manual subscriptions without `takeUntilDestroyed()` — memory leak; any subscription that cannot be avoided must use `takeUntilDestroyed()`
 - Security issues (XSS, unsafe bindings)
 - Template expressions with side effects
 - Business logic in components
@@ -321,7 +323,8 @@ This project was generated from v22 with `zone.js` never present. The only chang
 - `ChangeDetectorRef` injected or used anywhere — no place in this codebase
 - `ChangeDetectorRef.markForCheck()` — not a fix; move the state into a signal
 - `fixture.detectChanges()` in tests — replace with `await fixture.whenStable()`
-- `async` pipe — replace with `toSignal()`
+- `async` pipe — forbidden; convert at the boundary with `toSignal()`
+- Observables created in application code (`new Subject()` etc.) — forbidden; use signals
 - `NgZone.onMicrotaskEmpty`, `NgZone.onUnstable`, `NgZone.isStable`, `NgZone.onStable` — never emit in zoneless; replace with `afterNextRender()` / `afterEveryRender()` or a direct DOM API
 - `provideZoneChangeDetection()` anywhere — deletes the zoneless default
 - Reactive form state driving a template without `toSignal(form.valueChanges)` — change detection will not fire; `markForCheck()` is also not the fix

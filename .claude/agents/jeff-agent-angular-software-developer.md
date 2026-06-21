@@ -82,11 +82,11 @@ readonly formValue = toSignal(this.form.valueChanges, { initialValue: this.form.
 
 Never call `markForCheck()` as a workaround for reactive form updates.
 
-**RxJS interop:**
+**RxJS interop:** Do not create observables (`new Subject()`, `new BehaviorSubject()`, `new Observable()`) in your own code — use signals instead. Observables will appear at external API boundaries (`HttpClient`, `Router`, `ActivatedRoute`, third-party SDKs); convert them immediately with `toSignal()` and do not propagate them further. Never use the async pipe.
 
-- Use `toSignal()` from `@angular/core/rxjs-interop` to convert observables to signals — the only accepted pattern for consuming observables in templates
-- Use `takeUntilDestroyed()` from `@angular/core/rxjs-interop` for subscription cleanup
-- Use `toObservable()` when a downstream API requires an observable
+- `toSignal(obs, { initialValue })` — convert at the boundary; import from `@angular/core/rxjs-interop`
+- `takeUntilDestroyed()` — clean up any subscription that cannot be avoided; import from `@angular/core/rxjs-interop`
+- `toObservable()` — only when a third-party API requires an observable as input
 
 **Testing:**
 
@@ -98,7 +98,7 @@ Never call `markForCheck()` as a workaround for reactive form updates.
 
 - Keep templates simple and avoid complex logic
 - Use native control flow (`@if`, `@for`, `@switch`) instead of `*ngIf`, `*ngFor`, `*ngSwitch`
-- Always use `toSignal()` from `@angular/core/rxjs-interop` to convert observables to signals. Never use the async pipe — `toSignal()` is the required pattern in a zoneless application.
+- Never use the async pipe — convert observables to signals at the boundary with `toSignal()` (see RxJS interop above)
 - Do not assume globals like (`new Date()`) are available.
 - Do not write arrow functions in templates (they are not supported).
 - **Never use a component method for display-only value transformation.** Use Angular pipes instead — built-in pipes for standard formatting, custom `@Pipe` classes for app-specific transformation. Calling a method from a template for formatting is unacceptable.
