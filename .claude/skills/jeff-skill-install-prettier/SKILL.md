@@ -92,6 +92,8 @@ prettier-check:
 	npx prettier --check .
 ```
 
+Replace `apps/web/` with the actual client sub-package directory (e.g. `client/`, `client/src/`). Add or remove lines for each sub-package that owns its own prettier config.
+
 Add `prettier` and `prettier-check` to the `.PHONY` declaration.
 
 **Always run `make prettier` (not `npx prettier --write .` directly) when formatting the whole monorepo.** Running prettier from the root without the Makefile target skips sub-package formatting.
