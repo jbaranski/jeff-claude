@@ -362,6 +362,16 @@ Validate critical configuration files:
     validate: 'visudo -cf %s'
 ```
 
+## Documentation
+
+Every role needs a README.md with:
+
+1. **Description** - What the role does
+2. **Requirements** - Prerequisites
+3. **Role Variables** - All variables with defaults
+4. **Dependencies** - Other roles needed
+5. **Example Playbook** - How to use it
+
 ## Related Skills
 
 - **ansible-playbook-design** - When to use roles vs playbooks
