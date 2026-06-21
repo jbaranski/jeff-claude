@@ -130,6 +130,49 @@ Add proper controls:
     - "'already enabled' not in mod_result.stdout"
 ```
 
+## Task Naming Conventions
+
+Start task names with action verbs that describe the desired state:
+
+| Verb        | Use When                     |
+| ----------- | ---------------------------- |
+| `Ensure`    | Verifying state exists       |
+| `Configure` | Modifying settings           |
+| `Install`   | Adding packages              |
+| `Create`    | Making new resources         |
+| `Remove`    | Deleting resources           |
+| `Deploy`    | Releasing applications       |
+| `Update`    | Modifying existing resources |
+
+```yaml
+# GOOD - verb-first, describes desired state
+- name: Ensure Docker is installed
+- name: Configure SSH security settings
+- name: Create admin user account
+- name: Deploy application configuration
+
+# BAD - noun phrases, vague
+- name: Docker installation
+- name: SSH settings
+- name: Admin user
+```
+
+## Variable Naming
+
+Use `snake_case` with descriptive, prefixed names:
+
+```yaml
+# GOOD - clear, descriptive, prefixed by role/feature
+web_server_port: 8080
+docker_compose_version: '2.24.0'
+db_backup_retention_days: 7
+
+# BAD - vague, abbreviated, no prefix
+port: 8080
+dc_ver: '2.24.0'
+days: 7
+```
+
 ## Collections in Use
 
 This repository uses these Ansible collections:
