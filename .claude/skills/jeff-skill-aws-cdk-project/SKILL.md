@@ -377,7 +377,6 @@ myLambda.role!.addToPrincipalPolicy(new iam.PolicyStatement({
 
 ## Integration with Other Skills
 
-- **jeff-skill-error-debugging-rca**: Use when debugging errors or test failures in Angular projects or related tools
 
 ## Additional resources
 
