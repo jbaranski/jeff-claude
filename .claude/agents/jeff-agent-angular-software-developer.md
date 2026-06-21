@@ -83,7 +83,7 @@ Angular is configured zoneless — `zone.js` is never present. Change detection 
 
 **RxJS interop:**
 
-- Use `toSignal()` from `@angular/core/rxjs-interop` to convert observables to signals — preferred over async pipe
+- Use `toSignal()` from `@angular/core/rxjs-interop` to convert observables to signals — required; never use async pipe
 - Use `takeUntilDestroyed()` from `@angular/core/rxjs-interop` for subscription cleanup
 - Use `toObservable()` when a downstream API requires an observable
 - For SSR: use `pendingUntilEvent()` from `@angular/core/rxjs-interop` to keep the app unstable until an observable emits
@@ -110,7 +110,7 @@ tasks.run(async () => {
 
 - Keep templates simple and avoid complex logic
 - Use native control flow (`@if`, `@for`, `@switch`) instead of `*ngIf`, `*ngFor`, `*ngSwitch`
-- Prefer `toSignal()` from `@angular/core/rxjs-interop` over the async pipe for observables — `toSignal()` integrates directly with the signal-based change detection model and eliminates manual subscription management. The async pipe still works (it calls `markForCheck`) but is the secondary option.
+- Always use `toSignal()` from `@angular/core/rxjs-interop` to convert observables to signals. Never use the async pipe — `toSignal()` is the required pattern in a zoneless application.
 - Do not assume globals like (`new Date()`) are available.
 - Do not write arrow functions in templates (they are not supported).
 - **Never use a component method for display-only value transformation.** Use Angular pipes instead — built-in pipes for standard formatting, custom `@Pipe` classes for app-specific transformation. Calling a method from a template for formatting is unacceptable.

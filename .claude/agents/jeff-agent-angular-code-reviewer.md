@@ -61,7 +61,7 @@ You are an expert Angular code reviewer. Your role is to provide objective, thor
 
 - [ ] Templates are simple without complex logic
 - [ ] Using native control flow (`@if`, `@for`, `@switch`) not structural directives
-- [ ] Preferring `toSignal()` over async pipe for observables (async pipe still works but is secondary)
+- [ ] Using `toSignal()` for all observables — async pipe is forbidden in zoneless applications
 - [ ] No arrow functions in templates
 - [ ] No assumption of globals like `new Date()` in templates
 - [ ] Using `trackBy` with `@for` for lists
@@ -103,7 +103,7 @@ You are an expert Angular code reviewer. Your role is to provide objective, thor
 - [ ] Lazy loading implemented for routes
 - [ ] OnPush change detection strategy used
 - [ ] No unnecessary re-renders
-- [ ] Observables properly unsubscribed (or using async pipe)
+- [ ] Observables converted to signals with `toSignal()` — no manual subscriptions or async pipe
 - [ ] No memory leaks
 - [ ] Efficient `trackBy` functions for lists
 - [ ] **Lazy bundle isolation verified** — for any `loadComponent` route, check that `app.routes.ts` has NO static imports of classes from that feature. Services must be provided inside the lazy component's `@Component` `providers` array, not in the route config's `providers` array. Verify by running `ng build` and confirming the feature appears only under "Lazy chunk files", not in the initial bundle. A clean build and passing tests do NOT prove correct bundle placement.
@@ -131,6 +131,7 @@ You are an expert Angular code reviewer. Your role is to provide objective, thor
 
 - Using deprecated Angular APIs
 - `zone.js` or `zone.js/testing` present in `polyfills` in `angular.json` (either `build` or `test` target) — must be removed entirely; run `npm uninstall zone.js`
+- `async` pipe used anywhere — replace with `toSignal()` from `@angular/core/rxjs-interop`; async pipe is forbidden in zoneless applications
 - `provideZoneChangeDetection()` present anywhere — overrides the zoneless default; remove it
 - `NgZone.onMicrotaskEmpty`, `NgZone.onUnstable`, `NgZone.isStable`, or `NgZone.onStable` used — these never emit in zoneless; replace with `afterNextRender()` / `afterEveryRender()` or a direct DOM API
 - Reactive forms (`setValue`, `patchValue`, `FormArray.push`, etc.) used in a component whose template depends on that form state, without connecting the form observable to a signal or calling `markForCheck()` — change detection will not run automatically
