@@ -121,17 +121,6 @@ Order sections consistently across all playbooks:
 
 ## Variable Organization
 
-### Variable Precedence (Key Levels)
-
-From lowest to highest precedence:
-
-1. Role defaults (`roles/x/defaults/main.yml`)
-2. Inventory group_vars (`group_vars/all.yml`)
-3. Inventory host_vars (`host_vars/hostname.yml`)
-4. Play vars (`vars:` in playbook)
-5. Task vars (`vars:` on task)
-6. Extra vars (`-e` on command line) - **highest**
-
 ### Organizing Variables
 
 ```text
@@ -145,26 +134,6 @@ ansible/
 │   └── web02.yml
 └── playbooks/
     └── deploy.yml        # Uses vars: for playbook-specific
-```
-
-### Variable Naming by Scope
-
-```yaml
-# group_vars/all.yml - Global defaults
-default_timezone: 'UTC'
-ntp_servers:
-  - 0.pool.ntp.org
-  - 1.pool.ntp.org
-
-# group_vars/webservers.yml - Group-specific
-nginx_http_port: 80
-nginx_https_port: 443
-
-# host_vars/web01.yml - Host-specific overrides
-nginx_worker_processes: 4
-ssl_cert_domains:
-  - example.com
-  - www.example.com
 ```
 
 ## Task Organization with Includes
@@ -199,100 +168,7 @@ Split playbook tasks into separate files when:
       when: inventory_hostname == groups['webservers'][0]
 ```
 
-### import_tasks vs include_tasks
-
-| Feature                         | import_tasks        | include_tasks      |
-| ------------------------------- | ------------------- | ------------------ |
-| When evaluated                  | Parse time (static) | Runtime (dynamic)  |
-| Supports loops                  | No                  | Yes                |
-| Supports conditionals on import | Limited             | Full               |
-| Use case                        | Ordered execution   | Conditional/looped |
-
-```yaml
-# Static import - always loaded, order matters
-- ansible.builtin.import_tasks: users.yml
-- ansible.builtin.import_tasks: permissions.yml
-
-# Dynamic include - conditional, looped
-- ansible.builtin.include_tasks: 'setup-{{ ansible_os_family }}.yml'
-- ansible.builtin.include_tasks: deploy-app.yml
-  loop: '{{ applications }}'
-```
-
-## Multi-Play Playbooks
-
-Use multiple plays for different host groups or privilege levels:
-
-```yaml
----
-# Play 1: Configure database server first
-- name: Configure database server
-  hosts: db_servers
-  become: true
-  tasks:
-    - name: Ensure PostgreSQL is started
-      ansible.builtin.systemd:
-        name: postgresql
-        state: started
-        enabled: true
-
-# Play 2: Deploy application to app servers
-- name: Deploy application
-  hosts: app_servers
-  become: true
-  serial: 1 # One server at a time for rolling deploy
-  tasks:
-    - name: Install application package
-      ansible.builtin.apt:
-        name: '{{ app_package }}'
-        state: present
-      notify: restart app
-
-# Play 3: Reload load balancer
-- name: Update load balancer
-  hosts: load_balancers
-  become: true
-  tasks:
-    - name: Reload nginx
-      ansible.builtin.systemd:
-        name: nginx
-        state: reloaded
-```
-
-## Handler Best Practices
-
-### Define Handlers at Play Level
-
-```yaml
----
-- name: Configure web server
-  hosts: webservers
-  become: true
-
-  tasks:
-    - name: Update nginx config
-      ansible.builtin.template:
-        src: nginx.conf.j2
-        dest: /etc/nginx/nginx.conf
-      notify: reload nginx
-
-    - name: Update SSL certificates
-      ansible.builtin.copy:
-        src: '{{ item }}'
-        dest: /etc/nginx/ssl/
-      loop:
-        - cert.pem
-        - key.pem
-      notify: reload nginx
-
-  handlers:
-    - name: reload nginx
-      ansible.builtin.systemd:
-        name: nginx
-        state: reloaded
-```
-
-### Handler Execution Order
+## Handler Execution Order
 
 Handlers run:
 

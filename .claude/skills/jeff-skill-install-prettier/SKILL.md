@@ -138,14 +138,3 @@ coverage
 - Do not have sub-package configs inherit or extend a parent config
 
 If extra prettier configuration exists in `package.json` or any other non-standard location, remove it and consolidate everything into `.prettierrc.json` / `.prettierrc.yaml` and `.prettierignore`.
-
-## Key Notes
-
-- `src/index.html` is always excluded for Angular projects — it is framework-generated
-- `*.js` in TypeScript projects means compiled output — always exclude it
-- `cdk.out/` must be in CDK/infra `.prettierignore` — it contains synthesized CloudFormation
-- `scripts/update-csp-hash.js` appears in Angular ignore lists whenever a CSP hash update script is present
-
-## Additional Resources
-
-- Prettier documentation: https://prettier.io/docs/

@@ -377,7 +377,4 @@ myLambda.role!.addToPrincipalPolicy(new iam.PolicyStatement({
 
 ## Integration with Other Skills
 
-
 ## Additional resources
-
-- For complete API details, see [reference.md](reference.md)
