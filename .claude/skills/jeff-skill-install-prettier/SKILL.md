@@ -40,10 +40,10 @@ endOfLine: 'lf'
 
 ## Prettier Version
 
-Add prettier as a dev dependency using version `^3.8.4`:
+Add prettier as a dev dependency at the latest stable version:
 
 ```bash
-npm install --save-dev prettier@^3.8.4
+npm install --save-dev prettier@latest
 ```
 
 ## npm Scripts
