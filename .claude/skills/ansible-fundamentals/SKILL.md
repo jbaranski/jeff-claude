@@ -181,6 +181,19 @@ uv run ansible-playbook playbooks/setup.yml --tags "network,storage"
 uv run ansible-lint ansible/playbooks/
 ```
 
+### Diagnostic Commands
+
+```bash
+# Check syntax without running
+uv run ansible-playbook --syntax-check playbooks/my-playbook.yml
+
+# List hosts in inventory
+uv run ansible-inventory --list
+
+# Test connection to all hosts
+uv run ansible all -m ping
+```
+
 ## Task Naming Conventions
 
 Use descriptive names with action verbs:
@@ -202,41 +215,6 @@ Examples:
 - name: Configure SSH security settings
 - name: Create admin user account
 - name: Deploy application configuration
-```
-
-## Variable Naming
-
-Use snake_case with descriptive names:
-
-```yaml
-# GOOD - clear, descriptive
-web_server_port: 8080
-docker_compose_version: '2.24.0'
-db_backup_retention_days: 7
-
-# BAD - vague, abbreviated
-port: 8080
-dc_ver: '2.24.0'
-days: 7
-```
-
-## Quick Reference Commands
-
-```bash
-# Lint all Ansible files
-uv run ansible-lint ansible/playbooks/
-
-# Run playbook
-uv run ansible-playbook playbooks/my-playbook.yml
-
-# Check syntax
-uv run ansible-playbook --syntax-check playbooks/my-playbook.yml
-
-# List hosts in inventory
-uv run ansible-inventory --list
-
-# Test connection
-uv run ansible all -m ping
 ```
 
 ## Secrets Management
