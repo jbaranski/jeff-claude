@@ -577,3 +577,8 @@ npm install -D @types/aws-lambda
 # Event Handler (only if you have 10+ routes - see routing section above)
 # npm install @aws-lambda-powertools/event-handler
 ```
+
+## Integration with Other Skills
+
+- **jeff-skill-install-dependabot** — Set up Dependabot to keep npm dependencies up to date
+- **jeff-skill-dependabot-issue-resolution** — Resolve Dependabot PRs for npm package updates

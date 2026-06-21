@@ -262,3 +262,8 @@ jobs:
   build/
   *.egg-info/
   ```
+
+## Integration with Other Skills
+
+- **jeff-skill-install-dependabot** — Set up Dependabot to keep uv/Python dependencies up to date
+- **jeff-skill-dependabot-issue-resolution** — Resolve Dependabot PRs for Python package updates

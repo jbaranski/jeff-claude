@@ -498,3 +498,8 @@ jobs:
 - Use goroutines and channels for concurrent operations
 - Use `sync.WaitGroup` for waiting on multiple goroutines
 - Avoid global state and init() functions when possible
+
+## Integration with Other Skills
+
+- **jeff-skill-install-dependabot** — Set up Dependabot to keep Go module dependencies up to date
+- **jeff-skill-dependabot-issue-resolution** — Resolve Dependabot PRs for Go module updates
