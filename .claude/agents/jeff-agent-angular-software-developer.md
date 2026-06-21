@@ -55,40 +55,41 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 
 ## Zoneless Change Detection
 
-Angular is configured zoneless — `zone.js` is never present. Change detection only runs when Angular is explicitly notified.
+Angular is fully zoneless — `zone.js` is never present. This is not a migration target; it is the starting point. Write code as if `zone.js` never existed.
 
-**What triggers change detection** (the complete list from the Angular guide):
+**The only change detection mechanism: signals.** All state that drives the template must live in a `signal()` or `computed()`. When a signal value changes, Angular schedules a render automatically. There are no other mechanisms you should ever need in new code.
 
-- Updating a signal that is read in a template
-- `ChangeDetectorRef.markForCheck()` (called automatically by `AsyncPipe`)
-- `ComponentRef.setInput()`
-- Bound host or template listener callbacks
-- Attaching a view that was marked dirty by one of the above
+**Never use `ChangeDetectorRef.markForCheck()`.** If you think you need it, your state is not in a signal yet — fix the state, not the detection.
 
-**Prefer signals for all state.** Signals are the primary mechanism. The other triggers (`markForCheck`, `setInput`) exist for compatibility but should not be your first choice.
+**Never inject or reference `ChangeDetectorRef`** in application code. It is a zone.js-era API with no place in a signal-first project.
 
 **Side effects:** Use `effect()` to react to signal changes with side effects (logging, DOM writes outside Angular, storage sync). Never derive new state inside `effect()` — use `computed()` for derivation.
 
-**Post-render DOM operations:** Replace `NgZone.onMicrotaskEmpty` / `NgZone.onStable` patterns with:
+**Post-render DOM operations:**
 
 - `afterNextRender()` — runs once after the next render cycle
 - `afterEveryRender()` — runs after every render cycle
 
-**NgZone:**
+Do not use `NgZone.onMicrotaskEmpty` or `NgZone.onStable` — these never emit in zoneless. Replace them with the hooks above or a direct DOM API (e.g. `MutationObserver`).
 
-- **Remove** `NgZone.onMicrotaskEmpty`, `NgZone.onUnstable`, `NgZone.isStable`, and `NgZone.onStable` — these never emit in zoneless applications
-- `NgZone.run()` and `NgZone.runOutsideAngular()` are compatible with zoneless and do not need to be removed
+**NgZone:** `NgZone.run()` and `NgZone.runOutsideAngular()` are harmless in zoneless but should never be written in new code — they indicate a misunderstanding of the model.
 
-**Reactive forms in zoneless:** `setValue`, `patchValue`, `FormArray.push`, and similar APIs update form state but do **not** automatically schedule change detection. If a template depends on reactive form state, connect form observables to a signal or call `ChangeDetectorRef.markForCheck()`.
+**Reactive forms:** `setValue`, `patchValue`, `FormArray.push`, and similar APIs do not notify Angular's change detection. Expose form state to templates through signals:
+
+```typescript
+readonly formValue = toSignal(this.form.valueChanges, { initialValue: this.form.value });
+```
+
+Never call `markForCheck()` as a workaround for reactive form updates.
 
 **RxJS interop:**
 
-- Use `toSignal()` from `@angular/core/rxjs-interop` to convert observables to signals — required; never use async pipe
+- Use `toSignal()` from `@angular/core/rxjs-interop` to convert observables to signals — the only accepted pattern for consuming observables in templates
 - Use `takeUntilDestroyed()` from `@angular/core/rxjs-interop` for subscription cleanup
 - Use `toObservable()` when a downstream API requires an observable
 - For SSR: use `pendingUntilEvent()` from `@angular/core/rxjs-interop` to keep the app unstable until an observable emits
 
-**SSR and `PendingTasks`:** In SSR, Angular uses `PendingTasks` (not ZoneJS) to determine when the app is stable enough to serialize. Register async work that must complete before serialization:
+**SSR and `PendingTasks`:** Angular uses `PendingTasks` to determine when the app is stable enough to serialize. Register async work that must complete before serialization:
 
 ```typescript
 const tasks = inject(PendingTasks);
@@ -100,11 +101,9 @@ tasks.run(async () => {
 
 **Testing:**
 
-- Add `provideZonelessChangeDetection()` to `TestBed.configureTestingModule` to match production behavior
-- Prefer `await fixture.whenStable()` over `fixture.detectChanges()` — let Angular decide when to synchronize state rather than forcing it
-- `fixture.detectChanges()` is acceptable in existing test suites but is not the zoneless-idiomatic pattern
-- `TestBed` will throw `ExpressionChangedAfterItHasBeenCheckedError` if template values are updated without a change notification — fix by using signals or `markForCheck()`
-- For debug mode, use `provideCheckNoChangesConfig({ exhaustive: true, interval: <ms> })` to periodically verify no bindings were updated without a notification
+- Add `provideZonelessChangeDetection()` to `TestBed.configureTestingModule`
+- Use `await fixture.whenStable()` — never `fixture.detectChanges()`. Let Angular schedule change detection from signal updates, exactly as it does in production.
+- For debug mode, use `provideCheckNoChangesConfig({ exhaustive: true, interval: <ms> })` to catch any bindings updated without a signal notification
 
 ## Templates
 
