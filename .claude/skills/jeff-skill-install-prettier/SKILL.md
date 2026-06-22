@@ -136,7 +136,6 @@ dist
 build
 coverage
 client/src/index.html
-client/src/index.html
 apps/web/
 infra/
 ```
