@@ -80,6 +80,8 @@ In a monorepo where sub-packages own their own prettier config, the root `Makefi
 1. Delegate to each sub-package that owns its own prettier (via its `npm run prettier:fix` / `npm run prettier:check` script)
 2. Run the root prettier last (covering everything the sub-packages exclude)
 
+Each sub-package that has a buildable output (e.g. an Angular app) must also have a dedicated `build-<name>` target using `$(MAKE) -C <dir> build` — **never** `cd <dir> && make build`. This keeps the pattern consistent with other subproject targets and allows root-level build checks without entering subdirectories.
+
 ```makefile
 prettier:
 	cd apps/web && npm run prettier:fix
@@ -90,13 +92,16 @@ prettier-check:
 	cd apps/web && npm run prettier:check
 	cd infra && npm run prettier:check
 	npx prettier --check .
+
+build-web:
+	$(MAKE) -C apps/web build
 ```
 
-Replace `apps/web/` with the actual client sub-package directory (e.g. `client/`, `client/src/`). Add or remove lines for each sub-package that owns its own prettier config.
-
-Add `prettier` and `prettier-check` to the `.PHONY` declaration.
+Add `prettier`, `prettier-check`, and `build-web` (and any other build targets) to the `.PHONY` declaration.
 
 **Always run `make prettier` (not `npx prettier --write .` directly) when formatting the whole monorepo.** Running prettier from the root without the Makefile target skips sub-package formatting.
+
+**Always run `make build-web` (not `cd apps/web && make build`) for pre-commit build checks.** All subproject operations must go through root Makefile targets.
 
 ## .prettierignore Patterns by Context
 
