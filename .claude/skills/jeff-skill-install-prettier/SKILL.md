@@ -139,7 +139,7 @@ apps/web/
 infra/
 ```
 
-Replace `apps/web/` and `infra/` with the actual sub-package directories. Do **not** list individual file exclusions from sub-packages here — exclude the whole directory instead.
+Replace `apps/web/` and `infra/` with the actual sub-package directories (e.g. `client/`, `client/src/`). Do **not** list individual file exclusions from sub-packages here — exclude the whole directory instead.
 
 ### CDK / infra package
 
