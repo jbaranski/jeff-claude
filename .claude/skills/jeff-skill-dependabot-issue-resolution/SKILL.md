@@ -76,7 +76,7 @@ passes its tests, and dropping any update that breaks the build.
 2. Identify if an existing `chore/dependabot-batch-*` feature branch exists, and if so continue to modify that branch.
    Otherwise create a new feature branch off `main` (e.g. `chore/dependabot-batch-<date>`).
    All consolidated changes go here — do not commit directly to `main`.
-4. Note that this repo may contain multiple independent sub-projects in
+3. Note that this repo may contain multiple independent sub-projects in
    different directories (e.g. an Angular frontend AND a Go/Python/etc. backend).
    Each ecosystem is an independent track. There is NO required ordering
    between tracks — the backend (Go modules, etc.) can be updated before, after,
