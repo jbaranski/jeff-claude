@@ -17,7 +17,7 @@ To install or use the plugins:
 /plugin install jeff-plugin-aws-solution-architect@jeff-plugins
 /plugin install jeff-plugin-golang@jeff-plugins
 /plugin install jeff-plugin-ansible@jeff-plugins
-/plugin install jeff-plugin-frontend@jeff-plugins
+/plugin install jeff-plugin-tailwind@jeff-plugins
 /plugin install jeff-plugin-shell-bash@jeff-plugins
 /plugin install jeff-plugin-phaser@jeff-plugins
 /plugin install jeff-plugin-project@jeff-plugins
