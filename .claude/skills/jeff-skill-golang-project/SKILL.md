@@ -310,8 +310,11 @@ tidy:
 	go mod tidy
 	go mod verify
 
-# Run all checks (fmt, lint, test with coverage check)
-check: fmt lint coverage-check
+# Run all checks (format check, lint, test with coverage check)
+# NOTE: this is a gate, not a fixer — it depends on `fmt-check`, which reports
+# misformatted code and exits non-zero without rewriting anything. Use `make fmt`
+# (or `make all`) when you want files reformatted in place.
+check: fmt-check lint coverage-check
 
 # Install development dependencies
 # NOTE: the v2 module path contains /v2/. Installing
@@ -370,7 +373,8 @@ make coverage-check
 # Build the application
 make build
 
-# Run all checks (format, lint, coverage check)
+# Run all checks (format check, lint, coverage check) — fails on misformatted
+# code instead of reformatting it
 make check
 
 # Clean artifacts
