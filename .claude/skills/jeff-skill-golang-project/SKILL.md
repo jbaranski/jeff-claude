@@ -13,10 +13,24 @@ Before proceeding:
    - If not installed on macOS: `brew install go`
    - If not installed on Linux: Download from https://go.dev/dl/
    - Verify installation: `go version`
-2. Install golangci-lint:
+2. Install golangci-lint (**v2** — see the version note below):
    - macOS: `brew install golangci-lint`
-   - Linux: `curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin`
-   - Verify: `golangci-lint --version`
+   - Linux: `curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.13.2`
+   - Verify: `golangci-lint --version` — the output **must** start with `golangci-lint has version 2.`
+
+   If you prefer `go install`, the module path must contain `/v2/`:
+
+   ```bash
+   go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.13.2
+   ```
+
+   The v1 path (`github.com/golangci/golangci-lint/cmd/golangci-lint@latest`) still resolves — it
+   silently installs **v1.64.8**, which cannot read the v2 config below. Prefer the install script or
+   `brew`: `go install` builds golangci-lint with whatever Go toolchain resolves locally, and a binary
+   built with an older Go than your module targets fails with
+   `the Go language version (go1.X) used to build golangci-lint is lower than the targeted Go version`.
+   The released binaries are built with the current Go.
+
 3. Install bc (basic calculator) for coverage threshold checks:
    - macOS: `brew install bc`
    - Linux (Ubuntu/Debian): `sudo apt-get install bc`
@@ -25,9 +39,21 @@ Before proceeding:
 4. Use WebSearch to verify current versions:
    - "Go golang latest stable version [current-year]"
    - "golangci-lint latest version [current-year]"
+   - "golangci-lint-action latest version"
    - Update all version numbers in examples below with verified versions
    - Ensure Go is updated to the latest stable version if needed
    - DO NOT skip this step. DO NOT guess at version numbers.
+
+   Versions verified for the examples in this skill (September 2026):
+
+   | Tool                 | Version | Notes                                               |
+   | -------------------- | ------- | --------------------------------------------------- |
+   | Go                   | 1.27.1  | 1.26.8 is the previous supported release            |
+   | golangci-lint        | v2.13.2 | v2 config schema — v1 configs are rejected outright |
+   | golangci-lint-action | v9      | v6 and below support golangci-lint v1 only          |
+
+   Keep these three in step. `golangci-lint-action` v6 cannot run golangci-lint v2, and a
+   golangci-lint binary built with an older Go than your `go.mod` targets refuses to run.
 
 ## Goals
 
@@ -103,7 +129,7 @@ This creates a `go.mod` file:
 ```go
 module github.com/username/projectname
 
-go 1.25
+go 1.27
 
 require (
     // Dependencies will be added here automatically
@@ -112,70 +138,122 @@ require (
 
 ### .golangci.yml
 
-Comprehensive linting configuration:
+Comprehensive linting configuration. This is **golangci-lint v2 schema** — the v2 binary rejects a v1
+config outright with `unsupported version of the configuration`, so the `version` key is mandatory.
 
 ```yaml
+version: '2'
+
 run:
-  timeout: 5m
   tests: true
-  skip-dirs:
-    - vendor
 
 linters:
+  # `default: standard` already enables errcheck, govet, ineffassign, staticcheck
+  # and unused. Everything listed below is in addition to those five.
+  default: standard
   enable:
-    - errcheck # Check for unchecked errors
-    - gosimple # Simplify code
-    - govet # Vet examines Go source code
-    - ineffassign # Detect ineffectual assignments
-    - staticcheck # Staticcheck is go vet on steroids
-    - unused # Check for unused constants, variables, functions and types
-    - gofmt # Check whether code was gofmt-ed
-    - goimports # Check import statements are formatted
-    - misspell # Finds commonly misspelled English words
-    - revive # Fast, configurable, extensible, flexible, and beautiful linter for Go
-    - goprintffuncname # Check printf-like function names
-    - unconvert # Remove unnecessary type conversions
-    - gocritic # Highly extensible Go linter
-    - gosec # Inspect source code for security problems
+    - bodyclose # Check HTTP response body is closed
     - dupl # Code clone detection
     - exhaustive # Check exhaustiveness of enum switch statements
+    - gocritic # Highly extensible Go linter
     - gocyclo # Computes cyclomatic complexity
     - godot # Check if comments end in a period
-    - prealloc # Find slice declarations that could potentially be preallocated
-    - bodyclose # Check HTTP response body is closed
+    - goprintffuncname # Check printf-like function names
+    - gosec # Inspect source code for security problems
+    - misspell # Finds commonly misspelled English words
     - nilerr # Finds code that returns nil even if it checks that error is not nil
     - nolintlint # Reports ill-formed or insufficient nolint directives
-    - stylecheck # Replacement for golint
+    - prealloc # Find slice declarations that could potentially be preallocated
+    - revive # Fast, configurable, extensible, flexible, and beautiful linter for Go
+    - unconvert # Remove unnecessary type conversions
     - unparam # Find unused function parameters
-
-linters-settings:
-  gocyclo:
-    min-complexity: 15
-  dupl:
-    threshold: 100
-  gocritic:
-    enabled-tags:
-      - diagnostic
-      - performance
-      - style
-  revive:
-    rules:
-      - name: var-naming
-      - name: exported
-      - name: indent-error-flow
+  settings:
+    gocyclo:
+      min-complexity: 15
+    dupl:
+      threshold: 100
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - performance
+        - style
+    revive:
+      rules:
+        - name: var-naming
+        - name: exported
+        - name: indent-error-flow
+  exclusions:
+    generated: lax
+    paths:
+      - vendor
 
 issues:
-  exclude-use-default: false
   max-same-issues: 0
   max-issues-per-linter: 0
+
+formatters:
+  enable:
+    - gofmt # Check whether code was gofmt-ed
+    - goimports # Check import statements are formatted
+  settings:
+    gofmt:
+      simplify: true
+  exclusions:
+    paths:
+      - vendor
 ```
+
+Verify the config parses before relying on it:
+
+```bash
+golangci-lint config verify
+```
+
+#### What changed from the v1 config, and why
+
+The linter coverage is unchanged — the v1 file listed 24 linters, and this one enables the same
+checks. Four names disappeared from `linters.enable` without losing anything:
+
+| v1                                                          | v2                              | Reason                                                                                           |
+| ----------------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `gosimple`, `stylecheck`                                    | folded into `staticcheck`       | Both were removed as separate linters; `staticcheck` in v2 runs the `S*` and `ST*` checks itself |
+| `gofmt`, `goimports`                                        | top-level `formatters:` section | v2 separates formatters from linters                                                             |
+| `errcheck`, `govet`, `ineffassign`, `staticcheck`, `unused` | implied by `default: standard`  | These five are the standard set; listing them is redundant                                       |
+
+Other schema moves:
+
+| v1                           | v2                                                                                     |
+| ---------------------------- | -------------------------------------------------------------------------------------- |
+| (no version key)             | `version: '2'` — required                                                              |
+| `run.skip-dirs`              | `linters.exclusions.paths` (and `formatters.exclusions.paths`)                         |
+| `linters-settings:`          | `linters.settings:`                                                                    |
+| `issues.exclude-use-default` | `linters.exclusions.presets` — omitting `presets` is the equivalent of the old `false` |
+| `run.timeout`                | dropped — v2 has no timeout by default                                                 |
+
+`issues.max-same-issues` and `issues.max-issues-per-linter` are unchanged.
+
+#### Migrating an existing v1 config
+
+Do not hand-convert. golangci-lint v2 ships a migrator:
+
+```bash
+golangci-lint migrate          # rewrites .golangci.yml, backs the original up to .golangci.bck.yml
+golangci-lint config verify    # confirm the result parses
+```
+
+Two caveats:
+
+- `migrate` validates the input against the **v1** JSON schema first, so a config carrying keys that
+  were already removed late in v1's life fails before migration starts. `run.skip-dirs` is the common
+  one — rename it to `issues.exclude-dirs` (its v1 replacement) and re-run, or pass `--skip-validation`.
+- Comments are not carried over; the migrator warns about this. Re-add them afterwards.
 
 ### Makefile
 
 Common commands for consistency:
 
 ```makefile
-.PHONY: all test build clean lint fmt coverage
+.PHONY: all test build clean lint lint-config fmt fmt-check coverage coverage-check tidy check deps
 
 # Default target
 all: fmt lint test build
@@ -206,14 +284,21 @@ coverage-check:
 build:
 	go build -v ./...
 
-# Format code
+# Format code (runs the formatters configured in .golangci.yml: gofmt + goimports)
 fmt:
-	gofmt -w -s .
-	goimports -w .
+	golangci-lint fmt
+
+# Check formatting without rewriting files (non-zero exit if anything would change)
+fmt-check:
+	golangci-lint fmt --diff
 
 # Run linters
 lint:
 	golangci-lint run ./...
+
+# Verify .golangci.yml parses against the v2 schema
+lint-config:
+	golangci-lint config verify
 
 # Clean build artifacts
 clean:
@@ -229,9 +314,16 @@ tidy:
 check: fmt lint coverage-check
 
 # Install development dependencies
+# NOTE: the v2 module path contains /v2/. Installing
+# github.com/golangci/golangci-lint/cmd/golangci-lint (no /v2/) silently gets v1,
+# which cannot read the v2 .golangci.yml. A separate goimports install is no longer
+# needed — `golangci-lint fmt` runs it as a configured formatter.
+GOLANGCI_LINT_VERSION ?= v2.13.2
+
 deps:
-	go install golang.org/x/tools/cmd/goimports@latest
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
+		| sh -s -- -b $$(go env GOPATH)/bin $(GOLANGCI_LINT_VERSION)
+	golangci-lint --version
 ```
 
 ## Project Setup Commands
@@ -257,8 +349,14 @@ Use the Makefile for consistency:
 # Format code
 make fmt
 
+# Check formatting without rewriting
+make fmt-check
+
 # Run linters
 make lint
+
+# Verify .golangci.yml against the v2 schema
+make lint-config
 
 # Run tests
 make test
@@ -413,7 +511,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version: '1.27'
           cache: true
 
       - name: Download dependencies
@@ -422,18 +520,23 @@ jobs:
       - name: Verify dependencies
         run: go mod verify
 
+      # golangci-lint-action v6 and below only support golangci-lint v1 and cannot
+      # read the v2 config. v7+ are the v2-compatible releases; v9 is current.
+      # install-only lets the same binary drive both the format check and the lint run.
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.13.2
+          install-only: true
+
       - name: Format check
-        run: |
-          gofmt -d -s .
-          if [ -n "$(gofmt -l -s .)" ]; then
-            echo "Code is not formatted. Run 'make fmt'"
-            exit 1
-          fi
+        run: golangci-lint fmt --diff
+
+      - name: Verify lint config
+        run: golangci-lint config verify
 
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v6
-        with:
-          version: latest
+        run: golangci-lint run ./...
 
       - name: Run tests with coverage
         run: go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
