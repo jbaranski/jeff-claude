@@ -15,13 +15,13 @@ Before proceeding:
    - Verify installation: `go version`
 2. Install golangci-lint (**v2** — see the version note below):
    - macOS: `brew install golangci-lint`
-   - Linux: `curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.13.2`
+   - Linux: `curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.14.0`
    - Verify: `golangci-lint --version` — the output **must** start with `golangci-lint has version 2.`
 
    If you prefer `go install`, the module path must contain `/v2/`:
 
    ```bash
-   go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.13.2
+   go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.14.0
    ```
 
    The v1 path (`github.com/golangci/golangci-lint/cmd/golangci-lint@latest`) still resolves — it
@@ -46,11 +46,11 @@ Before proceeding:
 
    Versions verified for the examples in this skill (September 2026):
 
-   | Tool                 | Version | Notes                                               |
-   | -------------------- | ------- | --------------------------------------------------- |
-   | Go                   | 1.27.1  | 1.26.8 is the previous supported release            |
-   | golangci-lint        | v2.13.2 | v2 config schema — v1 configs are rejected outright |
-   | golangci-lint-action | v9      | v6 and below support golangci-lint v1 only          |
+   | Tool                 | Version | Notes                                                                                       |
+   | -------------------- | ------- | ------------------------------------------------------------------------------------------- |
+   | Go                   | 1.27.1  | 1.26.8 is the previous supported release                                                    |
+   | golangci-lint        | v2.14.0 | v2 config schema — v1 configs are rejected outright; released binaries built with Go 1.27.0 |
+   | golangci-lint-action | v9      | v6 and below support golangci-lint v1 only                                                  |
 
    Keep these three in step. `golangci-lint-action` v6 cannot run golangci-lint v2, and a
    golangci-lint binary built with an older Go than your `go.mod` targets refuses to run.
@@ -321,7 +321,7 @@ check: fmt-check lint coverage-check
 # github.com/golangci/golangci-lint/cmd/golangci-lint (no /v2/) silently gets v1,
 # which cannot read the v2 .golangci.yml. A separate goimports install is no longer
 # needed — `golangci-lint fmt` runs it as a configured formatter.
-GOLANGCI_LINT_VERSION ?= v2.13.2
+GOLANGCI_LINT_VERSION ?= v2.14.0
 
 deps:
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
@@ -530,7 +530,7 @@ jobs:
       - name: Install golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.13.2
+          version: v2.14.0
           install-only: true
 
       - name: Format check
@@ -553,12 +553,6 @@ jobs:
             echo "Coverage $COVERAGE% is below minimum 80%"
             exit 1
           fi
-
-      - name: Upload coverage to Codecov (optional)
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage.out
-          flags: unittests
 ```
 
 ## Best Practices
@@ -570,6 +564,7 @@ jobs:
 - Prefer `errors.New()` or `fmt.Errorf()` for error creation
 - Use error wrapping with `%w` for error context: `fmt.Errorf("failed to process: %w", err)`
 - Write idiomatic Go - simple and readable over clever
+- CI must not send code, coverage, or test output to third-party services — coverage is enforced locally by the 80% threshold step
 - Add `.gitignore` with common Go exclusions:
 
   ```
