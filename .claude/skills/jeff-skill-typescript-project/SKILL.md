@@ -355,9 +355,13 @@ export function add(a: number, b: number): number {
 
 ## GitHub Actions
 
-Create `.github/workflows/ci.yml`.
+Create `.github/workflows/<project>-ci.yml`.
+
+Name the file after the project (e.g. `web-ci.yml`, `api-ci.yml`) rather than a generic `ci.yml`, so several projects in one repo each get their own workflow instead of overwriting each other.
 
 **Scope triggers to this project's directory.** If this project lives at the repo root, omit `paths:` entirely — every change in the repo is relevant. If it shares a monorepo with other stacks (e.g. this TypeScript service next to a `golang/` backend or `infra/`), scope `paths:` to the project directory so an unrelated change (a README edit, another service's change) doesn't trigger this build. Always include the workflow file itself in `paths:` so edits to the CI config are still validated.
+
+**Skip Dependabot-triggered runs.** Every job carries the Dependabot guard from `jeff-skill-install-dependabot` so Dependabot PRs and pushes don't consume Actions minutes. If you add a job, give it the same `if:`; if a job already has an `if:`, combine them with `&&`.
 
 ```yaml
 name: jeff-skill-typescript-project
@@ -367,15 +371,16 @@ on:
     branches: [main]
     paths:
       - '<project-dir>/**' # e.g. 'web/**' — omit this whole `paths:` key if the project is at repo root
-      - '.github/workflows/ci.yml'
+      - '.github/workflows/<project>-ci.yml'
   pull_request:
     branches: [main]
     paths:
       - '<project-dir>/**'
-      - '.github/workflows/ci.yml'
+      - '.github/workflows/<project>-ci.yml'
 
 jobs:
   test:
+    if: github.actor != 'dependabot[bot]' && github.event.pull_request.user.login != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

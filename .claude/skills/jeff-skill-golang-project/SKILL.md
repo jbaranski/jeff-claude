@@ -89,7 +89,7 @@ project-root/
 ├── README.md
 └── .github/
     └── workflows/
-        └── ci.yml
+        └── <project>-ci.yml
 ```
 
 For libraries (no main package):
@@ -105,7 +105,7 @@ project-root/
 ├── README.md
 └── .github/
     └── workflows/
-        └── ci.yml
+        └── <project>-ci.yml
 ```
 
 ### Directory Conventions
@@ -485,9 +485,13 @@ func TestDivide(t *testing.T) {
 
 ## GitHub Actions
 
-Create `.github/workflows/ci.yml` for continuous integration.
+Create `.github/workflows/<project>-ci.yml` for continuous integration.
+
+Name the file after the project (e.g. `web-ci.yml`, `api-ci.yml`) rather than a generic `ci.yml`, so several projects in one repo each get their own workflow instead of overwriting each other.
 
 **Scope triggers to the Go module's directory.** If this module lives at the repo root, omit `paths:` entirely — every change in the repo is relevant. If it shares a monorepo with other stacks (e.g. a `web/` frontend next to a `golang/` service, or `infra/`), scope `paths:` to the module directory so an unrelated change (a README edit, a frontend-only change) doesn't trigger a Go build. Always include the workflow file itself in `paths:` so edits to the CI config are still validated.
+
+**Skip Dependabot-triggered runs.** Every job carries the Dependabot guard from `jeff-skill-install-dependabot` so Dependabot PRs and pushes don't consume Actions minutes. If you add a job, give it the same `if:`; if a job already has an `if:`, combine them with `&&`.
 
 ```yaml
 name: jeff-skill-golang-project
@@ -497,16 +501,17 @@ on:
     branches: [main]
     paths:
       - '<module-dir>/**' # e.g. 'golang/**' — omit this whole `paths:` key if the module is at repo root
-      - '.github/workflows/ci.yml'
+      - '.github/workflows/<project>-ci.yml'
   pull_request:
     branches: [main]
     paths:
       - '<module-dir>/**'
-      - '.github/workflows/ci.yml'
+      - '.github/workflows/<project>-ci.yml'
 
 jobs:
   test:
     name: Test
+    if: github.actor != 'dependabot[bot]' && github.event.pull_request.user.login != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
