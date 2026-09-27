@@ -264,8 +264,8 @@ touch src/index.ts tests/example.test.ts
 
 # Lock Node version and enforce it
 # Replace <NODE_LTS> with the current LTS major version from https://nodejs.org/en
-# .nvmrc goes at the repo root — if this project lives in a subdirectory, write it one level up
-echo "<NODE_LTS>" > .nvmrc
+# .nvmrc goes at the repo root, however deep this project is
+echo "<NODE_LTS>" > "$(git rev-parse --show-toplevel)/.nvmrc"
 # .npmrc goes co-located with package.json (npm does not traverse up beyond the package root)
 echo "engine-strict=true" > .npmrc
 ```

@@ -532,8 +532,10 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.27'
+          go-version-file: <module-dir>/go.mod # 'go.mod' if the module is at repo root
           cache: true
+          # A module with no dependencies has no go.sum; setup-go then warns and skips caching.
+          # Key on <module-dir>/go.mod instead for such modules.
           cache-dependency-path: <module-dir>/go.sum # 'go.sum' if the module is at repo root
 
       - name: Download dependencies
