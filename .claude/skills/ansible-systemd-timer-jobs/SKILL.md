@@ -40,7 +40,7 @@ TimeoutStartSec=60
 ExecStart=/usr/local/bin/<job>
 ```
 
-- Order after what the job needs: `docker.service`, `libvirtd.service` (with `Requires=` if
+- Order after what the job needs: `docker.service`, `postgresql.service` (with `Requires=` if
   it cannot run without it), `network-online.target` (with `Wants=`).
 - A oneshot service has no default timeout. Set `TimeoutStartSec=` so a hung command cannot
   block the timer forever. Size it to the job: seconds for a poll, much longer for
@@ -60,7 +60,7 @@ Pick one shape.
 ```ini
 # Calendar: weekly maintenance
 [Timer]
-OnCalendar=Sat 09:00:00 America/New_York
+OnCalendar=Sat 09:00:00 UTC
 Persistent=true
 RandomizedDelaySec=5min
 
@@ -167,9 +167,9 @@ LOG_TAG="<job>"
   blobs. `logger` truncates at 1 KiB by default; raise it with `-S <bytes>` for longer
   lines.
 - For metrics or any data someone will query, emit compact JSON (`jq -c`) shaped for
-  querying: flat keys, one object per entity (per camera, per disk, per container), with
-  the entity's name as a value (`"camera":"doorbell"`) and not as a key
-  (`"cameras":{"doorbell":{...}}`), so adding an entity adds rows, not columns. Include a
+  querying: flat keys, one object per entity (per disk, per container, per queue), with
+  the entity's name as a value (`"disk":"sda"`) and not as a key
+  (`"disks":{"sda":{...}}`), so adding an entity adds rows, not columns. Include a
   `kind` field when one run writes different shapes, make field names unique across kinds,
   and keep each field the same type on every line (a number stays a number; use `null` for
   missing, never a string). Whatever collects the logs can then turn each key into a column.
@@ -185,8 +185,8 @@ Anything that parses a syslog line by position (a collector pattern that expects
 timestamp is one word with no spaces:
 
 ```text
-2026-10-12T00:05:03.123456-04:00 newport <job>: message     <- required
-Oct 12 01:32:43 newport <job>: message                      <- traditional: a bug
+2026-10-12T00:05:03.123456+00:00 myhost <job>: message     <- required
+Oct 12 01:32:43 myhost <job>: message                      <- traditional: a bug
 ```
 
 The traditional format has a three-word timestamp, so a pattern anchored to the tag position
@@ -238,7 +238,7 @@ journalctl -t <job> -n 30 --no-pager
 Ansible also logs its own module calls to syslog, and they mention the unit name, so a bare
 search for the job name in `/var/log/syslog` matches deploy noise. Search for the tag
 (`<job>:`) and exclude `ansible-`. Do not start a job that changes production state
-(certificates, VM shutdown) just to test its logging.
+(a backup, a service restart) just to test its logging.
 
 ## Checklist for a New Job
 
