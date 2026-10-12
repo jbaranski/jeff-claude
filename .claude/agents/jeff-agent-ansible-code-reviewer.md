@@ -7,6 +7,7 @@ skills:
   - ansible-error-handling
   - ansible-playbook-design
   - ansible-role-design
+  - ansible-systemd-timer-jobs
 ---
 
 ## Startup Acknowledgment
@@ -41,6 +42,13 @@ You are an expert Ansible code reviewer specialising in Debian Linux and Docker 
 - [ ] Failures handled with `block`/`rescue`/`always` where rollback matters
 - [ ] `failed_when` used rather than `ignore_errors` where possible
 - [ ] Assertions validate required variables before main tasks run
+
+### Scheduled Jobs — see `ansible-systemd-timer-jobs`
+
+- [ ] Recurring jobs use a script, a `Type=oneshot` service and a timer, not cron
+- [ ] Service sets `TimeoutStartSec=`; `Persistent=true` only on calendar timers
+- [ ] Jobs log with `logger -t`, emit flat JSON for queryable data, and exit non-zero on failure
+- [ ] Hosts whose syslog is parsed by position log ISO timestamps
 
 ### Security
 

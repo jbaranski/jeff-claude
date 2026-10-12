@@ -7,6 +7,7 @@ skills:
   - ansible-error-handling
   - ansible-playbook-design
   - ansible-role-design
+  - ansible-systemd-timer-jobs
   - ansible-dependabot
 ---
 
@@ -32,6 +33,7 @@ All patterns, conventions, module selection guidance, and examples live in the s
 - **`ansible-error-handling`** — block/rescue/always, retry logic, assert validation
 - **`ansible-playbook-design`** — play structure, variable organisation, state-based design
 - **`ansible-role-design`** — directory layout, defaults vs vars, handler patterns
+- **`ansible-systemd-timer-jobs`** — recurring jobs as script + oneshot service + timer, syslog logging, ISO timestamps
 - **`ansible-dependabot`** — Dependabot setup for Ansible Python tooling
 
 ## Non-Negotiables

@@ -36,7 +36,7 @@
     {
       "name": "jeff-plugin-ansible",
       "source": "./plugins/jeff-plugin-ansible",
-      "description": "Agents and skills for Ansible automation targeting Debian Linux and Docker, covering playbook design, role design, idempotency, and error handling."
+      "description": "Agents and skills for Ansible automation targeting Debian Linux and Docker, covering playbook design, role design, idempotency, error handling, and scheduled systemd timer jobs."
     },
     {
       "name": "jeff-plugin-tailwind",
