@@ -28,8 +28,8 @@ physics: {
     overlapBias: 4,                 // Overlap tolerance
     tileBias: 16,                   // Tile collision bias
     forceX: false,                  // Prioritize X-axis separation
-    maxEntries: 16,                 // Quadtree max per node
-    useTree: true                   // Spatial hash (false for >5000 bodies)
+    maxEntries: 16,                 // RTree max entries per node
+    useTree: true                   // RTree for broad-phase; set false with >5000 dynamic bodies
   }
 }
 ```
@@ -71,12 +71,14 @@ Immovable, no velocity or gravity response. Efficient for platforms.
 const platforms = this.physics.add.staticGroup();
 platforms.create(400, 568, 'ground');
 
-// Or make existing body static
-sprite.body.setImmovable(true);
-sprite.body.moves = false;
+// Or give an existing game object a static body
+this.physics.add.existing(sprite, true); // true = static
 
 // After scaling/moving static bodies
 sprite.refreshBody();
+
+// A dynamic body that other bodies can't push (still moves under its own velocity)
+mover.body.setImmovable(true);
 ```
 
 ## Body Sizing and Shape
@@ -354,9 +356,10 @@ this.cameras.main.startFollow(player);
 ## Debug Visualization
 
 ```javascript
-// Toggle debug at runtime
-this.physics.world.drawDebug = true;
-this.physics.world.debugGraphic.clear(); // Clear previous
+// Toggle debug at runtime (debugGraphic only exists if debug was on at startup)
+if (!this.physics.world.debugGraphic) this.physics.world.createDebugGraphic();
+this.physics.world.drawDebug = !this.physics.world.drawDebug;
+this.physics.world.debugGraphic.clear();
 
 // Custom debug rendering
 const graphics = this.add.graphics();
@@ -405,24 +408,17 @@ function hitEnemy(player, enemy) {
 
 ### Moving Platforms
 
+Drive the platform with velocity, not a tween: a tween sets `x` directly, so the body has no
+velocity and riders slide off. With velocity plus friction, Arcade carries whatever stands on it.
+
 ```javascript
 // In create()
 this.movingPlatform = this.physics.add.image(400, 400, 'platform');
-this.movingPlatform.body.setImmovable(true);
-this.movingPlatform.body.setAllowGravity(false);
+this.movingPlatform.body.setImmovable(true).setAllowGravity(false).setFriction(1, 0);
+this.movingPlatform.body.setVelocityX(100);
+this.physics.add.collider(player, this.movingPlatform);
 
-// Tween for movement
-this.tweens.add({
-  targets: this.movingPlatform,
-  x: 600,
-  duration: 2000,
-  ease: 'Sine.easeInOut',
-  yoyo: true,
-  repeat: -1
-});
-
-// In update() - move player with platform
-if (player.body.touching.down && player.body.blocked.down) {
-  // Player is on platform
-}
+// In update(): reverse at the ends of its track
+if (this.movingPlatform.x >= 600) this.movingPlatform.body.setVelocityX(-100);
+else if (this.movingPlatform.x <= 400) this.movingPlatform.body.setVelocityX(100);
 ```

@@ -3,11 +3,9 @@ name: jeff-skill-phaser-gamedev
 description: Build 2D browser games with Phaser 3. Use for scene architecture, physics (Arcade/Matter), spritesheet loading, tilemap integration, input handling, animations, and performance optimization. Covers TypeScript patterns and common pitfalls.
 ---
 
-# Phaser Game Development
+# Phaser 3 Game Development
 
-Build 2D browser games using Phaser 3's scene-based architecture and physics systems.
-
----
+Targets Phaser 3 (latest 3.x: 3.90.0). Phaser 4 is a separate major version with API changes; don't mix guidance between them.
 
 ## STOP: Before Loading Any Spritesheet
 
@@ -21,7 +19,7 @@ Spritesheet loading is fragile—a few pixels off causes silent corruption that 
 2. **Character sprites use SQUARE frames**: If you calculate frameWidth=56, try 56 for height first
 3. **Different animations have different frame sizes**: A run cycle needs wider frames than idle; an attack needs extra width for weapon swing. Measure EACH spritesheet independently
 4. **Check for spacing**: Gaps between frames require `spacing: N` in loader config
-5. **Verify the math**: `imageWidth = (frameWidth × cols) + (spacing × (cols - 1))`
+5. **Verify the math**: `imageWidth = (frameWidth × cols) + (spacing × (cols - 1)) + (margin × 2)`
 
 ---
 
@@ -96,10 +94,10 @@ const config: Phaser.Types.Core.GameConfig = {
 
 ```typescript
 class GameScene extends Phaser.Scene {
-  init(data) {} // Receive data from previous scene
-  preload() {} // Load assets (runs before create)
-  create() {} // Set up game objects, physics, input
-  update(time, delta) {} // Game loop, use delta for frame-rate independence
+  init(data: { level: number }): void {} // Receive data from previous scene
+  preload(): void {} // Load assets (runs before create)
+  create(): void {} // Set up game objects, physics, input — once
+  update(time: number, delta: number): void {} // Game loop; use delta for frame-rate independence
 }
 ```
 
@@ -126,13 +124,3 @@ this.player.x += this.speed;
 | One giant scene              | Hard to extend                   | Separate gameplay/UI/menus          |
 | Magic numbers                | Impossible to balance            | Config objects, constants           |
 | No object pooling            | GC stutters                      | Groups with `setActive(false)`      |
-
----
-
-## Remember
-
-"Phaser provides powerful primitives—scenes, sprites, physics, input—but architecture is your responsibility."
-
-Before coding: What scenes? What entities? How do they interact? What physics model?
-
-**Claude can build complete, polished Phaser games. These guidelines illuminate the path—they don't fence it.**

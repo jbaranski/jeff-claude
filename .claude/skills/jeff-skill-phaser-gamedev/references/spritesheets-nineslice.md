@@ -52,7 +52,7 @@ imageWidth = (frameWidth × cols) + (spacing × (cols - 1)) + (margin × 2)
 imageHeight = (frameHeight × rows) + (spacing × (rows - 1)) + (margin × 2)
 ```
 
-**CRITICAL: Check for Square Frames First**
+**Check for square frames first**
 
 Character spritesheets commonly use **square frames** (frameWidth = frameHeight). Before assuming different width/height:
 
@@ -123,9 +123,18 @@ Nine-slice (or 9-patch) panels allow UI elements to scale while preserving corne
   1,4,7 stretch horizontally
 ```
 
+### Built-in NineSlice
+
+Phaser 3.60+ has a NineSlice game object; try it first when the panel art is a single image:
+
+```javascript
+// key, frame, width, height, leftWidth, rightWidth, topHeight, bottomHeight
+this.add.nineslice(400, 300, 'panel', undefined, 320, 200, 24, 24, 24, 24);
+```
+
 ### Manual Nine-Slice Assembly
 
-When Phaser's built-in NineSlice doesn't work (e.g., frames with transparent edges):
+When the art is split into nine separate frames, or the built-in NineSlice shows gaps (e.g., frames with transparent edges):
 
 ```javascript
 showNineSlicePanel(framesKey, frameSize, panelWidth, panelHeight, bgColor) {
@@ -245,7 +254,7 @@ const UI_PANEL_CONFIG = {
 
 **Example**:
 
-- Paper assets: 320×320, 106px frames, no spacing
+- Paper assets: 320×320, 106px frames, no spacing (3 × 106 = 318, so 1px margin)
 - Wood Table: 448×448, 144px frames, 8px spacing
 
 **Fix**: Inspect and configure each asset type individually
@@ -362,8 +371,8 @@ For characters with multiple animation spritesheets, create a dedicated test sce
 // Access via URL parameter: ?scene=AnimTest
 class AnimTestScene extends Phaser.Scene {
   private currentIndex = 0;
-  private sprite: Phaser.GameObjects.Sprite;
-  private label: Phaser.GameObjects.Text;
+  private sprite!: Phaser.GameObjects.Sprite;
+  private label!: Phaser.GameObjects.Text;
 
   // Define each animation's spritesheet config
   private spritesheets = [
@@ -396,8 +405,8 @@ class AnimTestScene extends Phaser.Scene {
     this.updateLabel();
 
     // Arrow keys to cycle animations
-    this.input.keyboard.on('keydown-LEFT', () => this.cycleAnim(-1));
-    this.input.keyboard.on('keydown-RIGHT', () => this.cycleAnim(1));
+    this.input.keyboard!.on('keydown-LEFT', () => this.cycleAnim(-1));
+    this.input.keyboard!.on('keydown-RIGHT', () => this.cycleAnim(1));
   }
 
   cycleAnim(dir: number) {
@@ -435,8 +444,8 @@ Document each spritesheet's structure:
 /**
  * UI Panel Assets - Tiny Swords Pack
  *
- * Regular Paper: 320×320, 3×3 grid, 106px frames, no spacing
- * Special Paper: 320×320, 3×3 grid, 106px frames, no spacing
+ * Regular Paper: 320×320, 3×3 grid, 106px frames, no spacing, 1px margin
+ * Special Paper: 320×320, 3×3 grid, 106px frames, no spacing, 1px margin
  * Wood Table:    448×448, 3×3 grid, 144px frames, 8px spacing
  *
  * All use nine-slice layout:

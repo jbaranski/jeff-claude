@@ -1,0 +1,39 @@
+name: Package Skills and Agents
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    # Skip if commit message contains [skip-package] to prevent infinite loop
+    if: "!contains(github.event.head_commit.message, '[skip-package]')"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 'lts/*'
+
+      - name: Run Prettier
+        run: npx --yes prettier --write .
+
+      - name: Commit Prettier changes if any
+        run: |
+          git config --global user.email "actions@users.noreply.github.com"
+          git config --global user.name "JEFF-bot"
+          git add -A
+          if git commit -m "Apply Prettier formatting [skip-package]"; then
+            git push
+          else
+            echo "No Prettier changes to commit"
+          fi

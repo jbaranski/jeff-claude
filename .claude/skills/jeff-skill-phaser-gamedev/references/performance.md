@@ -121,21 +121,10 @@ this.anims.create({
 
 Only render what's visible.
 
-### Automatic Culling
+Tilemap layers skip off-screen tiles automatically (tune with `layer.setCullPadding()`). Sprites
+are still processed every frame, so with many off-screen objects deactivate them yourself.
 
-Phaser culls off-camera objects by default for:
-
-- Sprites
-- Images
-- TileSprites
-
-Disable if needed:
-
-```javascript
-sprite.setScrollFactor(0); // Fixed to camera (no culling)
-```
-
-### Manual Culling for Custom Objects
+### Manual Culling
 
 ```javascript
 update() {
@@ -202,7 +191,7 @@ physics: {
 ### Simplify Collision Shapes
 
 ```javascript
-// Use circles for round objects (faster than rectangles)
+// Rectangles (AABB) are the cheapest check; use circles only when the shape needs it
 sprite.body.setCircle(16);
 
 // Reduce body size for tighter collisions
@@ -268,10 +257,12 @@ sprite.destroy();
 // Clear groups
 group.clear(true, true);  // Remove from scene, destroy
 
-// Scene cleanup
-shutdown() {
-  this.enemies.destroy(true);
-  this.bulletPool.destroy(true);
+// Scene cleanup — Phaser never calls a shutdown() method; listen for the event
+create() {
+  this.events.once('shutdown', () => {
+    this.enemies.destroy(true);
+    this.bulletPool.destroy(true);
+  });
 }
 ```
 
@@ -281,13 +272,12 @@ shutdown() {
 // Remove texture
 this.textures.remove('unused-texture');
 
-// Remove audio
-this.sound.remove('unused-sound');
+// Remove audio (stop/destroy sounds, then drop the cached data)
+this.sound.removeByKey('unused-sound');
+this.cache.audio.remove('unused-sound');
 
-// In scene shutdown
-shutdown() {
-  this.cache.tilemap.remove('level1');
-}
+// When leaving a level
+this.events.once('shutdown', () => this.cache.tilemap.remove('level1'));
 ```
 
 ### Monitor Memory
@@ -401,7 +391,7 @@ update() {
 - [ ] Use texture atlases (not individual images)
 - [ ] Pool frequently spawned objects
 - [ ] Disable physics for off-screen objects
-- [ ] Use appropriate physics shapes (circles are faster)
+- [ ] Use the simplest physics shape (rectangles are cheapest)
 - [ ] Throttle AI/pathfinding updates
 - [ ] Avoid object creation in update loop
 - [ ] Use delta time for movement

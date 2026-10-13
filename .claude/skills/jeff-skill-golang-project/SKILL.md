@@ -42,13 +42,13 @@ Before proceeding:
    - "golangci-lint-action latest version"
    - Update all version numbers in examples below with verified versions
    - Ensure Go is updated to the latest stable version if needed
-   - DO NOT skip this step. DO NOT guess at version numbers.
+   - Verify rather than guess; versions in this skill go stale.
 
-   Versions verified for the examples in this skill (September 2026):
+   Versions verified for the examples in this skill (October 2026):
 
    | Tool                 | Version | Notes                                                                                       |
    | -------------------- | ------- | ------------------------------------------------------------------------------------------- |
-   | Go                   | 1.27.1  | 1.26.8 is the previous supported release                                                    |
+   | Go                   | 1.27.2  | 1.26.9 is the previous supported release                                                    |
    | golangci-lint        | v2.14.0 | v2 config schema — v1 configs are rejected outright; released binaries built with Go 1.27.0 |
    | golangci-lint-action | v9      | v6 and below support golangci-lint v1 only                                                  |
 
@@ -344,46 +344,6 @@ deps:
 5. Create `Makefile` with commands above
 6. Initialize git: `git init`
 
-### Common Commands
-
-Use the Makefile for consistency:
-
-```bash
-# Format code
-make fmt
-
-# Check formatting without rewriting
-make fmt-check
-
-# Run linters
-make lint
-
-# Verify .golangci.yml against the v2 schema
-make lint-config
-
-# Run tests
-make test
-
-# Run tests with coverage report
-make coverage
-
-# Run tests and check 80% coverage threshold
-make coverage-check
-
-# Build the application
-make build
-
-# Run all checks (format check, lint, coverage check) — fails on misformatted
-# code instead of reformatting it
-make check
-
-# Clean artifacts
-make clean
-
-# Tidy dependencies
-make tidy
-```
-
 ## Testing Requirements
 
 - Use built-in `go test` for all tests
@@ -391,97 +351,7 @@ make tidy
 - Minimum 80% code coverage required
 - Use table-driven tests (idiomatic Go pattern)
 - Run tests with race detector: `go test -race`
-
-### Example Test (Table-Driven)
-
-```go
-// internal/calculator/calculator.go
-package calculator
-
-func Add(a, b int) int {
-    return a + b
-}
-
-func Divide(a, b int) (int, error) {
-    if b == 0 {
-        return 0, errors.New("division by zero")
-    }
-    return a / b, nil
-}
-```
-
-```go
-// internal/calculator/calculator_test.go
-package calculator
-
-import (
-    "testing"
-)
-
-func TestAdd(t *testing.T) {
-    tests := []struct {
-        name     string
-        a        int
-        b        int
-        expected int
-    }{
-        {"positive numbers", 2, 3, 5},
-        {"negative numbers", -2, -3, -5},
-        {"zero", 0, 0, 0},
-        {"mixed", -5, 10, 5},
-    }
-
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            result := Add(tt.a, tt.b)
-            if result != tt.expected {
-                t.Errorf("Add(%d, %d) = %d; want %d", tt.a, tt.b, result, tt.expected)
-            }
-        })
-    }
-}
-
-func TestDivide(t *testing.T) {
-    tests := []struct {
-        name      string
-        a         int
-        b         int
-        expected  int
-        expectErr bool
-    }{
-        {"valid division", 10, 2, 5, false},
-        {"division by zero", 10, 0, 0, true},
-    }
-
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            result, err := Divide(tt.a, tt.b)
-            if tt.expectErr {
-                if err == nil {
-                    t.Errorf("Divide(%d, %d) expected error, got nil", tt.a, tt.b)
-                }
-            } else {
-                if err != nil {
-                    t.Errorf("Divide(%d, %d) unexpected error: %v", tt.a, tt.b, err)
-                }
-                if result != tt.expected {
-                    t.Errorf("Divide(%d, %d) = %d; want %d", tt.a, tt.b, result, tt.expected)
-                }
-            }
-        })
-    }
-}
-```
-
-## Code Quality Standards
-
-- All code must pass `golangci-lint run` with no errors
-- All code must be formatted with `gofmt` and `goimports`
-- Follow Effective Go: https://go.dev/doc/effective_go
-- Follow Go Code Review Comments: https://go.dev/wiki/CodeReviewComments
-- Use meaningful variable names (avoid single-letter unless idiomatic: `i`, `j`, `k` for loops)
-- Handle errors explicitly (no ignored errors)
-- Document exported functions, types, and packages
+- Use the Makefile targets (`make check` before calling work done) rather than ad-hoc commands
 
 ## GitHub Actions
 
@@ -525,12 +395,12 @@ jobs:
         working-directory: <module-dir> # e.g. 'golang' — omit this whole `defaults:` block if the module is at repo root
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version-file: <module-dir>/go.mod # 'go.mod' if the module is at repo root
           cache: true
@@ -577,13 +447,7 @@ jobs:
 
 ## Best Practices
 
-- Keep dependencies minimal - only add what you truly need
-- Use `go mod tidy` regularly to clean up unused dependencies
-- Never commit `vendor/` directory unless specifically required
-- Use context for cancellation and timeouts in long-running operations
-- Prefer `errors.New()` or `fmt.Errorf()` for error creation
-- Use error wrapping with `%w` for error context: `fmt.Errorf("failed to process: %w", err)`
-- Write idiomatic Go - simple and readable over clever
+- Never commit `vendor/` unless specifically required
 - CI must not send code, coverage, or test output to third-party services — coverage is enforced locally by the 80% threshold step
 - Add `.gitignore` with common Go exclusions:
 
@@ -617,17 +481,6 @@ jobs:
   .DS_Store
   Thumbs.db
   ```
-
-## Idiomatic Go Patterns
-
-- Use short variable names in small scopes
-- Error handling: Check errors explicitly, don't ignore them
-- Use defer for cleanup (closing files, unlocking mutexes)
-- Accept interfaces, return structs
-- Keep interfaces small (prefer many small interfaces over large ones)
-- Use goroutines and channels for concurrent operations
-- Use `sync.WaitGroup` for waiting on multiple goroutines
-- Avoid global state and init() functions when possible
 
 ## Integration with Other Skills
 

@@ -179,6 +179,7 @@ const spawnPoint = map.findObject('Objects', (obj) => obj.name === 'PlayerSpawn'
 player.setPosition(spawnPoint.x, spawnPoint.y);
 
 // Filter by type
+// Tiled 1.9+ exports this field as `class`; check which key your map JSON uses
 const enemies = map.filterObjects('Enemies', (obj) => obj.type === 'goblin');
 ```
 
@@ -309,9 +310,7 @@ this.input.on('pointerdown', (pointer) => {
 
 ## Performance Tips
 
-1. Use static layers when tiles don't change
-2. Phaser auto-culls off-screen tiles — verify with large maps
-3. Merge purely visual layers to reduce layer count
-4. Use texture atlas for tileset images
-5. Pool sprites created from object layers
-6. Set `layer.setCullPadding(2, 2)` for large worlds
+1. Phaser culls off-screen tiles automatically; tune with `layer.setCullPadding(2, 2)` if edges pop in
+2. Merge purely visual layers to reduce layer count
+3. Use a texture atlas for tileset images
+4. Pool sprites created from object layers

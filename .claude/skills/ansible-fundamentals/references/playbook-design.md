@@ -1,17 +1,4 @@
----
-name: ansible-playbook-design
-description: >
-  Patterns for designing well-structured, maintainable Ansible playbooks with
-  state-based (present/absent) design, play organization, and proper variable scoping.
-when_to_use: >
-  Use when creating new Ansible playbooks, designing playbook structure, implementing
-  state-based playbooks with present/absent patterns, organizing plays and tasks, or
-  structuring playbook variables.
----
-
 # Ansible Playbook Design
-
-Patterns for designing well-structured, maintainable Ansible playbooks.
 
 ## State-Based Playbook Pattern
 
@@ -56,13 +43,6 @@ uv run ansible-playbook playbooks/manage-admin.yml \
   -e "admin_name=alice" \
   -e "admin_state=absent"
 ```
-
-### Benefits
-
-- Single source of truth
-- Consistent interface
-- Less code duplication
-- Follows community role conventions
 
 ## Play Structure
 
@@ -113,8 +93,8 @@ Order sections consistently across all playbooks:
 
   handlers:
     # Event-triggered tasks
-    - name: restart app
-      ansible.builtin.systemd:
+    - name: Restart app
+      ansible.builtin.systemd_service:
         name: myapp
         state: restarted
 ```
@@ -172,9 +152,11 @@ Split playbook tasks into separate files when:
 
 Handlers run:
 
-1. At the end of each play
-2. In the order they are defined (not notified)
-3. Only once, even if notified multiple times
+1. At the end of each section of a play (`pre_tasks`, then `roles` + `tasks`, then `post_tasks`)
+2. In the order they are defined, not the order they were notified
+3. Only once per flush, even if notified multiple times
+
+`notify` must match the handler's `name` exactly, including case.
 
 Force immediate handler execution:
 
@@ -183,7 +165,7 @@ Force immediate handler execution:
   ansible.builtin.template:
     src: config.j2
     dest: /etc/app/config.yml
-  notify: restart app
+  notify: Restart app
 
 - name: Flush handlers now
   ansible.builtin.meta: flush_handlers
@@ -216,7 +198,7 @@ Add validation at the start of playbooks:
 
     - name: Check disk space
       ansible.builtin.assert:
-        that: ansible_mounts | selectattr('mount', 'equalto', '/') | map(attribute='size_available') | first > 1073741824
+        that: ansible_facts['mounts'] | selectattr('mount', 'equalto', '/') | map(attribute='size_available') | first > 1073741824
         fail_msg: 'Insufficient disk space. Need at least 1GB free.'
 ```
 
@@ -253,9 +235,3 @@ Add validation at the start of playbooks:
       ansible.builtin.debug:
         msg: 'Playbook completed successfully'
 ```
-
-## Related Skills
-
-- **ansible-role-design** - When to use roles vs playbooks
-- **ansible-fundamentals** - Core module selection and naming
-- **ansible-error-handling** - Block/rescue patterns in playbooks

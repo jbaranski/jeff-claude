@@ -1,29 +1,15 @@
----
-name: ansible-role-design
-description: >
-  Production-grade Ansible role structure patterns for directory layout, variable
-  organization (defaults vs vars), handlers, and task organization, derived from
-  analysis of 7 geerlingguy production roles.
-when_to_use: >
-  Use when creating Ansible roles, designing role directory structure, organizing role
-  variables in defaults vs vars, writing role handlers, or structuring role tasks.
----
-
 # Ansible Role Design
 
-Production-grade role structure patterns derived from analysis of 7 geerlingguy roles.
+Patterns derived from geerlingguy's production roles, narrowed to Debian targets.
 
 ## Standard Directory Structure
-
-Every Ansible role follows this organizational pattern:
 
 ```text
 role-name/
 ├── defaults/
 │   └── main.yml          # User-configurable defaults (lowest precedence)
 ├── vars/
-│   ├── Debian.yml        # OS-specific internal values
-│   └── RedHat.yml
+│   └── main.yml          # Internal constants
 ├── tasks/
 │   ├── main.yml          # Task router
 │   ├── install.yml       # Feature-specific tasks
@@ -57,7 +43,7 @@ Only create directories that are actually needed:
 
 - **Omit `templates/`** if using only `lineinfile` or `copy`
 - **Omit `handlers/`** if role doesn't manage services
-- **Omit `vars/`** if no OS-specific differences
+- **Omit `vars/`** if there are no internal constants
 - **Omit `files/`** if no static files to copy
 
 ## Task Organization
@@ -69,9 +55,6 @@ Use `tasks/main.yml` as a routing file that includes feature-specific files:
 ```yaml
 # tasks/main.yml
 ---
-- name: Include OS-specific variables
-  ansible.builtin.include_vars: '{{ ansible_os_family }}.yml'
-
 - name: Install packages
   ansible.builtin.include_tasks: install.yml
 
@@ -91,7 +74,6 @@ Use `tasks/main.yml` as a routing file that includes feature-specific files:
 | 30-100 lines      | Consider splitting         |
 | > 100 lines       | Definitely split           |
 | Optional features | Separate file with `when:` |
-| OS-specific logic | Separate files per OS      |
 
 ### Task File Naming
 
@@ -102,9 +84,7 @@ tasks/
 ├── main.yml              # Router only
 ├── install.yml           # Package installation
 ├── configure.yml         # Configuration tasks
-├── users.yml             # User management
-├── install-Debian.yml    # Debian-specific install
-└── install-RedHat.yml    # RedHat-specific install
+└── users.yml             # User management
 ```
 
 ## Variable Organization
@@ -115,7 +95,6 @@ tasks/
 | ------------------- | ------------------ | ------------------------ |
 | `defaults/main.yml` | User configuration | Yes (easily)             |
 | `vars/main.yml`     | Internal constants | Possible but discouraged |
-| `vars/Debian.yml`   | OS-specific values | No (internal)            |
 
 ### defaults/main.yml Example
 
@@ -129,44 +108,24 @@ docker_service_enabled: true
 docker_users: []
 
 # Feature toggles
-docker_install_compose: true
-docker_compose_version: '2.24.0'
+docker_install_compose_plugin: true
 ```
 
-### vars/Debian.yml Example
+### vars/main.yml Example
 
 ```yaml
-# vars/Debian.yml
+# vars/main.yml
 ---
-# OS-specific internal values (not for user override)
-docker_package_name: docker-ce
-docker_service_name: docker
+# Internal values (not for user override)
+docker_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
 docker_config_path: /etc/docker/daemon.json
 ```
 
-### Loading OS-Specific Variables
-
-Simple pattern:
-
-```yaml
-- name: Include OS-specific variables
-  ansible.builtin.include_vars: '{{ ansible_os_family }}.yml'
-```
-
-Advanced pattern with fallback:
-
-```yaml
-- name: Load OS-specific vars
-  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
-  vars:
-    params:
-      files:
-        - '{{ ansible_distribution }}.yml'
-        - '{{ ansible_os_family }}.yml'
-        - main.yml
-      paths:
-        - vars
-```
+If a second OS family ever appears, add `vars/<os_family>.yml` and load it with
+`ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"`.
 
 ## Variable Naming Convention
 
@@ -178,7 +137,6 @@ Prefix variables with role name:
 # Examples
 docker_edition: 'ce'
 docker_service_state: started
-docker_compose_version: '2.24.0'
 docker_users: []
 
 # Grouped by feature
@@ -187,13 +145,6 @@ security_ssh_password_auth: 'no'
 security_fail2ban_enabled: true
 ```
 
-### Benefits
-
-- Prevents conflicts with other roles
-- Clear ownership of variables
-- Easy to grep across codebase
-- Self-documenting
-
 ## Handler Patterns
 
 ### Simple Handler Definitions
@@ -201,34 +152,38 @@ security_fail2ban_enabled: true
 ```yaml
 # handlers/main.yml
 ---
-- name: restart docker
-  ansible.builtin.systemd:
+- name: Restart docker
+  ansible.builtin.systemd_service:
     name: docker
     state: restarted
 
-- name: reload nginx
-  ansible.builtin.systemd:
+- name: Reload nginx
+  ansible.builtin.systemd_service:
     name: nginx
     state: reloaded
 ```
 
 ### Handler Naming
 
-Use lowercase with action + service pattern:
+Short, capitalized action + service (ansible-lint `name[casing]` requires the capital), and
+`notify` must match exactly:
 
 ```yaml
-- name: restart ssh # Not "Restart SSH Service"
-- name: reload nginx # Not "Reload Nginx Config"
-- name: reload systemd # For daemon-reload
+- name: Restart ssh
+- name: Reload nginx
+- name: Reload systemd # daemon-reload
 ```
+
+Handlers are scoped to the role that defines them; a role can't notify another role's handler
+reliably, so define what you notify.
 
 ### Throttled Handlers
 
 For cluster operations, restart one node at a time:
 
 ```yaml
-- name: restart postgresql
-  ansible.builtin.systemd:
+- name: Restart postgresql
+  ansible.builtin.systemd_service:
     name: postgresql
     state: restarted
   throttle: 1
@@ -266,7 +221,7 @@ nginx_vhost_template: vhost.j2
   ansible.builtin.template:
     src: '{{ nginx_conf_template }}'
     dest: /etc/nginx/nginx.conf
-  notify: reload nginx
+  notify: Reload nginx
 ```
 
 ## Meta Configuration
@@ -280,16 +235,12 @@ galaxy_info:
   author: your_name
   description: Role description
   license: MIT
-  min_ansible_version: '2.12'
+  min_ansible_version: '2.21'
   platforms:
     - name: Debian
       versions:
-        - bullseye
         - bookworm
-    - name: Ubuntu
-      versions:
-        - focal
-        - jammy
+        - trixie
 
 dependencies:
   - role: common
@@ -307,6 +258,8 @@ Based on geerlingguy role analysis:
 | Standard        | 5-6         | 2-4          | security, docker  |
 | Complex         | 7+          | 5-8          | postgresql, nginx |
 
+Create only the directories a role actually uses.
+
 ### Minimal Role
 
 ```text
@@ -322,7 +275,7 @@ pip/
 ```text
 docker/
 ├── defaults/main.yml
-├── vars/{Debian,RedHat}.yml
+├── vars/main.yml
 ├── tasks/{main,install,configure}.yml
 ├── handlers/main.yml
 ├── meta/main.yml
@@ -334,7 +287,7 @@ docker/
 ```text
 postgresql/
 ├── defaults/main.yml
-├── vars/{Debian,RedHat,Archlinux}.yml
+├── vars/main.yml
 ├── tasks/{main,install,configure,users,databases}.yml
 ├── handlers/main.yml
 ├── templates/{postgresql.conf,pg_hba.conf}.j2
@@ -353,7 +306,7 @@ Validate critical configuration files:
     regexp: '^PermitRootLogin'
     line: 'PermitRootLogin no'
     validate: 'sshd -T -f %s'
-  notify: restart ssh
+  notify: Restart ssh
 
 - name: Update sudoers
   ansible.builtin.lineinfile:
@@ -371,8 +324,3 @@ Every role needs a README.md with:
 3. **Role Variables** - All variables with defaults
 4. **Dependencies** - Other roles needed
 5. **Example Playbook** - How to use it
-
-## Related Skills
-
-- **ansible-playbook-design** - When to use roles vs playbooks
-- **ansible-fundamentals** - Module selection and naming

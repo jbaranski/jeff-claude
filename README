@@ -1,4 +1,4 @@
-Preconfigured Claude skills and agents. Meant for my own personal use. Skills, agents, etc... are very opinonated and not meant to be generic.
+Preconfigured Claude skills and agents. Meant for my own personal use. Skills, agents, etc... are very opinionated and not meant to be generic.
 
 Inspired by (and some content copied from):
 
@@ -22,7 +22,7 @@ To install or use the plugins:
 /plugin install jeff-plugin-phaser@jeff-plugins
 /plugin install jeff-plugin-project@jeff-plugins
 
-NOTE: The repo is public just so I can easily download and consume the skills quickly from any machine. The content is dervied from other sources and in some cases modified to be tailored for my needs. I am not trying to take "credit" or pass this off as my own.
+NOTE: The repo is public just so I can easily download and consume the skills quickly from any machine. The content is derived from other sources and in some cases modified to be tailored for my needs. I am not trying to take "credit" or pass this off as my own.
 
 Quick integration:
 

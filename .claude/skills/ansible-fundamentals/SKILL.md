@@ -1,241 +1,50 @@
 ---
 name: ansible-fundamentals
 description: >
-  Core principles and golden rules for writing production-quality Ansible automation,
-  covering FQCN requirements, module selection guidance, and execution patterns using
-  uv run.
+  Ansible conventions for Debian and Docker infrastructure: FQCN modules, uv run, idempotent
+  command/shell tasks, pipefail, no_log, capitalized task and handler names, and ansible_facts —
+  plus on-demand references for idempotency, error handling, playbook and role design, systemd
+  timer jobs, and Dependabot.
 when_to_use: >
-  Use when writing Ansible playbooks, creating Ansible tasks, running ansible-playbook
-  commands, selecting Ansible modules, or working with Ansible collections.
+  Use whenever writing, editing, reviewing, or running Ansible playbooks, roles, tasks, handlers,
+  or templates.
 ---
 
-# Ansible Fundamentals
+# Ansible
 
-Core principles and golden rules for writing production-quality Ansible automation.
+Targets are Debian hosts, with Docker managed through `community.docker`. Python tooling (ansible,
+ansible-lint) is managed with `uv`.
 
-## Golden Rules
+## Rules
 
-These rules apply to ALL Ansible code in this repository:
+1. **Run everything through uv**: `uv run ansible-playbook ...`, `uv run ansible-lint`, `uv run ansible-galaxy ...`.
+2. **FQCN for every module**: `ansible.builtin.apt`, `community.docker.docker_container` — never short names.
+3. **Prefer native modules** over `command`/`shell`. Use `command` when no module exists; `shell` only for pipes, redirects or globs.
+4. **Every `command`/`shell` task has `register` and an explicit `changed_when`** (`false` for read-only checks). Add `failed_when` to allow only the specific failures you expect — never a blanket `failed_when: false` or `ignore_errors` on real work.
+5. **`shell` with pipes or redirects** starts with `set -euo pipefail` and sets `executable: /bin/bash`.
+6. **Idempotent**: a second run reports `changed=0`.
+7. **Names start with an uppercase action verb** — tasks, plays and handlers alike (`Install nginx`, `Restart docker`); ansible-lint enforces this. `notify` must match the handler name exactly.
+8. **Read facts through `ansible_facts`** (`ansible_facts['os_family']`), not the injected `ansible_*` variables.
+9. **Secrets** live in gitignored `group_vars`/`host_vars` files or GitHub Actions secrets — no third-party secrets manager. In CI, pass them through `env:` and read them with `lookup('ansible.builtin.env', 'NAME')`, never as `-e` arguments. Every task that touches a secret has `no_log: true`.
+10. **Services** through `ansible.builtin.systemd_service`; recurring jobs as systemd timers, not cron.
 
-1. **Use `uv run` prefix** - Execute all Ansible commands through uv:
+## Working efficiently
 
-   ```bash
-   uv run ansible-playbook playbooks/my-playbook.yml
-   uv run ansible-lint
-   uv run ansible-galaxy collection install -r requirements.yml
-   ```
+- For a small change, read only the files you are changing and their direct neighbours (the role's `defaults/main.yml`, `handlers/main.yml`, the templates involved). Don't survey the whole repo.
+- Open a reference below only when the task needs it.
+- Verify with `uv run ansible-lint <changed files>` and `uv run ansible-playbook --syntax-check <playbook>`. Use `--check --diff` against a host only when asked.
 
-2. **Fully Qualified Collection Names (FQCN)** - Avoid short module names:
+## References (read on demand)
 
-   ```yaml
-   # CORRECT
-   - name: Install package
-     ansible.builtin.apt:
-       name: nginx
-       state: present
+| Read                                                                     | When                                                                               |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| [references/idempotency.md](references/idempotency.md)                   | Writing `command`/`shell` tasks, `changed_when`/`failed_when`, check-before-create |
+| [references/error-handling.md](references/error-handling.md)             | `block`/`rescue`/`always`, retries with `until`, `assert`, rollback                |
+| [references/playbook-design.md](references/playbook-design.md)           | New playbooks, present/absent state, play section order, handler flush timing      |
+| [references/role-design.md](references/role-design.md)                   | New roles, defaults vs vars, variable naming, handlers, `meta/main.yml`            |
+| [references/systemd-timer-jobs.md](references/systemd-timer-jobs.md)     | Any recurring job: script + oneshot service + timer, syslog logging                |
+| [references/modules-and-commands.md](references/modules-and-commands.md) | Choosing a module, collections in use, common `ansible-playbook` invocations       |
+| [references/dependabot.md](references/dependabot.md)                     | Setting up Dependabot for an Ansible repo                                          |
 
-   # WRONG - deprecated short names
-   - name: Install package
-     apt:
-       name: nginx
-   ```
-
-3. **Control command/shell modules** - Add `changed_when` and `failed_when`:
-
-   ```yaml
-   - name: Check if service exists
-     ansible.builtin.command: systemctl status myservice
-     register: service_check
-     changed_when: false
-     failed_when: false
-   ```
-
-4. **Use `set -euo pipefail`** - In all shell scripts and shell module calls:
-
-   ```yaml
-   - name: Run pipeline command
-     ansible.builtin.shell: |
-       set -euo pipefail
-       cat file.txt | grep pattern | wc -l
-     args:
-       executable: /bin/bash
-   ```
-
-5. **Tag sensitive tasks** - Use `no_log: true` for secrets:
-
-   ```yaml
-   - name: Set database password
-     ansible.builtin.command: set-password {{ db_password }}
-     no_log: true
-   ```
-
-6. **Idempotency first** - Check before create, verify after.
-
-7. **Descriptive task names** - Start with action verbs (Ensure, Configure, Install, Create).
-
-## Module Selection Guide
-
-### Decision Matrix
-
-| Need                | Use                                  | Why                              |
-| ------------------- | ------------------------------------ | -------------------------------- |
-| Install packages    | `ansible.builtin.apt/yum/dnf`        | Native modules handle state      |
-| Manage files        | `ansible.builtin.copy/template/file` | Idempotent by default            |
-| Edit config lines   | `ansible.builtin.lineinfile`         | Surgical edits, not full replace |
-| Run commands        | `ansible.builtin.command`            | When no native module exists     |
-| Need shell features | `ansible.builtin.shell`              | Pipes, redirects, globs          |
-| Manage services     | `ansible.builtin.systemd/service`    | State management built-in        |
-| Manage users        | `ansible.builtin.user`               | Cross-platform, idempotent       |
-
-### Prefer Native Modules
-
-Native modules provide:
-
-- Built-in idempotency (no need for `changed_when`)
-- Better error handling
-- Cross-platform compatibility
-- Clear documentation
-
-```yaml
-# PREFER native module
-- name: Create user
-  ansible.builtin.user:
-    name: deploy
-    groups: docker
-    state: present
-
-# AVOID command when module exists
-- name: Create user
-  ansible.builtin.command: useradd -G docker deploy
-  # Requires: changed_when, failed_when, idempotency logic
-```
-
-### When Command/Shell is Acceptable
-
-Use `command` or `shell` modules when:
-
-1. No native module exists for the operation
-2. Interacting with vendor CLI tools (certbot, kubectl, aws)
-3. Running one-off scripts
-
-Add proper controls:
-
-```yaml
-- name: Enable Apache module
-  ansible.builtin.command: a2enmod {{ module_name }}
-  register: mod_result
-  changed_when: "'already enabled' not in mod_result.stdout"
-  failed_when:
-    - mod_result.rc != 0
-    - "'already enabled' not in mod_result.stdout"
-```
-
-## Collections in Use
-
-This repository uses these Ansible collections:
-
-| Collection          | Purpose            | Example Modules                |
-| ------------------- | ------------------ | ------------------------------ |
-| `ansible.builtin`   | Core functionality | copy, template, command, user  |
-| `ansible.posix`     | POSIX systems      | authorized_key, synchronize    |
-| `community.general` | General utilities  | interfaces_file, ini_file      |
-| `community.docker`  | Docker management  | docker_container, docker_image |
-
-### Installing Collections
-
-```bash
-# Install from requirements
-cd ansible && uv run ansible-galaxy collection install -r requirements.yml
-
-# Install specific collection
-uv run ansible-galaxy collection install community.docker
-```
-
-## Common Execution Patterns
-
-### Running Playbooks
-
-```bash
-# Basic execution
-uv run ansible-playbook playbooks/my-playbook.yml
-
-# With extra variables
-uv run ansible-playbook playbooks/create-vm.yml \
-  -e "vm_name=docker-01" \
-  -e "vm_memory=4096"
-
-# Limit to specific hosts
-uv run ansible-playbook playbooks/update.yml --limit proxmox
-
-# Check mode (dry run)
-uv run ansible-playbook playbooks/deploy.yml --check --diff
-
-# With tags
-uv run ansible-playbook playbooks/setup.yml --tags "network,storage"
-```
-
-### Linting
-
-```bash
-# Run ansible-lint
-uv run ansible-lint ansible/playbooks/
-```
-
-### Diagnostic Commands
-
-```bash
-# Check syntax without running
-uv run ansible-playbook --syntax-check playbooks/my-playbook.yml
-
-# List hosts in inventory
-uv run ansible-inventory --list
-
-# Test connection to all hosts
-uv run ansible all -m ping
-```
-
-## Task Naming Conventions
-
-Use descriptive names with action verbs:
-
-| Verb      | Use When                     |
-| --------- | ---------------------------- |
-| Ensure    | Verifying state exists       |
-| Configure | Modifying settings           |
-| Install   | Adding packages              |
-| Create    | Making new resources         |
-| Remove    | Deleting resources           |
-| Deploy    | Releasing applications       |
-| Update    | Modifying existing resources |
-
-Examples:
-
-```yaml
-- name: Ensure Docker is installed
-- name: Configure SSH security settings
-- name: Create admin user account
-- name: Deploy application configuration
-```
-
-## Secrets Management
-
-Secrets (passwords, API keys, tokens) live in plain YAML files on the local machine or in GitHub Actions secrets — no third-party secrets manager. Keep it simple.
-
-```yaml
-# group_vars/all.yml or host_vars/hostname.yml (gitignored if sensitive)
-db_password: 'changeme'
-api_key: 'mykey'
-```
-
-Pass GitHub Actions secrets as extra vars at runtime:
-
-```bash
-uv run ansible-playbook playbooks/deploy.yml -e "db_password={{ secrets.DB_PASSWORD }}"
-```
-
-Always use `no_log: true` on tasks that reference these values to prevent exposure in logs.
-
-## Related Skills
-
-- **ansible-idempotency** - Detailed changed_when/failed_when patterns
-- **ansible-error-handling** - Block/rescue, retry patterns
+`scripts/check_idempotency.py` flags common idempotency problems in playbooks and role task files:
+`uv run --script <skill-dir>/scripts/check_idempotency.py playbooks/*.yml roles/*/tasks/*.yml`.

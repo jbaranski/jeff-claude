@@ -1,18 +1,4 @@
----
-name: ansible-error-handling
-description: >
-  Implements robust error handling in Ansible using block/rescue/always patterns,
-  retry logic with until/retries, and clear assertion patterns for graceful failure
-  management.
-when_to_use: >
-  Use when implementing error handling in Ansible, using block/rescue/always patterns,
-  creating retry logic with until/retries, handling expected failures gracefully, or
-  providing clear error messages with assert and fail.
----
-
 # Ansible Error Handling
-
-Patterns for robust error handling in Ansible playbooks and roles.
 
 ## Block/Rescue/Always Pattern
 
@@ -22,7 +8,7 @@ Handle errors and perform cleanup:
 - name: Deploy application
   block:
     - name: Stop application
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: myapp
         state: stopped
 
@@ -32,7 +18,7 @@ Handle errors and perform cleanup:
         dest: /usr/bin/myapp
 
     - name: Start application
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: myapp
         state: started
 
@@ -43,7 +29,7 @@ Handle errors and perform cleanup:
         dest: /usr/bin/myapp
 
     - name: Start application (rollback)
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: myapp
         state: started
 
@@ -52,9 +38,9 @@ Handle errors and perform cleanup:
         msg: 'Deployment failed, rolled back to previous version'
 
   always:
-    - name: Cleanup temp files
+    - name: Remove the staging directory
       ansible.builtin.file:
-        path: /tmp/deploy-*
+        path: /tmp/myapp-deploy # the file module does not expand globs; remove a known path
         state: absent
 ```
 
@@ -162,7 +148,7 @@ Allow expected "failures":
 
 ```yaml
 - name: Try to stop service
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: myservice
     state: stopped
   register: stop_result
@@ -226,40 +212,12 @@ Run checks from controller for better error context:
   when: api_check.status | default(0) != 200
 ```
 
-## Ignore Errors (Use Sparingly)
+## Avoid ignore_errors
 
-```yaml
-- name: Remove optional backup
-  ansible.builtin.file:
-    path: /backup/old-backup.tar.gz
-    state: absent
-  ignore_errors: true
-  register: cleanup_result
-
-- name: Report cleanup status
-  ansible.builtin.debug:
-    msg: "Cleanup {{ 'successful' if not cleanup_result.failed else 'skipped' }}"
-```
-
-### When ignore_errors is Acceptable
-
-- Non-critical cleanup tasks
-- Optional operations that shouldn't block playbook
-- When the result is immediately checked anyway
-
-### Prefer failed_when
-
-```yaml
-# BETTER than ignore_errors
-- name: Remove backup
-  ansible.builtin.file:
-    path: /backup/old-backup.tar.gz
-    state: absent
-  register: cleanup_result
-  failed_when:
-    - cleanup_result.failed
-    - "'does not exist' not in cleanup_result.msg | default('')"
-```
+`ignore_errors: true` hides every failure, including the ones you didn't anticipate. Use
+`failed_when` to allow only the specific failure you expect (see "Graceful Failure Handling"
+above). Reserve `ignore_errors` for best-effort steps whose result is checked immediately
+afterwards, and say why in a comment.
 
 ## Complete Example
 
@@ -279,6 +237,13 @@ Run checks from controller for better error context:
 
     - name: Deploy application
       block:
+        - name: Back up the current version
+          ansible.builtin.copy:
+            src: /opt/myapp/
+            dest: /opt/myapp-backup/
+            remote_src: true
+            mode: preserve
+
         - name: Download release
           ansible.builtin.get_url:
             url: 'https://releases.example.com/{{ app_version }}.tar.gz'
@@ -289,7 +254,7 @@ Run checks from controller for better error context:
           delay: 5
 
         - name: Stop current version
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             name: myapp
             state: stopped
 
@@ -300,7 +265,7 @@ Run checks from controller for better error context:
             remote_src: true
 
         - name: Start new version
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             name: myapp
             state: started
 
@@ -320,7 +285,7 @@ Run checks from controller for better error context:
             remote_src: true
 
         - name: Start previous version
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             name: myapp
             state: started
 
@@ -337,8 +302,3 @@ Run checks from controller for better error context:
             path: /tmp/app.tar.gz
             state: absent
 ```
-
-## Related Skills
-
-- **ansible-idempotency** - changed_when/failed_when patterns
-- **ansible-fundamentals** - Core Ansible concepts

@@ -1,6 +1,4 @@
-When asked to integrate these plugins into a new repository, create a Makefile entry like this (create the Makefile if the repo doesn't already have one in project root).
-
-Please note in the snippet `<the list of plugins the user asked for>` needs to be replaced with the actual plugin or plugins the user asked for.
+When asked to integrate these plugins into a repository, add this `sync-plugins` target to the project-root `Makefile` (create the Makefile if there isn't one), replacing `<plugins>` with the space-separated plugin names the user asked for (e.g. `jeff-plugin-angular jeff-plugin-aws-solution-architect`). Then run `make sync-plugins`.
 
 ```
 .PHONY: sync-plugins
@@ -8,19 +6,14 @@ Please note in the snippet `<the list of plugins the user asked for>` needs to b
 sync-plugins:
 	@mkdir -p .claude/plugins
 	@TMPDIR=$$(mktemp -d) && \
-	  git clone --depth=1 https://github.com/jbaranski/jeff-claude.git $$TMPDIR && \
-	  for plugin in <the list of plugins the user asked for>; do \
-	    rm -rf .claude/plugins/$$plugin; \
-	    cp -rL $$TMPDIR/plugins/$$plugin .claude/plugins/$$plugin 2>/dev/null || true; \
-	    for skill_dir in .claude/plugins/$$plugin/skills/*/; do \
-	      [ -d "$$skill_dir" ] || continue; \
-	      skill=$$(basename $$skill_dir); \
-	      if [ ! -f "$${skill_dir}SKILL.md" ] && [ -d "$$TMPDIR/.claude/skills/$$skill" ]; then \
-	        rm -rf "$$skill_dir"; \
-	        cp -r "$$TMPDIR/.claude/skills/$$skill" ".claude/plugins/$$plugin/skills/"; \
-	      fi; \
-	    done; \
-	  done && \
-	  rm -rf $$TMPDIR
+	  trap 'rm -rf "$$TMPDIR"' EXIT && \
+	  git clone --quiet --depth=1 https://github.com/jbaranski/jeff-claude.git "$$TMPDIR" && \
+	  for plugin in <plugins>; do \
+	    if [ ! -d "$$TMPDIR/plugins/$$plugin" ]; then echo "Unknown plugin: $$plugin" >&2; exit 1; fi; \
+	    rm -rf ".claude/plugins/$$plugin"; \
+	    cp -RL "$$TMPDIR/plugins/$$plugin" ".claude/plugins/$$plugin"; \
+	  done
 	@echo "Plugins synced to .claude/plugins/"
 ```
+
+`cp -RL` dereferences the repo's symlinks, so each synced plugin contains real copies of its agents and skills. Re-run the target to pick up updates; it replaces each plugin directory wholesale, so don't hand-edit files under `.claude/plugins/`.

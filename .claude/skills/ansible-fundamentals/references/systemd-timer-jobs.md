@@ -1,16 +1,3 @@
----
-name: ansible-systemd-timer-jobs
-description: >
-  Pattern for recurring jobs on Debian hosts: a shell script, a systemd oneshot service and a
-  timer, all deployed by Ansible templates, with output written to syslog. Covers file layout,
-  task and handler ordering, calendar versus interval timers, logging conventions, and
-  validation before deploy.
-when_to_use: >
-  Use when adding a recurring job to a role (maintenance, certificate renewal, backups,
-  polling an API for stats), writing a systemd timer or service with Ansible, or deciding
-  between a systemd timer and cron.
----
-
 # Scheduled Jobs as systemd Timers
 
 Run recurring jobs as a script, a oneshot service and a timer, all templated by Ansible.
@@ -252,9 +239,3 @@ search for the job name in `/var/log/syslog` matches deploy noise. Search for th
 8. If a parser reads the job's lines by position, the host's syslog uses ISO timestamps (see
    "Syslog timestamps must be ISO").
 9. Note how to query the job's logs wherever your team keeps such notes.
-
-## Related Skills
-
-- **ansible-role-design** - Where tasks, handlers, templates and defaults live
-- **ansible-idempotency** - Keeping the deploy tasks and the job itself idempotent
-- **ansible-fundamentals** - FQCN, `uv run`, and module selection

@@ -1,13 +1,3 @@
----
-name: ansible-dependabot
-description: >
-  Configure Dependabot to keep Ansible Python tooling (ansible, ansible-lint) up to date
-  via the uv ecosystem. Covers what Dependabot can and cannot automate for Ansible projects.
-when_to_use: >
-  Use when setting up Dependabot for an Ansible project, adding automated dependency
-  updates for Ansible tooling, or asked to "set up Dependabot for Ansible".
----
-
 # Dependabot for Ansible
 
 Dependabot covers the **Python tooling side** of Ansible (the `ansible`, `ansible-lint`,
@@ -18,9 +8,9 @@ and related packages managed by `uv`). It does **not** support Ansible Galaxy co
 
 | Dependency type                                    | Supported | Ecosystem        |
 | -------------------------------------------------- | --------- | ---------------- |
-| `ansible`, `ansible-lint`, etc. (`pyproject.toml`) | ✅ Yes    | `uv`             |
-| GitHub Actions workflows                           | ✅ Yes    | `github-actions` |
-| Ansible Galaxy collections (`requirements.yml`)    | ❌ No     | —                |
+| `ansible`, `ansible-lint`, etc. (`pyproject.toml`) | Yes       | `uv`             |
+| GitHub Actions workflows                           | Yes       | `github-actions` |
+| Ansible Galaxy collections (`requirements.yml`)    | No        | —                |
 
 ## Steps
 
@@ -43,12 +33,22 @@ and related packages managed by `uv`). It does **not** support Ansible Galaxy co
        directory: '/'
        schedule:
          interval: 'weekly'
+       open-pull-requests-limit: 5
+       groups:
+         github-actions:
+           patterns: ['*']
 
      - package-ecosystem: 'uv'
        directory: '/'
        schedule:
          interval: 'weekly'
+       open-pull-requests-limit: 5
+       groups:
+         ansible-tooling:
+           patterns: ['*']
    ```
+
+   Every entry needs `groups:` and an explicit `open-pull-requests-limit` (see `jeff-skill-install-dependabot`, which also covers the CI guard every job needs).
 
    If `pyproject.toml` lives in an `ansible/` subdirectory instead:
 
@@ -59,11 +59,19 @@ and related packages managed by `uv`). It does **not** support Ansible Galaxy co
        directory: '/'
        schedule:
          interval: 'weekly'
+       open-pull-requests-limit: 5
+       groups:
+         github-actions:
+           patterns: ['*']
 
      - package-ecosystem: 'uv'
        directory: '/ansible'
        schedule:
          interval: 'weekly'
+       open-pull-requests-limit: 5
+       groups:
+         ansible-tooling:
+           patterns: ['*']
    ```
 
 4. Commit and push `.github/dependabot.yml`. Dependabot will open PRs when new
@@ -73,8 +81,3 @@ and related packages managed by `uv`). It does **not** support Ansible Galaxy co
 
 Ansible Galaxy collection versions pinned in `requirements.yml` are not a supported
 Dependabot ecosystem. Those updates must be handled manually or via Renovate Bot.
-
-## Related Skills
-
-- **ansible-fundamentals** - uv run conventions and collection management
-- **jeff-skill-install-dependabot** - General Dependabot setup across all ecosystems

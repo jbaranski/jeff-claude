@@ -1,55 +1,8 @@
----
-name: ansible-idempotency
-description: >
-  Techniques for writing truly idempotent Ansible tasks using changed_when,
-  failed_when, and check-before-create patterns to eliminate spurious "changed"
-  reports.
-when_to_use: >
-  Use when writing idempotent Ansible tasks, using command or shell modules,
-  implementing changed_when and failed_when directives, creating check-before-create
-  patterns, or troubleshooting tasks that always show "changed".
----
-
 # Ansible Idempotency Patterns
 
-Techniques for ensuring Ansible tasks are truly idempotent - producing the same result
-whether run once or multiple times.
-
-## Core Directives
-
-### changed_when
-
-Controls when Ansible reports a task as "changed". Critical for `command` and `shell` modules
-which always report changed by default.
-
-```yaml
-- name: Check if service exists
-  ansible.builtin.command: systemctl status myservice
-  register: service_check
-  changed_when: false # Read-only operation, never changes anything
-```
-
-### failed_when
-
-Controls when Ansible considers a task failed. Allows graceful handling of expected errors.
-
-```yaml
-- name: Check resource existence
-  ansible.builtin.command: check-resource {{ resource_id }}
-  register: check_result
-  failed_when: false # Don't fail, we'll check the result ourselves
-```
-
-### register
-
-Captures task output for use in `changed_when` and `failed_when` expressions.
-
-```yaml
-- name: Run command
-  ansible.builtin.command: some-command
-  register: cmd_result
-  # Now cmd_result.rc, cmd_result.stdout, cmd_result.stderr are available
-```
+A task is idempotent when a second run reports no changes. Native modules are idempotent already;
+everything here is about `command` and `shell`, which report `changed` on every run unless told
+otherwise. Every `command`/`shell` task needs `register` plus an explicit `changed_when`.
 
 ## Pattern 1: Detect Actual Changes
 
@@ -169,29 +122,6 @@ Mark read-only operations as never changed:
   failed_when: false
 ```
 
-## Pattern 7: Set Facts for State
-
-Use facts to track state across tasks:
-
-```yaml
-- name: Check if nginx service is enabled
-  ansible.builtin.command: systemctl is-enabled nginx
-  register: nginx_enabled
-  failed_when: false
-  changed_when: false
-
-- name: Set service state facts
-  ansible.builtin.set_fact:
-    nginx_is_enabled: '{{ nginx_enabled.rc == 0 }}'
-    nginx_is_active: "{{ 'enabled' in nginx_enabled.stdout }}"
-
-- name: Enable nginx service
-  ansible.builtin.command: systemctl enable nginx
-  when: not nginx_is_enabled
-  register: enable_result
-  changed_when: enable_result.rc == 0
-```
-
 ## Anti-Patterns to Avoid
 
 ### Always Changed
@@ -255,55 +185,18 @@ Use strict error handling in shell scripts:
   changed_when: false
 ```
 
-### Why set -euo pipefail?
-
-| Flag          | Purpose                      |
-| ------------- | ---------------------------- |
-| `-e`          | Exit on any command failure  |
-| `-u`          | Error on undefined variables |
-| `-o pipefail` | Catch errors in pipelines    |
-
-## Common changed_when Expressions
-
-```yaml
-# Never changed (read-only)
-changed_when: false
-
-# Always changed (one-time operations)
-changed_when: true
-
-# Based on output content
-changed_when: "'created' in result.stdout"
-changed_when: "'already exists' not in result.stderr"
-changed_when: "'updated' in result.stdout"
-
-# Based on return code
-changed_when: result.rc == 0
-changed_when: result.rc != 1
-
-# Complex conditions
-changed_when:
-  - result.rc == 0
-  - "'no changes' not in result.stdout"
-```
-
 ## Utility Script
 
-Use the idempotency checker to analyze playbooks for common issues:
+`scripts/check_idempotency.py` in this skill's directory checks playbooks and role task files
+(it runs through `uv`, which supplies PyYAML). Run it with the path to wherever this skill is installed:
 
 ```bash
-# Check a single playbook
-${CLAUDE_PLUGIN_ROOT}/skills/ansible-idempotency/scripts/check_idempotency.py ansible/playbooks/my-playbook.yml
-
-# Check multiple playbooks
-${CLAUDE_PLUGIN_ROOT}/skills/ansible-idempotency/scripts/check_idempotency.py ansible/playbooks/*.yml
-
-# Strict mode (info issues become warnings)
-${CLAUDE_PLUGIN_ROOT}/skills/ansible-idempotency/scripts/check_idempotency.py --strict ansible/playbooks/my-playbook.yml
-
-# Summary only
-${CLAUDE_PLUGIN_ROOT}/skills/ansible-idempotency/scripts/check_idempotency.py --summary ansible/playbooks/*.yml
+uv run --script <skill-dir>/scripts/check_idempotency.py playbooks/*.yml roles/*/tasks/*.yml roles/*/handlers/*.yml
+uv run --script <skill-dir>/scripts/check_idempotency.py --strict playbooks/site.yml   # info issues become warnings
+uv run --script <skill-dir>/scripts/check_idempotency.py --summary playbooks/*.yml     # counts only
 ```
+
+The definitive test is still running the playbook twice and confirming the second run reports `changed=0`.
 
 The script detects:
 
@@ -311,11 +204,4 @@ The script detects:
 - Shell tasks without `set -euo pipefail`
 - Tasks missing `no_log` that may contain secrets
 - Tasks missing name attribute
-- Use of deprecated short module names (non-FQCN)
-
-Script location: `${CLAUDE_PLUGIN_ROOT}/skills/ansible-idempotency/scripts/check_idempotency.py`
-
-## Related Skills
-
-- **ansible-error-handling** - Block/rescue patterns
-- **ansible-fundamentals** - Module selection (prefer native modules)
+- Short module names instead of FQCN
