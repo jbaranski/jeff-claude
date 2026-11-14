@@ -10,21 +10,23 @@ Inspired by (and some content copied from):
 - https://github.com/chongdashu/phaserjs-oakwoods/tree/main/.claude/skills/phaser-gamedev
 - https://github.com/DietrichGebert/ponytail/tree/main/skills
 
-To install or use the plugins:
-/plugin marketplace add jbaranski/jeff-claude
-/plugin install jeff-plugin-typescript@jeff-plugins
-/plugin install jeff-plugin-angular@jeff-plugins
-/plugin install jeff-plugin-python@jeff-plugins
-/plugin install jeff-plugin-aws-solution-architect@jeff-plugins
-/plugin install jeff-plugin-golang@jeff-plugins
-/plugin install jeff-plugin-ansible@jeff-plugins
-/plugin install jeff-plugin-tailwind@jeff-plugins
-/plugin install jeff-plugin-shell-bash@jeff-plugins
-/plugin install jeff-plugin-phaser@jeff-plugins
-/plugin install jeff-plugin-project@jeff-plugins
+To use them in a repo, follow INTEGRATION.md: it adds a `make sync-plugins` target that copies the chosen plugins' agents into `.claude/agents/` and skills into `.claude/skills/`.
+
+Available plugins:
+
+- `jeff-plugin-typescript` — Agents and skills for TypeScript backend, CLI, and library development with modern tooling, strict type checking, and testing requirements.
+- `jeff-plugin-angular` — Agents and skills for Angular frontend development with modern patterns, accessibility, and Tailwind CSS.
+- `jeff-plugin-python` — Agents and skills for Python development using uv, ruff, and pytest with PEP standards and modern best practices.
+- `jeff-plugin-aws-solution-architect` — Agents and skills for AWS CDK infrastructure, solution architecture, and infrastructure review with TypeScript tooling.
+- `jeff-plugin-golang` — Agents and skills for idiomatic Go development, code review, and project configuration.
+- `jeff-plugin-ansible` — Agents and skills for Ansible automation targeting Debian Linux and Docker, covering playbook design, role design, idempotency, error handling, and scheduled systemd timer jobs.
+- `jeff-plugin-tailwind` — Agents and skills for Tailwind CSS v4 UI/UX development including design systems, design tokens, and component libraries.
+- `jeff-plugin-shell-bash` — Agents and skills for shell/Bash scripting, automation, and CLI tool development.
+- `jeff-plugin-phaser` — Agents and skills for Phaser 4 browser game development with scene architecture, physics, spritesheets, tilemaps, and performance optimization.
+- `jeff-plugin-project` — General project workflows that apply across technology stacks — lean coding rules, code review and repo audits, shortcut-debt tracking, dependency management, and issue resolution.
 
 NOTE: The repo is public just so I can easily download and consume the skills quickly from any machine. The content is derived from other sources and in some cases modified to be tailored for my needs. I am not trying to take "credit" or pass this off as my own.
 
-Quick integration:
+INTEGRATION.md:
 
 - https://raw.githubusercontent.com/jbaranski/jeff-claude/refs/heads/main/INTEGRATION.md

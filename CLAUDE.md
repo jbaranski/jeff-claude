@@ -20,6 +20,8 @@ Before writing a single file, look at existing agents and skills in `.claude/age
 
 ## Adding a New Plugin — Exact Checklist
 
+A plugin here is a folder of symlinks under `plugins/` that groups one stack's agents and skills. There is no plugin manifest or marketplace: other repos pull a plugin with the `make sync-plugins` target in `INTEGRATION.md`, which copies its agents into their `.claude/agents/` and its skills into their `.claude/skills/`.
+
 Work through every item before committing. Missing any one of these caused multiple rounds of rework.
 
 ### 1. Create canonical agent files in `.claude/agents/`
@@ -45,8 +47,6 @@ Work through every item before committing. Missing any one of these caused multi
 
 ```
 plugins/jeff-plugin-{tech}/
-  .claude-plugin/
-    plugin.json
   agents/
     jeff-agent-{tech}-software-developer.md  ← symlink
     jeff-agent-{tech}-code-reviewer.md       ← symlink
@@ -74,39 +74,12 @@ ln -s ../../../.claude/agents/jeff-agent-{tech}-software-developer.md plugins/je
 ln -s ../../../.claude/skills/jeff-skill-{tech}-{what} plugins/jeff-plugin-{tech}/skills/jeff-skill-{tech}-{what}
 ```
 
-### 4. Create `plugin.json`
-
-Bump `version` whenever a plugin's agents or skills change (minor for additions/fixes, major when a skill or agent is renamed or removed) — installed plugins are cached per version.
-
-```json
-{
-  "name": "jeff-plugin-{tech}",
-  "description": "...",
-  "version": "1.0.0",
-  "author": {
-    "name": "Jeff Baranski"
-  }
-}
-```
-
-### 5. Register in `.claude-plugin/marketplace.json`
-
-Add an entry to the `plugins` array:
-
-```json
-{
-  "name": "jeff-plugin-{tech}",
-  "source": "./plugins/jeff-plugin-{tech}",
-  "description": "..."
-}
-```
-
-### 6. Update `README`
+### 4. Update `README`
 
 - Add an inspiration link under the `Inspired by` section if the skill content came from an external source
-- Add `/plugin install jeff-plugin-{tech}@jeff-plugins` to the install commands list
+- Add `jeff-plugin-{tech}` with a one-line description to the `Available plugins` list
 
-### 7. Run Prettier on all new files
+### 5. Run Prettier on all new files
 
 ```bash
 npx prettier --write .claude/agents/jeff-agent-{tech}-*.md .claude/skills/jeff-skill-{tech}-{what}/
@@ -122,10 +95,8 @@ Before committing any new plugin work:
 - [ ] Agent files are in `.claude/agents/` with correct frontmatter and naming
 - [ ] Skill directory is in `.claude/skills/` with `SKILL.md` and correct frontmatter
 - [ ] Plugin directory exists under `plugins/jeff-plugin-{tech}/`
-- [ ] `plugin.json` exists at `plugins/jeff-plugin-{tech}/.claude-plugin/plugin.json`
 - [ ] All entries in `plugins/.../agents/` are symlinks (`ls -la` to verify)
 - [ ] All entries in `plugins/.../skills/` are symlinks (`ls -la` to verify)
 - [ ] Every skill in each agent's `skills:` list is symlinked into that plugin's `skills/`
-- [ ] `.claude-plugin/marketplace.json` has the new plugin entry
-- [ ] `README` has the inspiration link (if applicable) and install command
+- [ ] `README` has the inspiration link (if applicable) and the plugin in `Available plugins`
 - [ ] `npx prettier --check` passes on all new/modified files
