@@ -1,4 +1,4 @@
-name: Package Skills and Agents
+name: Format Skills and Agents
 
 on:
   push:
