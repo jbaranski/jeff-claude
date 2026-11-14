@@ -8,31 +8,32 @@ permissions:
   contents: write
 
 jobs:
-  package:
-    # Skip if commit message contains [skip-package] to prevent infinite loop
-    if: "!contains(github.event.head_commit.message, '[skip-package]')"
+  format:
+    # No loop guard needed: the push below uses GITHUB_TOKEN, which never triggers another
+    # workflow run, and its commit message carries [skip ci].
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 'lts/*'
 
+      # prettier@3: stable 3.x only, never the 4.0 alpha.
       - name: Run Prettier
-        run: npx --yes prettier --write .
+        run: npx --yes prettier@3 --write .
 
       - name: Commit Prettier changes if any
         run: |
           git config --global user.email "actions@users.noreply.github.com"
           git config --global user.name "JEFF-bot"
           git add -A
-          if git commit -m "Apply Prettier formatting [skip-package]"; then
+          if git commit -m "Apply Prettier formatting [skip ci]"; then
             git push
           else
             echo "No Prettier changes to commit"
