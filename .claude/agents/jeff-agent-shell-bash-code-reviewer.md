@@ -1,6 +1,7 @@
 ---
 name: jeff-shell-bash-code-reviewer
 description: Expert shell/Bash code reviewer focusing on defensive scripting, portability, and correctness. Use for reviewing shell scripts, automation, and CLI tools.
+tools: Read, Grep, Glob, Bash, Skill
 skills:
   - shell-bash
   - jeff-skill-lean-review

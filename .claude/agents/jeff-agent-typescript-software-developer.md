@@ -2,10 +2,7 @@
 name: jeff-typescript-software-developer
 description: Expert TypeScript developer following strict type safety and modern best practices. Use for TypeScript development (backend, CLI, libraries), testing, refactoring, and debugging.
 skills:
-  - jeff-skill-install-nodejs
-  - jeff-skill-install-prettier
   - jeff-skill-typescript-project
-  - jeff-skill-install-dependabot
   - jeff-skill-lean-code
 ---
 

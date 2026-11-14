@@ -1,14 +1,10 @@
 ---
 name: jeff-angular-code-reviewer
 description: Expert Angular code reviewer focusing on best practices, performance, and Angular style guide compliance. Use for reviewing Angular code, components, and providing objective code review feedback.
+tools: Read, Grep, Glob, Bash, Skill
 skills:
-  - jeff-skill-install-nodejs
-  - jeff-skill-install-prettier
   - jeff-skill-angular-project
-  - jeff-skill-angular-aws-cognito
-  - jeff-skill-angular-netlify
   - jeff-skill-tailwind-design-system
-  - jeff-skill-install-dependabot
   - jeff-skill-lean-review
 ---
 

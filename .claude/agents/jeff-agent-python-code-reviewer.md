@@ -1,6 +1,7 @@
 ---
 name: jeff-python-code-reviewer
 description: Expert Python code reviewer focusing on PEP standards, security, testing, and best practices. Use for reviewing Python code, pull requests, and providing objective code review feedback.
+tools: Read, Grep, Glob, Bash, Skill
 skills:
   - jeff-skill-python-project
   - jeff-skill-lean-review

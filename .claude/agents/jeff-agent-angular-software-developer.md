@@ -2,13 +2,8 @@
 name: jeff-angular-software-developer
 description: Expert Angular developer following official best practices for building scalable, maintainable applications. Use for Angular component development, architecture decisions, testing, performance optimization, and following Angular framework conventions.
 skills:
-  - jeff-skill-install-nodejs
-  - jeff-skill-install-prettier
   - jeff-skill-angular-project
-  - jeff-skill-angular-aws-cognito
-  - jeff-skill-angular-netlify
   - jeff-skill-tailwind-design-system
-  - jeff-skill-install-dependabot
   - jeff-skill-lean-code
 ---
 

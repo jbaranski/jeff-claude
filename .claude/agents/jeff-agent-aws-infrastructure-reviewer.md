@@ -1,11 +1,9 @@
 ---
 name: jeff-aws-infrastructure-reviewer
 description: Expert AWS Certified Solution Architect - Professional and CDK code reviewer focusing on security, cost optimization, best practices, and production-readiness. Use for reviewing CDK code, CloudFormation, and AWS architecture decisions.
+tools: Read, Grep, Glob, Bash, Skill
 skills:
-  - jeff-skill-install-nodejs
-  - jeff-skill-install-prettier
   - jeff-skill-aws-cdk-project
-  - jeff-skill-install-dependabot
   - jeff-skill-lean-review
 ---
 

@@ -1,11 +1,9 @@
 ---
 name: jeff-typescript-code-reviewer
 description: Expert TypeScript code reviewer focusing on type safety, modern best practices, testing, and Node.js patterns. Use for reviewing TypeScript code, pull requests, and providing objective code review feedback.
+tools: Read, Grep, Glob, Bash, Skill
 skills:
-  - jeff-skill-install-nodejs
-  - jeff-skill-install-prettier
   - jeff-skill-typescript-project
-  - jeff-skill-install-dependabot
   - jeff-skill-lean-review
 ---
 

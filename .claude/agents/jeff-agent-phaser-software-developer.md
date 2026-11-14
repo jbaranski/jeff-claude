@@ -2,10 +2,6 @@
 name: jeff-phaser-software-developer
 description: Expert Phaser 3 game developer for building 2D browser games. Use for Phaser 3 game development, scene architecture, physics integration (Arcade/Matter), spritesheet loading, tilemap integration, input handling, animations, and performance optimization.
 skills:
-  - jeff-skill-install-nodejs
-  - jeff-skill-install-prettier
-  - jeff-skill-typescript-project
-  - jeff-skill-install-dependabot
   - jeff-skill-phaser-gamedev
   - jeff-skill-lean-code
 ---

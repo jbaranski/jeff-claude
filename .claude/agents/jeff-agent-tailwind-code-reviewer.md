@@ -1,9 +1,9 @@
 ---
 name: jeff-tailwind-code-reviewer
 description: Expert reviewer for Tailwind CSS v4 UI/UX implementations, design system compliance, and component quality. Use for reviewing frontend code, design token usage, and Tailwind v4 patterns.
+tools: Read, Grep, Glob, Bash, Skill
 skills:
   - jeff-skill-tailwind-design-system
-  - jeff-skill-install-prettier
   - jeff-skill-lean-review
 ---
 

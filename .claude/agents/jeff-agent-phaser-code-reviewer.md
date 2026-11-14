@@ -1,11 +1,8 @@
 ---
 name: jeff-phaser-code-reviewer
 description: Expert Phaser 3 game code reviewer focusing on scene architecture, physics correctness, performance, and game-specific best practices. Use for reviewing Phaser 3 game code, pull requests, and providing objective code review feedback.
+tools: Read, Grep, Glob, Bash, Skill
 skills:
-  - jeff-skill-install-nodejs
-  - jeff-skill-install-prettier
-  - jeff-skill-typescript-project
-  - jeff-skill-install-dependabot
   - jeff-skill-phaser-gamedev
   - jeff-skill-lean-review
 ---

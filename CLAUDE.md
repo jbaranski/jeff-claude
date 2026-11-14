@@ -14,6 +14,8 @@ This repo contains Claude Code plugins, agents, and skills for personal use. Rea
 | Skill entry file | `SKILL.md` inside skill dir   | `jeff-skill-phaser-gamedev/SKILL.md`      |
 | Plugin directory | `jeff-plugin-{tech}`          | `jeff-plugin-phaser`                      |
 
+Before writing a single file, look at existing agents and skills in `.claude/agents/` and `.claude/skills/` and match the pattern exactly.
+
 ---
 
 ## Adding a New Plugin — Exact Checklist
@@ -110,38 +112,6 @@ Add an entry to the `plugins` array:
 npx prettier --write .claude/agents/jeff-agent-{tech}-*.md .claude/skills/jeff-skill-{tech}-{what}/
 npx prettier --check .claude/agents/jeff-agent-{tech}-*.md .claude/skills/jeff-skill-{tech}-{what}/
 ```
-
-Prettier config is in `.prettierrc.json` (printWidth: 120, singleQuote). The Makefile has `prettier-fix` and `prettier-check` targets.
-
----
-
-## Mistakes Made When Adding jeff-plugin-phaser (Do Not Repeat)
-
-These were real errors made during implementation — documented so future sessions don't repeat them.
-
-### Mistake 1: Wrong naming — didn't follow existing conventions
-
-Named the skill `phaser-gamedev` instead of `jeff-skill-phaser-gamedev` and the agent `jeff-agent-phaser-gamedev` instead of `jeff-agent-phaser-software-developer`. **Before writing a single file, look at existing agents and skills in `.claude/agents/` and `.claude/skills/` and match the pattern exactly.**
-
-### Mistake 2: Created real files in `plugins/` instead of symlinks
-
-Put actual `.md` files and a real directory in `plugins/jeff-plugin-phaser/agents/` and `plugins/jeff-plugin-phaser/skills/`. **All entries in a plugin's `agents/` and `skills/` directories are always relative symlinks — never real files.** Verify with `ls -la` before committing.
-
-### Mistake 3: Missing `plugin.json`
-
-Forgot to create `plugins/jeff-plugin-phaser/.claude-plugin/plugin.json`. Every plugin needs this file.
-
-### Mistake 4: Missing marketplace.json registration
-
-Forgot to add the new plugin to `.claude-plugin/marketplace.json`. The plugin won't be discoverable without this.
-
-### Mistake 5: Forgot to update README
-
-Forgot both the inspiration link and the `/plugin install` command in `README`. The README is the user-facing install reference — always update it.
-
-### Mistake 6: Didn't run Prettier before committing
-
-All 7 new phaser markdown files failed `prettier --check`. Run `npx prettier --write` on all new files before staging them, then verify with `--check`.
 
 ---
 
