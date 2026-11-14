@@ -100,9 +100,11 @@ build:
 	npm run update-csp
 
 # netlify-cli is NOT added as a devDependency — npx downloads it at deploy time.
+# --no-build: `make build` above already built the app and updated the CSP hashes. Without it,
+# netlify-cli (v21+) runs the build a second time before uploading.
 # Update --dir to match angular.json outputPath (typically dist/<app-name>/browser).
 deploy: build
-	npx netlify-cli deploy --prod --dir=dist/<app-name>/browser
+	npx netlify-cli deploy --prod --no-build --dir=dist/<app-name>/browser
 ```
 
 > If `lint`, `test`, or `build` targets already exist in the Makefile, only add the `deploy` target and update the `.PHONY` line.
