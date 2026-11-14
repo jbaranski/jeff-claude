@@ -16,7 +16,7 @@ When building AWS Lambda functions with TypeScript, use **AWS Lambda Powertools 
 For 2-5 routes, use simple path checking - no extra dependencies, faster cold starts:
 
 ```typescript
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
+import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { Logger } from '@aws-lambda-powertools/logger';
 
 const logger = new Logger();

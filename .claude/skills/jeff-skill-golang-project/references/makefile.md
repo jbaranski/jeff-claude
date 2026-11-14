@@ -3,7 +3,7 @@
 Common commands for consistency:
 
 ```makefile
-.PHONY: all test build clean lint lint-config fmt fmt-check coverage coverage-check tidy check deps
+.PHONY: all test build clean lint lint-config fmt fmt-check coverage coverage-check vuln tidy check deps
 
 # Default target
 all: fmt lint test build
@@ -60,18 +60,25 @@ tidy:
 	go mod tidy
 	go mod verify
 
-# Run all checks (format check, lint, test with coverage check)
+# Scan code and dependencies for known vulnerabilities (Go vulnerability database).
+# Reports only vulnerabilities in functions the code actually calls.
+GOVULNCHECK_VERSION ?= v1.9.0
+
+vuln:
+	go run golang.org/x/vuln/cmd/govulncheck@$(GOVULNCHECK_VERSION) ./...
+
+# Run all checks (format check, lint, test with coverage check, vulnerability scan)
 # NOTE: this is a gate, not a fixer — it depends on `fmt-check`, which reports
 # misformatted code and exits non-zero without rewriting anything. Use `make fmt`
 # (or `make all`) when you want files reformatted in place.
-check: fmt-check lint coverage-check
+check: fmt-check lint coverage-check vuln
 
 # Install development dependencies
 # NOTE: the v2 module path contains /v2/. Installing
 # github.com/golangci/golangci-lint/cmd/golangci-lint (no /v2/) silently gets v1,
 # which cannot read the v2 .golangci.yml. A separate goimports install is no longer
 # needed — `golangci-lint fmt` runs it as a configured formatter.
-GOLANGCI_LINT_VERSION ?= v2.14.0
+GOLANGCI_LINT_VERSION ?= v2.15.0
 
 deps:
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \

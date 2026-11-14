@@ -12,6 +12,8 @@ Name the file after the project (e.g. `web-ci.yml`, `api-ci.yml`) rather than a 
 
 **Least privilege.** The workflow grants only `contents: read`, and checkout uses `persist-credentials: false` so the token is not left in `.git/config` for later steps.
 
+**Pin every action to a commit SHA.** Each `uses:` is `owner/repo@<commit-sha> # <tag>`: replace `<commit-sha>` with the full commit the tag points to — `git ls-remote https://github.com/<owner>/<repo> 'refs/tags/<tag>^{}' refs/tags/<tag> | tail -1 | cut -f1` — and keep the tag comment. A tag can be moved to different code; a commit SHA can't. Dependabot's `github-actions` entry keeps both up to date.
+
 ```yaml
 name: <project>-ci
 
@@ -38,12 +40,12 @@ jobs:
       run:
         working-directory: <project-dir> # e.g. 'web' — omit this whole `defaults:` block if the project is at repo root
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@<commit-sha> # v7.0.1
         with:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@<commit-sha> # v7.1.0
         with:
           node-version-file: .nvmrc # repo root, shared by all Node projects
           cache: 'npm'

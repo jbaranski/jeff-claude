@@ -16,23 +16,19 @@ description: Install or update the Angular CLI and create zoneless, Tailwind-sty
 
 1. Run `npm install -g @angular/cli` to install or update the CLI globally. For an existing app, update it with `ng update @angular/core @angular/cli`, following https://angular.dev/update-guide.
 2. Confirm with `ng version` that the CLI is the latest release.
-3. Create the app: `ng new <project-name> --style=css --ssr=false` (zoneless is the default from v21; on v20 add `--zoneless`).
-   - For an existing app that still has zone.js, follow the zoneless steps in the Angular developer agent: `provideZonelessChangeDetection()` on v20, remove `zone.js` from `polyfills` in both `build` and `test` targets, `npm uninstall zone.js`.
+3. Create the app:
+
+   ```bash
+   ng new <project-name> --style=tailwind --ssr=false --ai-config=claude-code --interactive=false
+   ```
+
+   - The current defaults already give you what these projects require — don't pass flags for them: zoneless (no `zone.js`), `OnPush` change detection, Vitest as the test runner, standalone components and the 2025 file-naming style (`user-profile.ts` / `UserProfile`).
+   - `--style=tailwind` installs `tailwindcss` and `@tailwindcss/postcss`, writes `.postcssrc.json` and puts `@import 'tailwindcss';` in `src/styles.css` — nothing else to set up.
+   - `--ai-config=claude-code` writes a `CLAUDE.md` with the Angular team's best practices for this version. Keep it.
+   - Existing app without Tailwind: `ng add tailwindcss`. Existing app that still has `zone.js`: follow the zoneless steps in the Angular developer agent (remove `provideZoneChangeDetection()`, remove `zone.js` from `polyfills` in both `build` and `test` targets, `npm uninstall zone.js`).
    - Add `"build:prod": "ng build --configuration production"` to `package.json` scripts (the Netlify skill's Makefile uses it).
-4. Use the latest stable version of `tailwindcss` as a `devDependency`. Refer to the documentation at https://tailwindcss.com/docs.
-   - To install run `ng add tailwindcss` and confirm any prompts. This is equivalent to doing the following (just here for your reference in case something goes wrong or needs to be fixed):
-     - `npm install -D tailwindcss @tailwindcss/postcss postcss`
-     - Configure `.postcssrc.json` with the following content:
 
-     ```
-     {
-        "plugins": {
-           "@tailwindcss/postcss": {}
-        }
-     }
-     ```
-
-     - `src/styles.css` should contain `@import "tailwindcss"`;
+4. Generate code with the CLI (`ng generate component|service|guard|interceptor ...`) so names and files follow the current style guide.
 
 5. Set up Netlify deployment using the `jeff-skill-angular-netlify` skill.
 
@@ -74,6 +70,8 @@ Name the file after the project (e.g. `web-ci.yml`, `api-ci.yml`) rather than a 
 
 **Least privilege.** The workflow grants only `contents: read`, and checkout uses `persist-credentials: false` so the token is not left in `.git/config` for later steps.
 
+**Pin every action to a commit SHA.** Each `uses:` is `owner/repo@<commit-sha> # <tag>`: replace `<commit-sha>` with the full commit the tag points to — `git ls-remote https://github.com/<owner>/<repo> 'refs/tags/<tag>^{}' refs/tags/<tag> | tail -1 | cut -f1` — and keep the tag comment. A tag can be moved to different code; a commit SHA can't. Dependabot's `github-actions` entry keeps both up to date.
+
 The `prettier:check` script comes from the `jeff-skill-install-prettier` skill.
 
 ```yaml
@@ -102,12 +100,12 @@ jobs:
       run:
         working-directory: <project-dir> # e.g. 'web' — omit this whole `defaults:` block if the project is at repo root
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@<commit-sha> # v7.0.1
         with:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@<commit-sha> # v7.1.0
         with:
           node-version-file: .nvmrc # repo root, shared by all Node projects
           cache: 'npm'

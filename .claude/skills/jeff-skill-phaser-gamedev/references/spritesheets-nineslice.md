@@ -125,7 +125,7 @@ Nine-slice (or 9-patch) panels allow UI elements to scale while preserving corne
 
 ### Built-in NineSlice
 
-Phaser 3.60+ has a NineSlice game object; try it first when the panel art is a single image:
+Phaser has a NineSlice game object; try it first when the panel art is a single image:
 
 ```javascript
 // key, frame, width, height, leftWidth, rightWidth, topHeight, bottomHeight

@@ -12,6 +12,8 @@ Name the file after the project (e.g. `web-ci.yml`, `api-ci.yml`) rather than a 
 
 **Least privilege.** The workflow grants only `contents: read`, and checkout uses `persist-credentials: false` so the token is not left in `.git/config` for later steps.
 
+**Pin every action to a commit SHA.** Each `uses:` is `owner/repo@<commit-sha> # <tag>`: replace `<commit-sha>` with the full commit the tag points to — `git ls-remote https://github.com/<owner>/<repo> 'refs/tags/<tag>^{}' refs/tags/<tag> | tail -1 | cut -f1` — and keep the tag comment. A tag can be moved to different code; a commit SHA can't. Dependabot's `github-actions` entry keeps both up to date.
+
 ```yaml
 name: <project>-ci
 
@@ -40,12 +42,12 @@ jobs:
         working-directory: <module-dir> # e.g. 'golang' — omit this whole `defaults:` block if the module is at repo root
     steps:
       - name: Check out code
-        uses: actions/checkout@v7
+        uses: actions/checkout@<commit-sha> # v7.0.1
         with:
           persist-credentials: false
 
       - name: Set up Go
-        uses: actions/setup-go@v7
+        uses: actions/setup-go@<commit-sha> # v7.0.0
         with:
           go-version-file: <module-dir>/go.mod # 'go.mod' if the module is at repo root
           cache: true
@@ -59,13 +61,17 @@ jobs:
       - name: Verify dependencies
         run: go mod verify
 
+      # Same pinned version as the Makefile's GOVULNCHECK_VERSION.
+      - name: Check for known vulnerabilities
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...
+
       # golangci-lint-action v6 and below only support golangci-lint v1 and cannot
       # read the v2 config. v7+ are the v2-compatible releases; v9 is current.
       # install-only lets the same binary drive both the format check and the lint run.
       - name: Install golangci-lint
-        uses: golangci/golangci-lint-action@v9
+        uses: golangci/golangci-lint-action@<commit-sha> # v9.3.0
         with:
-          version: v2.14.0
+          version: v2.15.0
           install-only: true
 
       - name: Format check

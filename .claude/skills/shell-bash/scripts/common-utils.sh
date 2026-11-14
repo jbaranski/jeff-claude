@@ -17,11 +17,11 @@ fi
 
 # --- Output ---------------------------------------------------------------
 
-print_info()    { printf '%b %s\n' "${CU_BLUE}i${CU_NC}" "$*"; }
+print_info() { printf '%b %s\n' "${CU_BLUE}i${CU_NC}" "$*"; }
 print_success() { printf '%b %s\n' "${CU_GREEN}ok${CU_NC}" "$*"; }
 print_warning() { printf '%b %s\n' "${CU_YELLOW}warn${CU_NC}" "$*" >&2; }
-print_error()   { printf '%b %s\n' "${CU_RED}error${CU_NC}" "$*" >&2; }
-print_step()    { printf '%b %s\n' "${CU_CYAN}->${CU_NC}" "$*"; }
+print_error() { printf '%b %s\n' "${CU_RED}error${CU_NC}" "$*" >&2; }
+print_step() { printf '%b %s\n' "${CU_CYAN}->${CU_NC}" "$*"; }
 
 die() {
   print_error "$@"

@@ -16,7 +16,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "watch": "tsc -p tsconfig.build.json --watch",
-    "dev": "tsx watch src/index.ts",
+    "dev": "node --watch src/index.ts",
     "start": "node dist/index.js",
     "test": "vitest",
     "test:run": "vitest run",
@@ -36,7 +36,6 @@
     "@vitest/coverage-v8": "^5.0.4",
     "eslint": "^10.12.0",
     "typescript-eslint": "^8.71.2",
-    "tsx": "^4.23.15",
     "typescript": "~6.0.3",
     "vitest": "^5.0.4"
   }
@@ -47,14 +46,14 @@ TypeScript stays on `~6.0.x` until `typescript-eslint` supports 7.x — as of Oc
 
 ## tsconfig.json
 
-Type-checks sources and tests (`npm run typecheck`); it never emits.
+Type-checks sources and tests (`npm run typecheck`); it never emits. The last three module options before
+`skipLibCheck` are what let `node src/index.ts` run the source directly — see Configuration Rules in SKILL.md.
 
 ```json
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "module": "NodeNext",
     "lib": ["ES2022"],
     "types": ["node"],
     "strict": true,
@@ -63,7 +62,9 @@ Type-checks sources and tests (`npm run typecheck`); it never emits.
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
-    "esModuleInterop": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "rewriteRelativeImportExtensions": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
@@ -188,7 +189,7 @@ mkdir project-name && cd project-name
 npm init -y
 
 # Install TypeScript and build tools
-npm install -D typescript @types/node tsx
+npm install -D typescript @types/node
 
 # Install testing framework
 npm install -D vitest @vitest/coverage-v8

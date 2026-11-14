@@ -1,6 +1,6 @@
 {
   "name": "jeff-plugin-phaser",
-  "description": "Agents and skills for Phaser 3 browser game development with scene architecture, physics, spritesheets, tilemaps, and performance optimization.",
+  "description": "Agents and skills for Phaser 4 browser game development with scene architecture, physics, spritesheets, tilemaps, and performance optimization.",
   "version": "1.3.0",
   "author": {
     "name": "Jeff Baranski"

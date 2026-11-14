@@ -16,21 +16,22 @@ This is an opinionated view for how Go projects should be configured and maintai
    install.
 4. **Tests**: built-in `go test`, files alongside code (`handler.go` → `handler_test.go`), table-driven, run with
    `-race`, **80%+ coverage**.
-5. **Use the Makefile targets**, not ad-hoc commands. Run `make check` (format check, lint, coverage gate) before calling
+5. **Use the Makefile targets**, not ad-hoc commands. Run `make check` (format check, lint, coverage gate, `govulncheck`) before calling
    work done; it reports and fails, it never rewrites — `make fmt` rewrites.
-6. **CI**: workflow named `<project>-ci.yml`, `contents: read` only, checkout with `persist-credentials: false`, the
+6. **CI**: workflow named `<project>-ci.yml`, `contents: read` only, checkout with `persist-credentials: false`, every action pinned to a commit SHA, the
    Dependabot guard on every job, `paths:` scoped to the module directory in a monorepo. CI never sends code, coverage,
    or test output to third-party services.
 7. Never commit `vendor/` unless specifically required.
 8. **Verify versions with WebSearch rather than guessing**; the versions below go stale.
 
-Versions verified for this skill (October 2026) — keep all three in step:
+Versions verified for this skill (November 2026) — keep golangci-lint, its action and Go in step:
 
-| Tool                 | Version | Notes                                                                                       |
-| -------------------- | ------- | ------------------------------------------------------------------------------------------- |
-| Go                   | 1.27.2  | 1.26.9 is the previous supported release                                                    |
-| golangci-lint        | v2.14.0 | v2 config schema — v1 configs are rejected outright; released binaries built with Go 1.27.0 |
-| golangci-lint-action | v9      | v6 and below support golangci-lint v1 only                                                  |
+| Tool                 | Version | Notes                                                                             |
+| -------------------- | ------- | --------------------------------------------------------------------------------- |
+| Go                   | 1.27.2  | 1.26.9 is the previous supported release                                          |
+| golangci-lint        | v2.15.0 | v2 config schema — v1 configs are rejected outright                               |
+| golangci-lint-action | v9      | v6 and below support golangci-lint v1 only                                        |
+| govulncheck          | v1.9.0  | `go run golang.org/x/vuln/cmd/govulncheck@<version> ./...` in `make check` and CI |
 
 ## Layout
 

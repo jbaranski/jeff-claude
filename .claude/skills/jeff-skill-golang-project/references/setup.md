@@ -10,13 +10,13 @@ Before proceeding:
    - Verify installation: `go version`
 2. Install golangci-lint (**v2** — see the version note below):
    - macOS: `brew install golangci-lint`
-   - Linux: `curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.14.0`
+   - Linux: `curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.15.0`
    - Verify: `golangci-lint --version` — the output **must** start with `golangci-lint has version 2.`
 
    If you prefer `go install`, the module path must contain `/v2/`:
 
    ```bash
-   go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.14.0
+   go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0
    ```
 
    The v1 path (`github.com/golangci/golangci-lint/cmd/golangci-lint@latest`) still resolves — it
@@ -39,13 +39,13 @@ Before proceeding:
    - Ensure Go is updated to the latest stable version if needed
    - Verify rather than guess; versions in this skill go stale.
 
-   Versions verified for the examples in this skill (October 2026):
+   Versions verified for the examples in this skill (November 2026):
 
-   | Tool                 | Version | Notes                                                                                       |
-   | -------------------- | ------- | ------------------------------------------------------------------------------------------- |
-   | Go                   | 1.27.2  | 1.26.9 is the previous supported release                                                    |
-   | golangci-lint        | v2.14.0 | v2 config schema — v1 configs are rejected outright; released binaries built with Go 1.27.0 |
-   | golangci-lint-action | v9      | v6 and below support golangci-lint v1 only                                                  |
+   | Tool                 | Version | Notes                                               |
+   | -------------------- | ------- | --------------------------------------------------- |
+   | Go                   | 1.27.2  | 1.26.9 is the previous supported release            |
+   | golangci-lint        | v2.15.0 | v2 config schema — v1 configs are rejected outright |
+   | golangci-lint-action | v9      | v6 and below support golangci-lint v1 only          |
 
    Keep these three in step. `golangci-lint-action` v6 cannot run golangci-lint v2, and a
    golangci-lint binary built with an older Go than your `go.mod` targets refuses to run.

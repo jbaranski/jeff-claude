@@ -1,6 +1,6 @@
 # Tilemaps Reference
 
-Comprehensive guide for Phaser 3 tilemap integration with Tiled Map Editor.
+Comprehensive guide for Phaser 4 tilemap integration with Tiled Map Editor.
 
 ---
 

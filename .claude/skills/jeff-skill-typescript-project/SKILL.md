@@ -59,7 +59,17 @@ project-root/
 - TypeScript stays on `~6.0.x` until `typescript-eslint` supports 7.x — as of October 2026 its peer range is
   `>=4.8.4 <6.1.0`, while TypeScript 7.0 is the npm `latest`. Check `npm view typescript-eslint peerDependencies` before
   moving to 7.
-- `tsx` for development with hot reload; `tsc` for production builds.
+- **Node runs the TypeScript source directly** (type stripping is stable since Node 24.12), so there is no `tsx`:
+  `npm run dev` is `node --watch src/index.ts`; `tsc` builds `dist/` for production. This only works for code Node can
+  strip, which `tsconfig.json` enforces:
+  - `"module": "NodeNext"` — never `Bundler`/`ESNext` for code that runs in Node without a bundler. Bundler resolution
+    accepts extensionless relative imports that type-check and build cleanly, then crash at runtime with
+    `ERR_MODULE_NOT_FOUND`.
+  - Relative imports name the `.ts` file (`import { greet } from './lib/greet.ts'`);
+    `rewriteRelativeImportExtensions` turns them into `.js` in `dist/`.
+  - `erasableSyntaxOnly`: no `enum`, runtime `namespace`, parameter properties or `import =` — use `as const` objects
+    and plain constructor assignments.
+  - `verbatimModuleSyntax`: type-only imports use `import type` (or an inline `type` modifier), or Node fails on them.
 - Place `.nvmrc` (containing the current LTS major version from https://nodejs.org/en) at the repo root — nvm traverses
   up so one file covers all subprojects.
 - Place `.npmrc` containing `engine-strict=true` co-located with `package.json` — npm does not traverse up beyond the
@@ -81,7 +91,7 @@ project-root/
 
 ## CI
 
-Workflow named `<project>-ci.yml`, `contents: read` only, checkout with `persist-credentials: false`, the Dependabot
+Workflow named `<project>-ci.yml`, `contents: read` only, checkout with `persist-credentials: false`, every action pinned to a commit SHA (see the reference), the Dependabot
 guard on every job, `paths:` scoped to the project directory in a monorepo. It runs `npm ci`, typecheck, lint, format
 check, tests with coverage, and build.
 
