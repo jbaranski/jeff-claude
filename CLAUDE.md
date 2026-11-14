@@ -113,10 +113,6 @@ npx prettier --check .claude/agents/jeff-agent-{tech}-*.md .claude/skills/jeff-s
 
 Prettier config is in `.prettierrc.json` (printWidth: 120, singleQuote). The Makefile has `prettier-fix` and `prettier-check` targets.
 
-### 8. Do NOT create zips manually
-
-The `zip/` directory is auto-populated by the GitHub Actions workflow `.github/workflows/package-skills.yml` on every push to `main`. Never create, edit, or commit zip files manually.
-
 ---
 
 ## Mistakes Made When Adding jeff-plugin-phaser (Do Not Repeat)
@@ -143,11 +139,7 @@ Forgot to add the new plugin to `.claude-plugin/marketplace.json`. The plugin wo
 
 Forgot both the inspiration link and the `/plugin install` command in `README`. The README is the user-facing install reference — always update it.
 
-### Mistake 6: Manually created zip files
-
-Created zip files by hand in `zip/`. CI generates these automatically. Manual zips add noise and may conflict with CI output. Never touch the `zip/` directory.
-
-### Mistake 7: Didn't run Prettier before committing
+### Mistake 6: Didn't run Prettier before committing
 
 All 7 new phaser markdown files failed `prettier --check`. Run `npx prettier --write` on all new files before staging them, then verify with `--check`.
 
@@ -167,4 +159,3 @@ Before committing any new plugin work:
 - [ ] `.claude-plugin/marketplace.json` has the new plugin entry
 - [ ] `README` has the inspiration link (if applicable) and install command
 - [ ] `npx prettier --check` passes on all new/modified files
-- [ ] No zip files created or modified manually
