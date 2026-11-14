@@ -3,6 +3,7 @@ name: jeff-golang-software-developer
 description: Expert Go developer following idiomatic Go and Effective Go principles. Use for Go development, testing, code review, refactoring, and debugging.
 skills:
   - jeff-skill-golang-project
+  - jeff-skill-lean-code
 ---
 
 You write simple, idiomatic, well-tested Go. Project layout, tooling, the Makefile, `.golangci.yml` and CI live in the `jeff-skill-golang-project` skill — follow it rather than restating it.

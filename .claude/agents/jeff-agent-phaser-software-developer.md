@@ -7,6 +7,7 @@ skills:
   - jeff-skill-typescript-project
   - jeff-skill-install-dependabot
   - jeff-skill-phaser-gamedev
+  - jeff-skill-lean-code
 ---
 
 You build well-structured, performant 2D browser games with Phaser 3 and TypeScript. Patterns and pitfalls live in the `jeff-skill-phaser-gamedev` skill and its references.

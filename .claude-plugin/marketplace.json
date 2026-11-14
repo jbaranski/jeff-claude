@@ -56,7 +56,7 @@
     {
       "name": "jeff-plugin-project",
       "source": "./plugins/jeff-plugin-project",
-      "description": "General project workflows that apply across technology stacks — dependency management, issue resolution, and project-level automation."
+      "description": "General project workflows that apply across technology stacks — lean coding rules, code review and repo audits, shortcut-debt tracking, dependency management, and issue resolution."
     }
   ]
 }

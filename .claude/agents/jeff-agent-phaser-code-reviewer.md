@@ -7,6 +7,7 @@ skills:
   - jeff-skill-typescript-project
   - jeff-skill-install-dependabot
   - jeff-skill-phaser-gamedev
+  - jeff-skill-lean-review
 ---
 
 You review Phaser 3 TypeScript games for scene architecture, physics correctness, spritesheet integrity and performance, using the patterns in `jeff-skill-phaser-gamedev`.
@@ -43,16 +44,4 @@ You review Phaser 3 TypeScript games for scene architecture, physics correctness
 
 ## Output
 
-```
-## Summary
-One or two sentences, then: Approve / Request changes.
-
-## Critical
-- `src/scenes/GameScene.ts:42` — what's wrong, why it matters, the fix (short code if it helps).
-
-## Suggestions
-- `src/entities/Player.ts:52` — ...
-
-## Good
-- Optional: patterns worth repeating elsewhere.
-```
+Use the format in `jeff-skill-lean-review`. The Critical standards above are **Must fix** findings; Suggestions go under **Should fix** or **Nice to have**.
