@@ -64,9 +64,10 @@ dev = [
     "ruff>=0.17.0",
 ]
 
+# Keep the [build-system] block exactly as `uv init` generated it: uv_build, pinned to uv's own version range.
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=<uv-version>,<<next-uv-minor>>"]
+build-backend = "uv_build"
 
 [tool.ruff]
 line-length = 120
@@ -83,7 +84,7 @@ select = [
     "UP",  # pyupgrade
 ]
 
-[tool.pytest.ini_options]
+[tool.pytest]
 testpaths = ["tests"]
 addopts = [
     "--strict-markers",
@@ -96,6 +97,9 @@ addopts = [
 [tool.coverage.run]
 source = ["src"]
 ```
+
+`[tool.pytest]` is pytest 9's native TOML table: values keep their TOML types. Don't use the legacy
+`[tool.pytest.ini_options]` table (it reads every value as a string), and never both in one file — pytest rejects that.
 
 Dev tools live in `[dependency-groups]` (what `uv add --dev` writes); `uv sync` installs the `dev` group by default.
 
@@ -117,6 +121,7 @@ Create `.github/workflows/<project>-ci.yml`, named after the project (e.g. `api-
 - **Skip Dependabot-triggered runs** with the guard from `jeff-skill-install-dependabot`. If a job already has an `if:`, combine with `&&`, wrapping the existing condition in parentheses.
 - **Run steps in the project directory** with `defaults.run.working-directory`; omit it if the project is at the repo root.
 - **Least privilege:** `contents: read`, and checkout with `persist-credentials: false`.
+- **Pin every action to a commit SHA.** Each `uses:` is `owner/repo@<commit-sha> # <tag>`: replace `<commit-sha>` with the full commit the tag points to — `git ls-remote https://github.com/<owner>/<repo> 'refs/tags/<tag>^{}' refs/tags/<tag> | tail -1 | cut -f1` — and keep the tag comment. A tag can be moved to different code; a commit SHA can't. Dependabot's `github-actions` entry keeps both up to date.
 
 ```yaml
 name: <project>-ci
@@ -144,12 +149,12 @@ jobs:
       run:
         working-directory: <project-dir> # omit this whole `defaults:` block if the project is at repo root
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@<commit-sha> # v7.0.1
         with:
           persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v10
+        uses: astral-sh/setup-uv@<commit-sha> # v10.3.3
         with:
           enable-cache: true
 

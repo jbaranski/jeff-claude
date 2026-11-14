@@ -7,7 +7,7 @@ description: Integrate AWS Cognito authentication into a zoneless, signal-based 
 
 Authentication uses Cognito User Pools through the **hosted UI** with the OAuth 2.0 authorization code flow (Amplify adds PKCE automatically). There is no embedded login form and no `@aws-amplify/ui-angular`.
 
-The code below follows the Angular conventions in `jeff-skill-angular-project` and the Angular agents: standalone, zoneless, `inject()`, signals, lazy-loaded routes, Angular v20+ file naming (`sign-in.ts`, class `SignIn`).
+The code below follows the Angular conventions in `jeff-skill-angular-project` and the Angular agents: standalone, zoneless, `inject()`, signals, lazy-loaded routes, current CLI file naming (`auth.ts` / `Auth`, `auth-guard.ts`, `auth-interceptor.ts`), `@Service()` singletons and default `OnPush` change detection.
 
 ## Contract with the backend
 
@@ -89,14 +89,14 @@ bootstrapApplication(App, appConfig).catch((err) => console.error(err));
 
 ## Auth service
 
-**`src/app/auth/auth.service.ts`**
+**`src/app/auth/auth.ts`**
 
 ```typescript
-import { Injectable, signal } from '@angular/core';
+import { Service, signal } from '@angular/core';
 import { fetchAuthSession, signInWithRedirect, signOut } from 'aws-amplify/auth';
 
-@Injectable({ providedIn: 'root' })
-export class AuthService {
+@Service()
+export class Auth {
   readonly authenticated = signal(false);
 
   async isAuthenticated(): Promise<boolean> {
@@ -123,15 +123,15 @@ export class AuthService {
 
 ## Guard
 
-**`src/app/auth/auth.guard.ts`**
+**`src/app/auth/auth-guard.ts`**
 
 ```typescript
 import { inject } from '@angular/core';
 import { CanActivateFn } from '@angular/router';
-import { AuthService } from './auth.service';
+import { Auth } from './auth';
 
 export const authGuard: CanActivateFn = async () => {
-  const auth = inject(AuthService);
+  const auth = inject(Auth);
   if (await auth.isAuthenticated()) {
     return true;
   }
@@ -147,13 +147,12 @@ Cognito redirects to `/callback?code=...`. Wait for Amplify's `signInWithRedirec
 **`src/app/auth/callback.ts`**
 
 ```typescript
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Hub } from 'aws-amplify/utils';
 
 @Component({
   selector: 'app-callback',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (error()) {
       <p>Sign-in failed. <a href="/">Return home</a></p>
@@ -179,7 +178,7 @@ export class Callback {
 }
 ```
 
-A `/sign-in` route needs no component: protect a route with `authGuard` and link to it, or call `AuthService.signIn()` from a button.
+A `/sign-in` route needs no component: protect a route with `authGuard` and link to it, or call `Auth.signIn()` from a button.
 
 ## Routes
 
@@ -187,7 +186,7 @@ A `/sign-in` route needs no component: protect a route with `authGuard` and link
 
 ```typescript
 import { Routes } from '@angular/router';
-import { authGuard } from './auth/auth.guard';
+import { authGuard } from './auth/auth-guard';
 
 export const routes: Routes = [
   { path: '', loadComponent: () => import('./landing/landing').then((m) => m.Landing) },
@@ -205,20 +204,20 @@ Add `canActivate: [authGuard]` to every protected route.
 
 ## Attach the token to API calls
 
-**`src/app/auth/auth.interceptor.ts`**
+**`src/app/auth/auth-interceptor.ts`**
 
 ```typescript
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { from, switchMap } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { AuthService } from './auth.service';
+import { Auth } from './auth';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   if (!req.url.startsWith(environment.api)) {
     return next(req);
   }
-  const auth = inject(AuthService);
+  const auth = inject(Auth);
   return from(auth.idToken()).pipe(
     switchMap((token) => next(token ? req.clone({ setHeaders: { Authorization: token } }) : req))
   );
@@ -231,7 +230,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 import { ApplicationConfig } from '@angular/core';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
-import { authInterceptor } from './auth/auth.interceptor';
+import { authInterceptor } from './auth/auth-interceptor';
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {

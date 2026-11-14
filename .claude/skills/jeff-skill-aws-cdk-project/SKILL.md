@@ -130,7 +130,28 @@ All stack IDs, construct IDs and logical resource IDs are PascalCase: `'UsersTab
 
 ## Required CDK defaults
 
-**Removal policy** — `removalPolicy: cdk.RemovalPolicy.DESTROY` on every resource.
+**Removal policy** — `removalPolicy: cdk.RemovalPolicy.DESTROY` on every resource you create, so the intent is visible
+where each resource is defined. Then end every stack's constructor with `cdk.RemovalPolicies.of(this).destroy()`: L2
+constructs create child resources you never touch, and some default to `Retain` — a VPC's flow-log `LogGroup`, the S3
+bucket a CloudTrail `Trail` creates — and would be left behind by `cdk destroy`. Keep both; the one-liner is the safety
+net, not a replacement.
+
+```typescript
+export class MyAppStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    new dynamodb.Table(this, 'OrdersTable', {
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      removalPolicy: cdk.RemovalPolicy.DESTROY
+    });
+    // ... more constructs
+
+    // Last line: also covers resources that constructs create internally.
+    cdk.RemovalPolicies.of(this).destroy();
+  }
+}
+```
 
 **Log retention** — every log group is explicit, with `retention: logs.RetentionDays.FIVE_DAYS`; never unlimited. Give each Lambda its own `LogGroup` and pass it as `logGroup`.
 
@@ -213,6 +234,8 @@ describe('MyAppStack', () => {
 
 `.github/workflows/cdk.yml`: tests on every PR; tests then deploy on every push to `main`. Authenticate with GitHub OIDC and an IAM role (`AWS_DEPLOY_ROLE_ARN` secret) — never long-lived access keys. Apply the Dependabot guard from `jeff-skill-install-dependabot` to every job.
 
+**Pin every action to a commit SHA.** Each `uses:` is `owner/repo@<commit-sha> # <tag>`: replace `<commit-sha>` with the full commit the tag points to — `git ls-remote https://github.com/<owner>/<repo> 'refs/tags/<tag>^{}' refs/tags/<tag> | tail -1 | cut -f1` — and keep the tag comment. A tag can be moved to different code; a commit SHA can't. Dependabot's `github-actions` entry keeps both up to date.
+
 ```yaml
 name: cdk
 
@@ -239,10 +262,10 @@ jobs:
       run:
         working-directory: cdk
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@<commit-sha> # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@<commit-sha> # v7.1.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -264,15 +287,15 @@ jobs:
       run:
         working-directory: cdk
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@<commit-sha> # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@<commit-sha> # v7.1.0
         with:
           node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: cdk/package-lock.json
-      - uses: aws-actions/configure-aws-credentials@v6
+      - uses: aws-actions/configure-aws-credentials@<commit-sha> # v6.3.0
         with:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: us-east-1

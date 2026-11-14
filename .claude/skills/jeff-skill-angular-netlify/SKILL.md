@@ -100,9 +100,11 @@ build:
 	npm run update-csp
 
 # netlify-cli is NOT added as a devDependency — npx downloads it at deploy time.
+# --no-build: `make build` above already built the app and updated the CSP hashes. Without it,
+# netlify-cli (v21+) runs the build a second time before uploading.
 # Update --dir to match angular.json outputPath (typically dist/<app-name>/browser).
 deploy: build
-	npx netlify-cli deploy --prod --dir=dist/<app-name>/browser
+	npx netlify-cli deploy --prod --no-build --dir=dist/<app-name>/browser
 ```
 
 > If `lint`, `test`, or `build` targets already exist in the Makefile, only add the `deploy` target and update the `.PHONY` line.
@@ -114,6 +116,8 @@ deploy: build
 ### `.github/workflows/deploy-web.yml`
 
 Fill in `<app-directory>` and `<lockfile-path>` from Step 1. Add any additional environment secrets your app needs (e.g. API URLs, feature flags) alongside `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` in the Deploy step.
+
+**Pin every action to a commit SHA.** Each `uses:` is `owner/repo@<commit-sha> # <tag>`: replace `<commit-sha>` with the full commit the tag points to — `git ls-remote https://github.com/<owner>/<repo> 'refs/tags/<tag>^{}' refs/tags/<tag> | tail -1 | cut -f1` — and keep the tag comment. A tag can be moved to different code; a commit SHA can't. Dependabot's `github-actions` entry keeps both up to date.
 
 ```yaml
 name: deploy-web
@@ -142,9 +146,9 @@ jobs:
       run:
         working-directory: <app-directory>
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@<commit-sha> # v7.0.1
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@<commit-sha> # v7.1.0
         with:
           node-version-file: .nvmrc # repo root
           cache: npm
@@ -341,11 +345,11 @@ jobs:
       run:
         working-directory: <app-directory>
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@<commit-sha> # v7.0.1
         with:
           persist-credentials: false
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@<commit-sha> # v7.1.0
         with:
           node-version-file: .nvmrc
           cache: npm

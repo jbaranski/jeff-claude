@@ -1,8 +1,0 @@
-{
-  "name": "jeff-plugin-ansible",
-  "description": "Agents and skills for Ansible automation targeting Debian Linux and Docker, covering playbook design, role design, idempotency, error handling, and scheduled systemd timer jobs.",
-  "version": "2.1.0",
-  "author": {
-    "name": "Jeff Baranski"
-  }
-}

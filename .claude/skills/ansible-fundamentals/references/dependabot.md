@@ -34,6 +34,8 @@ and related packages managed by `uv`). It does **not** support Ansible Galaxy co
        schedule:
          interval: 'weekly'
        open-pull-requests-limit: 5
+       cooldown:
+         default-days: 7
        groups:
          github-actions:
            patterns: ['*']
@@ -43,12 +45,14 @@ and related packages managed by `uv`). It does **not** support Ansible Galaxy co
        schedule:
          interval: 'weekly'
        open-pull-requests-limit: 5
+       cooldown:
+         default-days: 7
        groups:
          ansible-tooling:
            patterns: ['*']
    ```
 
-   Every entry needs `groups:` and an explicit `open-pull-requests-limit` (see `jeff-skill-install-dependabot`, which also covers the CI guard every job needs).
+   Every entry needs `groups:`, an explicit `open-pull-requests-limit` and `cooldown` (see `jeff-skill-install-dependabot`, which also covers the CI guard every job needs).
 
    If `pyproject.toml` lives in an `ansible/` subdirectory instead:
 
@@ -60,6 +64,8 @@ and related packages managed by `uv`). It does **not** support Ansible Galaxy co
        schedule:
          interval: 'weekly'
        open-pull-requests-limit: 5
+       cooldown:
+         default-days: 7
        groups:
          github-actions:
            patterns: ['*']
@@ -69,6 +75,8 @@ and related packages managed by `uv`). It does **not** support Ansible Galaxy co
        schedule:
          interval: 'weekly'
        open-pull-requests-limit: 5
+       cooldown:
+         default-days: 7
        groups:
          ansible-tooling:
            patterns: ['*']

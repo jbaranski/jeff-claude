@@ -16,6 +16,11 @@ description: Install and configure Dependabot for automated dependency updates i
 - **`groups:` is mandatory.** `patterns: ['*']` puts all of the entry's updates in one PR (split by prefix or update type only if the project needs smaller review batches). Without it, Dependabot opens one PR per dependency — the main source of PR floods and wasted Actions minutes.
 - **`interval` is `weekly` at most** — never `daily`. Use `monthly` for low-churn directories (one-off scripts, archived tooling). If you can't tell a directory's churn, ask.
 - **`open-pull-requests-limit: 5`**, set explicitly.
+- **`cooldown: default-days: 7`**, set explicitly. Dependabot waits that many days after a release before proposing it, so
+  a compromised or broken release is usually caught and pulled before it reaches you. Without the key it waits 3 days.
+  Cooldown never delays security updates.
+- Directories that share an ecosystem and an interval may share one entry with `directories: ['/api', '/worker']`
+  (globs allowed) instead of `directory:`; keep separate entries when the interval differs.
 
 ```yaml
 version: 2
@@ -25,6 +30,8 @@ updates:
     schedule:
       interval: 'weekly'
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
     groups:
       github-actions:
         patterns: ['*']
@@ -34,6 +41,8 @@ updates:
     schedule:
       interval: 'weekly'
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
     groups:
       client-npm:
         patterns: ['*']
@@ -43,10 +52,29 @@ updates:
     schedule:
       interval: 'monthly'
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
     groups:
       backfill-npm:
         patterns: ['*']
 ```
+
+## Pin every action to a commit SHA
+
+A tag like `@v7` can be moved to point at different code; a commit SHA can't. Every `uses:` in every workflow is
+`owner/repo@<full commit sha> # <exact tag>`:
+
+```yaml
+- uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+```
+
+Get the commit for a tag (works for annotated and lightweight tags):
+
+```bash
+git ls-remote https://github.com/actions/checkout 'refs/tags/v7.0.1^{}' refs/tags/v7.0.1 | tail -1 | cut -f1
+```
+
+The `github-actions` entry above keeps the SHA and its tag comment up to date. Never pin to a short SHA.
 
 ## Guard every CI job
 

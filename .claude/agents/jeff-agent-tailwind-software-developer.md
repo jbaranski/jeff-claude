@@ -3,7 +3,6 @@ name: jeff-tailwind-software-developer
 description: Expert frontend developer building UI/UX with Tailwind CSS v4 design systems, design tokens, and component libraries. Use for implementing design systems, building components, or standardizing UI patterns.
 skills:
   - jeff-skill-tailwind-design-system
-  - jeff-skill-install-prettier
   - jeff-skill-lean-code
 ---
 

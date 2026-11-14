@@ -1,6 +1,7 @@
 ---
 name: jeff-ansible-code-reviewer
 description: Expert Ansible code reviewer for Debian/Docker infrastructure. Use for reviewing playbooks, roles, and tasks for correctness, idempotency, and best practices.
+tools: Read, Grep, Glob, Bash, Skill
 skills:
   - ansible-fundamentals
   - jeff-skill-lean-review

@@ -15,8 +15,9 @@ Every script must start with this exact header. No exceptions.
 set -euo pipefail
 IFS=$'\n\t'
 
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
+readonly SCRIPT_DIR SCRIPT_NAME
 ```
 
 - `set -e` — exit on error
@@ -24,6 +25,7 @@ readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
 - `set -o pipefail` — pipe failures propagate (without this `false | true` exits 0)
 - `IFS=$'\n\t'` — prevent word splitting on spaces
 - `BASH_SOURCE[0]` — correct script dir even when sourced or called via symlink
+- Assign, then mark `readonly` — `readonly VAR="$(cmd)"` hides a failing `cmd` from `set -e` (ShellCheck SC2155)
 
 ## Trap Cleanup
 
@@ -154,3 +156,16 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   main "$@"
 fi
 ```
+
+## Verify Before Calling It Done
+
+Every script must pass both, with no output:
+
+```bash
+shellcheck -x script.sh       # -x follows `source`d files
+shfmt -d -i 2 -ci script.sh   # -d shows the diff; rewrite with -w
+```
+
+Install with `brew install shellcheck shfmt` (macOS) or `sudo apt-get install shellcheck shfmt` (Debian/Ubuntu).
+Fix ShellCheck findings rather than silencing them. A `# shellcheck disable=SCxxxx` directive is allowed only on the
+single line that needs it, with a comment saying why the warning is wrong there.

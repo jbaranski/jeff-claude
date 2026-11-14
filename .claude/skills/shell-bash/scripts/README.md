@@ -8,8 +8,9 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
+readonly SCRIPT_DIR SCRIPT_NAME
 
 # shellcheck source=common-utils.sh
 source "${SCRIPT_DIR}/common-utils.sh"

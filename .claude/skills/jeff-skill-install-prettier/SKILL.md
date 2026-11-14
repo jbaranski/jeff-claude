@@ -59,11 +59,14 @@ This override is part of the Angular config, not an exception to the "never add 
 
 ## Prettier Version
 
-Add prettier as a dev dependency at the latest stable version:
+Add prettier as a dev dependency at the latest stable version (3.10.1 as of November 2026):
 
 ```bash
 npm install --save-dev prettier@latest
 ```
+
+`latest` is always a stable release. Never install `prettier@next` or a `4.0.0-alpha.*` version — Prettier 4 is still in
+alpha. Check with `npm view prettier dist-tags`.
 
 ## npm Scripts
 
