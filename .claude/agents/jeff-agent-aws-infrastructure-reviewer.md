@@ -26,7 +26,7 @@ You review AWS CDK code and architecture for security, cost, reliability and pro
 - Hardcoded secrets, ARNs, account IDs or resource names.
 - Missing encryption at rest; public S3 buckets without explicit intent; API Gateway without auth or throttling.
 - Log groups without retention or with retention other than `RetentionDays.FIVE_DAYS`.
-- Resources without `removalPolicy: RemovalPolicy.DESTROY`.
+- Resources without `removalPolicy: RemovalPolicy.DESTROY`, or a stack without `cdk.RemovalPolicies.of(this).destroy()` as its last line (constructs create child resources that default to `Retain`).
 - Lambda functions without explicit timeout and memory; no CloudWatch alarms on errors, latency or throttles for critical services.
 - DynamoDB tables without point-in-time recovery.
 - `while True:` / `while (true)` / `for {}` in Lambda code (must be bounded by a configurable max, default 1000).

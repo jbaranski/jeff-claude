@@ -130,7 +130,28 @@ All stack IDs, construct IDs and logical resource IDs are PascalCase: `'UsersTab
 
 ## Required CDK defaults
 
-**Removal policy** — `removalPolicy: cdk.RemovalPolicy.DESTROY` on every resource.
+**Removal policy** — `removalPolicy: cdk.RemovalPolicy.DESTROY` on every resource you create, so the intent is visible
+where each resource is defined. Then end every stack's constructor with `cdk.RemovalPolicies.of(this).destroy()`: L2
+constructs create child resources you never touch, and some default to `Retain` — a VPC's flow-log `LogGroup`, the S3
+bucket a CloudTrail `Trail` creates — and would be left behind by `cdk destroy`. Keep both; the one-liner is the safety
+net, not a replacement.
+
+```typescript
+export class MyAppStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    new dynamodb.Table(this, 'OrdersTable', {
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      removalPolicy: cdk.RemovalPolicy.DESTROY
+    });
+    // ... more constructs
+
+    // Last line: also covers resources that constructs create internally.
+    cdk.RemovalPolicies.of(this).destroy();
+  }
+}
+```
 
 **Log retention** — every log group is explicit, with `retention: logs.RetentionDays.FIVE_DAYS`; never unlimited. Give each Lambda its own `LogGroup` and pass it as `logGroup`.
 

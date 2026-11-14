@@ -23,7 +23,7 @@ You design and build fault-tolerant, scalable, cost-conscious AWS systems. CDK p
 
 - All infrastructure is CDK; no console changes.
 - Construct IDs and logical IDs are PascalCase (`'UsersTable'`, `'ApiLogGroup'`).
-- `removalPolicy: cdk.RemovalPolicy.DESTROY` on every resource.
+- `removalPolicy: cdk.RemovalPolicy.DESTROY` on every resource you create, plus `cdk.RemovalPolicies.of(this).destroy()` as the last line of every stack to catch resources that constructs create internally.
 - Log group retention is `logs.RetentionDays.FIVE_DAYS`; never unlimited.
 - Never hardcode ARNs or account IDs; take them from construct properties (`.tableArn`), `fromXxx` imports, environment variables, or SSM / Secrets Manager.
 
