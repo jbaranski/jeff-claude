@@ -29,6 +29,7 @@ Work through every item before committing. Missing any one of these caused multi
 - Write only what the model wouldn't do by default: your opinions, thresholds, tool choices, and gotchas. Don't restate language tutorials or generic best practices
 - Every skill in an agent's `skills:` list is loaded **in full** into the agent's context each time it starts. Keep the list short — usually one core skill — and keep that SKILL.md small
 - Agents don't set `model:`; they inherit the session's model
+- Every software-developer agent also lists `jeff-skill-lean-code`, and every reviewer lists `jeff-skill-lean-review`. Reviewers keep their stack-specific checks but end with a short `## Output` section that defers to `jeff-skill-lean-review` and maps Critical → Must fix, Suggestions → Should fix / Nice to have
 
 ### 2. Create canonical skill directory in `.claude/skills/`
 
@@ -49,6 +50,8 @@ plugins/jeff-plugin-{tech}/
     jeff-agent-{tech}-code-reviewer.md       ← symlink
   skills/
     jeff-skill-{tech}-{what}                 ← symlink
+    jeff-skill-lean-code                     ← symlink (always)
+    jeff-skill-lean-review                   ← symlink (always)
     jeff-skill-install-nodejs                ← symlink (if agents need it)
     jeff-skill-install-prettier              ← symlink (if agents need it)
     jeff-skill-typescript-project            ← symlink (if agents need it)

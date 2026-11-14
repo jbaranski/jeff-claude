@@ -8,6 +8,7 @@ Inspired by (and some content copied from):
 - https://github.com/wshobson/agents/tree/main/plugins/frontend-mobile-development/skills/tailwind-design-system
 - https://github.com/miles990/claude-software-skills/tree/main/programming-languages/shell-bash
 - https://github.com/chongdashu/phaserjs-oakwoods/tree/main/.claude/skills/phaser-gamedev
+- https://github.com/DietrichGebert/ponytail/tree/main/skills
 
 To install or use the plugins:
 /plugin marketplace add jbaranski/jeff-claude

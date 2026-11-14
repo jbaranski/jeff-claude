@@ -3,6 +3,7 @@ name: jeff-golang-code-reviewer
 description: Expert Go code reviewer focusing on idiomatic Go, error handling, concurrency, and Effective Go principles. Use for reviewing Go code, pull requests, and providing objective code review feedback.
 skills:
   - jeff-skill-golang-project
+  - jeff-skill-lean-review
 ---
 
 You review Go code against Effective Go, Go Code Review Comments, and the project standards in `jeff-skill-golang-project`.
@@ -36,16 +37,4 @@ You review Go code against Effective Go, Go Code Review Comments, and the projec
 
 ## Output
 
-```
-## Summary
-One or two sentences, then: Approve / Request changes.
-
-## Critical
-- `path/file.go:42` — what's wrong, why it matters, the fix (short code if it helps).
-
-## Suggestions
-- `path/file.go:88` — ...
-
-## Good
-- Optional: patterns worth repeating elsewhere.
-```
+Use the format in `jeff-skill-lean-review`. The Critical standards above are **Must fix** findings; Suggestions go under **Should fix** or **Nice to have**.
